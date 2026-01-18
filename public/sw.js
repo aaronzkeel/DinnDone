@@ -1,7 +1,7 @@
 // Dinner Bell Service Worker
 // Basic PWA service worker for offline support
 
-const CACHE_NAME = 'dinner-bell-v1';
+const CACHE_NAME = 'dinner-bell-v2';
 const OFFLINE_URL = '/offline.html';
 
 // Assets to cache on install
@@ -10,6 +10,11 @@ const PRECACHE_ASSETS = [
   '/manifest.json',
   '/icons/icon-192x192.png',
   '/icons/icon-512x512.png',
+  '/offline.html',
+  '/grocery-list',
+  '/weekly-planning',
+  '/meal-helper',
+  '/notifications',
 ];
 
 // Install event - cache essential assets
