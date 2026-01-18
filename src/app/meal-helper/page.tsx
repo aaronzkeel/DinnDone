@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { MealHelperHome } from "@/components/meal-helper";
+import { MealHelperHome, MealOptionDetails } from "@/components/meal-helper";
 import { RequireAuth } from "@/components/RequireAuth";
 import type {
   HouseholdMember,
@@ -44,17 +44,16 @@ const sampleTonightMeal: PlannedMealSummary = {
   assignedCookId: "2",
 };
 
+// View states for the meal helper page
+type ViewState = "home" | "meal-details";
+
 export default function MealHelperPage() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [currentView, setCurrentView] = useState<ViewState>("home");
 
   const handleThisWorks = () => {
-    const newMessage: ChatMessage = {
-      id: Date.now().toString(),
-      role: "zylo",
-      content: "Great choice! Chicken Stir Fry it is. Katie's on cooking duty tonight. Need the recipe or shopping list?",
-      timestamp: new Date().toISOString(),
-    };
-    setMessages((prev) => [...prev, newMessage]);
+    // Open MealOptionDetails screen when "This works" is tapped
+    setCurrentView("meal-details");
   };
 
   const handleNewPlan = () => {
@@ -113,6 +112,60 @@ export default function MealHelperPage() {
     console.log("Voice input triggered");
     // TODO: Implement voice input
   };
+
+  const handleBack = () => {
+    setCurrentView("home");
+  };
+
+  const handleCookThis = () => {
+    // Add confirmation message and return to home view
+    const newMessage: ChatMessage = {
+      id: Date.now().toString(),
+      role: "zylo",
+      content: "Great choice! Chicken Stir Fry it is. Katie's on cooking duty tonight. Need the recipe or shopping list?",
+      timestamp: new Date().toISOString(),
+    };
+    setMessages((prev) => [...prev, newMessage]);
+    setCurrentView("home");
+  };
+
+  const handleIngredientCheck = (response: "yes" | "not-sure" | "no") => {
+    let message = "";
+    switch (response) {
+      case "yes":
+        message = "Perfect! You're all set. Let me know if you need the recipe steps.";
+        break;
+      case "not-sure":
+        message = "No worries! Let's do a quick pantry check. I'll walk you through the ingredients.";
+        break;
+      case "no":
+        message = "Got it! I'll add the missing ingredients to your grocery list. Would you like me to check what you need?";
+        break;
+    }
+    const newMessage: ChatMessage = {
+      id: Date.now().toString(),
+      role: "zylo",
+      content: message,
+      timestamp: new Date().toISOString(),
+    };
+    setMessages((prev) => [...prev, newMessage]);
+    setCurrentView("home");
+  };
+
+  // Render MealOptionDetails when "This works" is clicked
+  if (currentView === "meal-details") {
+    return (
+      <RequireAuth>
+        <MealOptionDetails
+          meal={sampleTonightMeal}
+          householdMembers={sampleHouseholdMembers}
+          onBack={handleBack}
+          onCookThis={handleCookThis}
+          onIngredientCheck={handleIngredientCheck}
+        />
+      </RequireAuth>
+    );
+  }
 
   return (
     <RequireAuth>
