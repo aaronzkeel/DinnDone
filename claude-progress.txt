@@ -1,5 +1,32 @@
 # Dinner Bell - Claude Progress Notes
 
+## Session: 2026-01-18 (Coding Agent - Feature #114)
+
+### Feature:
+- Feature #114: Day cards display for all 7 days
+
+### Verification Results:
+- ✅ Step 1: View week plan - Navigated to /weekly-planning
+- ✅ Step 2: Count day cards - Found 7 day cards in week view
+- ✅ Step 3: Verify 7 cards from Monday-Sunday:
+  - Mon 15 - Sheet Pan Salmon & Asparagus
+  - Tue 16 - Taco Tuesday
+  - Wed 17 - Mom's Chicken Stir Fry
+  - Thu 18 - Turkey Spinach Skillet
+  - Fri 19 - Pizza Night
+  - Sat 20 - Grilled Salmon Burgers
+  - Sun 21 - Slow Cooker Pot Roast
+- ✅ Verified "Next Week" tab also shows 7 days (Mon 22 - Sun 28)
+- ✅ No console errors
+- ✅ TypeScript compiles without errors
+- ✅ ESLint passes (only warnings in generated/design files)
+- ✅ Screenshots captured: feature-114-day-cards-all-7-days.png, feature-114-next-week-7-days.png
+
+### Status: Feature #114 marked as PASSING
+- Current progress: 19/200 features passing (9.5%)
+
+---
+
 ## Session: 2025-01-18 - Feature #15 Dark Mode Toggle
 
 ### Completed
@@ -720,3 +747,20 @@ Updated `convex/schema.ts` with all required entities:
 ### Status: Feature #65 marked as PASSING
 - Current progress: 16/200 features passing (8.0%)
 
+[Testing] Feature #65 verified - still passing (regression test)
+
+## Session: 2026-01-18 16:58 (Regression Test - Feature #15)
+
+### Feature Tested:
+- Feature #15: Dark mode toggles correctly
+
+### Verification Results:
+- ✅ Step 1: Theme toggle accessible in header (System → Light → Dark cycle)
+- ✅ Step 2: Dark mode uses dark brown/chocolate palette with good text contrast
+- ✅ Step 3: Light mode uses cream Harvest Hug palette - colors change correctly
+- ✅ Full cycle works: System (light) → Light → Dark → System (light)
+- ✅ No console errors
+- ✅ Screenshots: regression-test-feature-15-light-mode.png, regression-test-feature-15-dark-mode.png, regression-test-feature-15-back-to-light.png
+
+### Status: STILL PASSING - No regression found
+[Testing] Feature #15 verified - still passing
