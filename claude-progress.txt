@@ -1,5 +1,31 @@
 # Dinner Bell - Claude Progress Notes
 
+## Session: 2026-01-18 (Coding Agent - Feature #88)
+
+### Feature:
+- Feature #88: Chat with Zylo available
+
+### Verification Results:
+- ✅ Step 1: Find chat input on Meal Helper - Found textbox with placeholder "Ask Zylo anything..."
+- ✅ Step 2: Verify Zylo greeting or prompt displays - Found: "Hey Aaron. Want to stick with tonight's plan or adjust it?"
+- ✅ Step 3: Verify text input is available - Can type messages, send button enables when text entered
+- ✅ Voice input button present (microphone icon)
+- ✅ Send button present (paper airplane icon)
+- ✅ No console errors
+- ✅ Screenshots captured: feature-88-chat-interface-initial.png, feature-88-chat-full-view.png, feature-88-chat-input-typed.png
+
+### Technical Notes:
+- MealHelperHome component uses ChatInput component for text/voice input
+- Zylo greeting displays when messages array is empty
+- ChatInput has: voice button, text input, send button
+- Send button disabled when input is empty, enabled when text present
+- Feature was already fully implemented - just needed verification
+
+### Status: Feature #88 marked as PASSING
+- Current progress: 20/200 features passing (10.0%)
+
+---
+
 ## Session: 2026-01-18 (Coding Agent - Feature #156)
 
 ### Feature:
@@ -875,3 +901,38 @@ Updated `convex/schema.ts` with all required entities:
 
 ### Status: STILL PASSING - No regression found
 [Testing] Feature #5 verified - still passing
+
+## Session: 2026-01-18 17:01 (Regression Test - Feature #25)
+
+### Feature Tested:
+- Feature #25: User can add grocery item
+
+### Verification Results:
+- ✅ Step 1: Found '+ Add item' button in Meijer section
+- ✅ Step 2: Typed 'TEST_REGRESSION_ITEM_123' and pressed Enter
+- ✅ Step 3: Item appeared in Meijer list with name and quantity '1'
+- ✅ Meijer item count increased from 3 to 4
+- ✅ No console errors
+- ✅ Screenshot: regression-test-feature-25-add-item.png
+- ✅ Test item cleaned up (deleted after verification)
+
+### Status: STILL PASSING - No regression found
+[Testing] Feature #25 verified - still passing
+
+## Session: 2026-01-18 (Regression Test - Feature #12)
+
+### Feature Tested:
+- Feature #12: Tab navigation switches views
+
+### Verification Results:
+- ✅ Step 1: Tapped Plan tab from Home page
+- ✅ Step 2: Verified /weekly-planning route loads - Weekly planning page with day cards displayed
+- ✅ Step 3: Tapped List tab, verified /grocery-list loads - Grocery list with store sections displayed
+- ✅ Bonus: Also tested Home tab (back to /) and Alerts tab (/notifications) - both work correctly
+- ✅ All 4 tabs navigate to correct routes: Home (/), Plan (/weekly-planning), List (/grocery-list), Alerts (/notifications)
+- ✅ Active tab state shown correctly in bottom navigation
+- ✅ No console errors (only themeColor metadata warnings)
+- ✅ Screenshot: regression-test-feature-12-grocery-list.png
+
+### Status: STILL PASSING - No regression found
+[Testing] Feature #12 verified - still passing
