@@ -1,5 +1,48 @@
 # Dinner Bell - Claude Progress Notes
 
+## Session: 2026-01-18 (Coding Agent - Feature #118)
+
+### Feature:
+- Feature #118: Tapping day card opens edit modal
+
+### What was verified:
+The feature was already implemented (EditDayModal component existed, wired up in weekly-planning page). This session verified it works correctly end-to-end.
+
+### Components involved:
+1. **EditDayModal** (`src/components/weekly-planning/EditDayModal.tsx`)
+   - Shows "Edit Day" header with close button
+   - "Current Meal" section with meal name, time, cook, eaters count
+   - "Change Cook" section with household member buttons
+   - "Who's Eating" section with toggle buttons for each member
+   - "Swap with Alternative" section with meal alternatives
+   - "More options" and "I'll figure it out" action buttons
+
+2. **Weekly Planning Page** (`src/app/weekly-planning/page.tsx`)
+   - Modal state management (isModalOpen, selectedMeal)
+   - handleSelectMeal opens modal with correct meal data
+   - handleCloseModal closes modal and resets state
+   - Handler stubs for cook change, eater toggle, alternatives, etc.
+
+### Verification Results:
+- ✅ Step 1: Tap a day card (tested "Taco Tuesday" and "Slow Cooker Pot Roast")
+- ✅ Step 2: Verify modal opens - EditDayModal appears with semi-transparent backdrop
+- ✅ Step 3: Verify current meal info displays in modal:
+  - Meal name: "Taco Tuesday" / "Slow Cooker Pot Roast" ✅
+  - Time: 25m / 505m (correct calculation of prep + cook) ✅
+  - Cook: Katie ✅
+  - Eaters: "5 eating" / "4 eating" ✅
+  - Effort tier dots display correctly ✅
+- ✅ Close button dismisses modal
+- ✅ No console errors
+- ✅ Screenshots:
+  - feature-118-edit-day-modal-open.png
+  - feature-118-edit-day-modal-pot-roast.png
+
+### Status: Feature #118 marked as PASSING
+- Current progress: 25/200 features passing (12.5%)
+
+---
+
 ## Session: 2026-01-18 (Coding Agent - Feature #16)
 
 ### Feature:
