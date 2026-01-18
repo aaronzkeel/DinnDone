@@ -154,23 +154,28 @@ export function GroceryListItem({
         </div>
       )}
 
-      {/* Checkbox */}
+      {/* Checkbox - 44px touch target for accessibility */}
       <button
         onClick={onToggle}
         className={`
-          flex-shrink-0 w-6 h-6 rounded-full border-2
+          flex-shrink-0 w-11 h-11 -m-2
           flex items-center justify-center
           transition-all duration-150
+        `}
+        aria-label={item.isChecked ? 'Uncheck item' : 'Check item'}
+      >
+        <span className={`
+          w-6 h-6 rounded-full border-2
+          flex items-center justify-center
           ${item.isChecked
             ? 'bg-yellow-500 border-yellow-500 dark:bg-yellow-600 dark:border-yellow-600'
             : 'border-stone-300 dark:border-stone-600 hover:border-yellow-400 dark:hover:border-yellow-500'
           }
-        `}
-        aria-label={item.isChecked ? 'Uncheck item' : 'Check item'}
-      >
-        {item.isChecked && (
-          <Check size={14} className="text-white" strokeWidth={3} />
-        )}
+        `}>
+          {item.isChecked && (
+            <Check size={14} className="text-white" strokeWidth={3} />
+          )}
+        </span>
       </button>
 
       {/* Item details */}
@@ -265,11 +270,12 @@ export function GroceryListItem({
 
       </div>
 
-      {/* Delete button (visible on hover/focus) */}
+      {/* Delete button - 44px touch target for accessibility */}
       <button
         onClick={onDelete}
         className="
-          flex-shrink-0 p-1.5 rounded-md
+          flex-shrink-0 w-11 h-11 -m-2 rounded-md
+          flex items-center justify-center
           text-stone-400 dark:text-stone-500
           opacity-0 group-hover:opacity-100 focus:opacity-100
           hover:bg-stone-100 dark:hover:bg-stone-700
