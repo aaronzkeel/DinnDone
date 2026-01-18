@@ -1,5 +1,35 @@
 # Dinner Bell - Claude Progress Notes
 
+## Session: 2026-01-18 (Coding Agent - Feature #160)
+
+### Feature:
+- Feature #160: Pending notification shows action buttons
+
+### Verification Results:
+- ✅ Step 1: View pending notification - Two pending notifications displayed in "NEEDS ATTENTION" section
+- ✅ Step 2: Verify action buttons display - Both pending notifications show action buttons
+- ✅ Step 3: Verify primary and secondary actions visible:
+  - Primary buttons (gold/highlighted color): "View Plan", "Already done"
+  - Secondary buttons (gray/subtle color): "Got it", "Remind me later"
+- ✅ Action buttons work - Clicking "Got it" moved notification to "EARLIER" with checkmark
+- ✅ No console errors
+
+### Implementation (already existed):
+- `src/components/notifications/NotificationCard.tsx` correctly implements:
+  - Action buttons render only for pending notifications (lines 109-126)
+  - Primary actions use `var(--color-primary)` with white text
+  - Secondary actions use `var(--color-border)` with text color
+  - Buttons trigger `onAction` callback with action ID
+
+### Screenshots:
+- feature-160-pending-notification-action-buttons.png
+- feature-160-action-button-clicked.png
+
+### Status: Feature #160 marked as PASSING
+- Current progress: 36/200 features passing (18.0%)
+
+---
+
 ## Session: 2026-01-18 (Coding Agent - Feature #13)
 
 ### Feature:
@@ -1503,3 +1533,21 @@ The feature was already mostly implemented. The key components existed:
 
 ### Status: Feature #164 marked as PASSING
 - Current progress: 32/200 features passing (16.0%)
+
+## Session: 2026-01-18 (Regression Test - Feature #9)
+
+### Feature Tested:
+- Feature #9: HouseholdMember seeded for Zink family
+
+### Verification Results:
+- ✅ Step 1: Query HouseholdMember table - Data loaded from Convex database
+- ✅ Step 2: Verify 5 members exist - Confirmed: 5/5 members
+  - Aaron, Katie, Lizzie, Ethan, Elijah
+- ✅ Step 3: Verify Aaron and Katie are admins, kids are viewers:
+  - Admins (2): Aaron, Katie ✓
+  - Viewers (3): Lizzie, Ethan, Elijah ✓
+- ✅ No console errors
+- ✅ Screenshot: regression-test-feature-9-household-members.png
+
+### Status: STILL PASSING - No regression found
+[Testing] Feature #9 verified - still passing
