@@ -268,3 +268,51 @@
 
 ### Status: Feature #12 marked as PASSING
 - Current progress: 9/200 features passing (4.5%)
+
+## Session: 2026-01-18 (Regression Test - Feature #2)
+
+### Feature Tested:
+- Feature #2: Google Fonts loaded (Lora + Plus Jakarta Sans)
+
+### Verification Results:
+- ✅ Step 1: Fonts imported via next/font in layout.tsx
+- ✅ Step 2: Lora renders for headings - computed: 'Lora, "Lora Fallback"'
+- ✅ Step 3: Plus Jakarta Sans renders for body - computed: '"Plus Jakarta Sans", "Plus Jakarta Sans Fallback"'
+- ✅ No console errors
+- ✅ Screenshot captured: regression-test-feature-2-fonts.png
+
+### Status: STILL PASSING - No regression found
+[Testing] Feature #2 verified - still passing
+
+## Session: 2026-01-18 ~17:25 (Coding Agent - Feature #4)
+
+### Feature:
+- Feature #4: Convex schema defines all core entities
+
+### What was implemented:
+Updated `convex/schema.ts` with all required entities:
+
+1. **householdMembers** - people in the household with admin/dietary preferences
+2. **stores** - shopping locations with name and color
+3. **weekPlans** - 7-day meal plans with status tracking
+4. **plannedMeals** - meals on specific dates with cook, eaters, ingredients
+5. **recipes** - reusable meal templates
+6. **groceryItems** - shopping list items with store, category, checked status
+7. **pantryItems** - current inventory (fridge/freezer/pantry)
+8. **notifications** - nudges with type, status, and actions
+9. **notificationPreferences** - per-user settings with quiet hours, fandom voice
+
+### Technical Details:
+- Reusable validators for enums (effortTier, cleanupRating, weekPlanStatus, etc.)
+- Proper foreign key relationships via v.id() references
+- Useful indexes for common queries (by_user, by_date, by_store, etc.)
+- All types match product-plan/data-model/types.ts
+
+### Verification Results:
+- ✅ Step 1: convex/schema.ts exists
+- ✅ Step 2: All 7 required entities defined (plus 3 more)
+- ✅ Step 3: `npx convex dev --once` syncs successfully
+- ✅ Linter passes on src/ and convex/
+
+### Status: Feature #4 marked as PASSING
+- Current progress: 10/200 features passing (5.0%)
