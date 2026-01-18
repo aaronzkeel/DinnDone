@@ -382,3 +382,62 @@ Updated `convex/schema.ts` with all required entities:
 ### Status: Feature #10 marked as PASSING
 - Current progress: 10/200 features passing (5.0%)
 - Session ending cleanly
+
+## Session: 2026-01-18 16:47 (Regression Test - Feature #3)
+
+### Feature Tested:
+- Feature #3: Convex backend connected
+
+### Verification Results:
+- ✅ Step 1: ConvexClientProvider wraps app in layout.tsx (lines 37-41)
+- ✅ Step 2: NEXT_PUBLIC_CONVEX_URL set to https://basic-condor-768.convex.cloud
+- ✅ Step 3: No connection errors in console (only HMR/React info logs)
+- ✅ Network requests all succeed (200 OK)
+
+### Status: STILL PASSING - No regression found
+[Testing] Feature #3 verified - still passing
+
+## Session: 2026-01-18 16:47 (Regression Test - Feature #15)
+
+### Feature Tested:
+- Feature #15: Dark mode toggles correctly
+
+### Verification Results:
+- ✅ Step 1: Toggle cycles through System → Light → Dark modes
+- ✅ Step 2: Dark mode applies dark brown background with adjusted UI elements
+- ✅ Step 3: Toggling back to light mode restores warm beige 'Harvest Hug' palette
+- ✅ No console errors
+- ✅ Screenshots captured: regression-test-feature-15-*.png
+
+### Status: STILL PASSING - No regression found
+[Testing] Feature #15 verified - still passing
+
+
+## Session: 2026-01-18 (Coding Agent - Feature #19)
+
+### Feature:
+- Feature #19: OpenRouter API connection works
+
+### What was implemented:
+1. **convex/ai.ts** - OpenRouter integration with two actions:
+   - `testConnection`: Tests API connectivity, returns success/model/response preview
+   - `chat`: Generic chat action for Zylo conversations
+   - Uses Gemini 2.0 Flash model via OpenRouter
+   - Proper error handling for missing API key, API errors, empty responses
+
+2. **src/app/test-openrouter/page.tsx** - Test page for verification:
+   - Button to trigger testConnection action
+   - Displays success/failure status, model name, AI response
+   - Styled with Harvest Hug palette
+
+### Verification Results:
+- ✅ Step 1: Test Convex action calls OpenRouter (testConnection action exists)
+- ✅ Step 2: OPENROUTER_API_KEY is set in .env.local
+- ✅ Step 3: Response received from Gemini (model: google/gemini-2.0-flash-001)
+- ✅ AI responded: "Hey there! This is Zylo, ready to help you plan some delicious meals. Let's get started!"
+- ✅ No console errors
+- ✅ Screenshot captured: feature-19-openrouter-api-test-success.png
+
+### Status: Feature #19 marked as PASSING
+- Current progress: 12/200 features passing (6.0%)
+
