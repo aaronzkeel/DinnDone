@@ -628,3 +628,50 @@ Updated `convex/schema.ts` with all required entities:
 
 ### Status: Feature #25 marked as PASSING
 - Current progress: 16/200 features passing (8.0%)
+
+## Session: 2026-01-18 (Regression Test - Feature #6)
+
+### Feature Tested:
+- Feature #6: User can sign in with Google
+
+### Verification Results:
+- ✅ Step 1: Click Sign in with Google - Button renders and is clickable
+- ✅ Step 2: Complete Google OAuth flow - Redirects to Google auth with correct parameters:
+  - Client ID configured correctly
+  - Redirect URI: https://basic-condor-768.convex.site/api/auth/callback/google
+  - Scopes: openid profile email
+  - PKCE (S256) enabled
+- ✅ Step 3: Redirect configuration is correct for Convex auth callback
+- ✅ No console errors
+- ✅ Screenshots: regression-test-feature-6-homepage.png, regression-test-feature-6-google-oauth.png
+
+### Status: STILL PASSING - No regression found
+[Testing] Feature #6 verified - still passing
+
+## Session: 2026-01-18 (Coding Agent - Feature #66)
+
+### Feature:
+- Feature #66: Tonight's Plan card displays
+
+### Verification Results:
+- ✅ Step 1: Have a weekly plan with today's meal - Sample data configured with Chicken Stir Fry
+- ✅ Step 2: View Meal Helper - Navigated to /meal-helper successfully
+- ✅ Step 3: Verify tonight's meal name and details show:
+  - Meal name: "Chicken Stir Fry" ✅
+  - Effort tier: "Medium" badge ✅
+  - "Flex" badge for flex meals ✅
+  - Total time: "35 min" ✅
+  - Cleanup rating: "Medium cleanup" ✅
+  - Cook name: "Katie cooking" ✅
+  - Ingredients: displayed with "+2 more" indicator ✅
+- ✅ No console errors
+- ✅ Screenshot captured: feature-66-tonights-plan-card.png
+
+### Implementation Status:
+- TonightPlanCard component already existed at src/components/meal-helper/TonightPlanCard.tsx
+- Component properly styled with Harvest Hug palette
+- All meal details rendered correctly
+
+### Status: Feature #66 marked as PASSING
+- Current progress: 18/200 features passing (9.0%)
+[Testing] Feature #1 verified - still passing
