@@ -1,5 +1,44 @@
 # Dinner Bell - Claude Progress Notes
 
+## Session: 2026-01-18 (Coding Agent - Feature #57)
+
+### Feature:
+- Feature #57: List is responsive on tablet
+
+### Verification Results:
+- ✅ Step 1: View on tablet viewport (768px) - Set viewport to 768x1024, page loaded correctly
+- ✅ Step 2: Verify layout uses space well:
+  - Header area well-organized with "Grocery List" title and item count
+  - Store filter pills fit nicely in a single row without wrapping
+  - Toolbar buttons (Stores, Voice, Edit) evenly spaced
+  - Grocery items use full width with good padding
+  - Store sections clearly separated with headings and item counts
+  - No wasted space, no cramped elements
+- ✅ Step 3: Verify still usable with touch:
+  - Filter buttons respond to tap (tested Costco filter)
+  - Check item buttons work (checked off Strawberries)
+  - Add item button opens text input
+  - Text input accepts keyboard entry
+  - Submit works via Enter key
+  - All interactive elements have appropriate tap targets
+- ✅ No console errors
+
+### Technical Notes:
+- Responsive design already implemented with Tailwind CSS
+- Store filter pills use flex-wrap for smaller screens
+- Touch targets appropriately sized for tablet interaction
+- Layout uses consistent padding and spacing
+
+### Screenshots:
+- feature-57-tablet-768px.png (initial tablet view)
+- feature-57-tablet-costco-filter.png (filter active)
+- feature-57-tablet-add-item.png (after adding item)
+
+### Status: Feature #57 marked as PASSING
+- Current progress: 49/200 features passing (24.5%)
+
+---
+
 ## Session: 2026-01-18 (Coding Agent - Feature #127)
 
 ### Feature:
@@ -2096,4 +2135,89 @@ The feature was already mostly implemented. The key components existed:
 - feature-90-zylo-conversation.png (multi-turn conversation)
 
 ### Status: Feature #90 marked as PASSING
+
+
+## Session: 2026-01-18 17:44 (Regression Test - Feature #9)
+
+### Feature Tested:
+- Feature #9: HouseholdMember seeded for Zink family
+
+### Verification Results:
+- ✅ Step 1: Query HouseholdMember table - Data successfully queried via Convex
+- ✅ Step 2: Verify 5 members exist - Confirmed (5/5)
+- ✅ Step 3: Verify Aaron and Katie are admins, kids are viewers:
+  - Aaron - Admin ✓
+  - Katie - Admin ✓
+  - Lizzie - Viewer ✓
+  - Ethan - Viewer ✓
+  - Elijah - Viewer ✓
+- ✅ No console errors
+- ✅ Screenshots: regression-test-feature-9-household-members.png, regression-test-feature-9-verification-checklist.png
+
+### Status: STILL PASSING - No regression found
+[Testing] Feature #9 verified - still passing
+
+
+## Session: 2026-01-18 17:45 (Regression Test - Feature #4)
+
+### Feature Tested:
+- Feature #4: Convex schema defines all core entities
+
+### Verification Results:
+- ✅ Step 1: Check convex/schema.ts exists - File exists
+- ✅ Step 2: Verify all 7 entity tables are defined - All present:
+  - householdMembers (line 67)
+  - weekPlans (line 82)
+  - plannedMeals (line 88)
+  - groceryItems (line 132)
+  - stores (line 76)
+  - notifications (line 154)
+  - notificationPreferences (line 175)
+- ✅ Step 3: Run npx convex dev and verify schema syncs - Success (1.83s)
+- ✅ App loads at localhost:3000
+- ✅ No console errors
+- ✅ Screenshot: regression-test-feature-4-schema.png
+
+### Status: STILL PASSING - No regression found
+[Testing] Feature #4 verified - still passing
+
+## Session: 2026-01-18 17:46 (Regression Test - Feature #21)
+
+### Feature Tested:
+- Feature #21: Store filter pills display
+
+### Verification Results:
+- ✅ Step 1: View Grocery List page - Successfully loaded /test-grocery-list
+- ✅ Step 2: Verify filter pills are visible at top - Pills clearly visible
+- ✅ Step 3: Verify All, Meijer, Costco, Aldi, Trader Joe's are shown - All stores present:
+  - All (currently selected, highlighted)
+  - Meijer
+  - Costco
+  - Aldi
+  - Trader Joe's
+  - Unassigned (bonus)
+- ✅ No console errors
+- ✅ Screenshot: regression-test-feature-21-store-filters.png
+
+### Status: STILL PASSING - No regression found
+[Testing] Feature #21 verified - still passing
+
+## Session: 2026-01-18 17:46 (Regression Test - Feature #71)
+
+### Feature Tested:
+- Feature #71: I'm wiped button opens emergency exit
+
+### Verification Results:
+- ✅ Step 1: View Tonight's Plan card - Shows Chicken Stir Fry with all details
+- ✅ Step 2: Tap I'm wiped button - Button clicked successfully  
+- ✅ Step 3: Verify EmergencyExit screen opens - Confirmed with:
+  - Emergency Exit heading displayed
+  - Three zero-energy options: Leftovers night, Freezer save, Clean takeout
+  - Supportive messaging shown
+- ✅ Bonus: Back button returns to home view correctly
+- ✅ No console errors
+- ✅ Screenshots: regression-test-feature-71-initial.png, regression-test-feature-71-emergency-exit.png
+
+### Status: STILL PASSING - No regression found
+[Testing] Feature #71 verified - still passing
 
