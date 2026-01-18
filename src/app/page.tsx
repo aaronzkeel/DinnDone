@@ -22,7 +22,7 @@ export default function Home() {
       </header>
 
       {/* Main content */}
-      <main className="flex flex-1 items-center justify-center px-4 pb-20">
+      <main className="flex flex-1 items-center justify-center px-4">
         <div
           className="w-full max-w-md rounded-lg p-8 text-center"
           style={{

@@ -21,7 +21,7 @@ export default function GroceryListPage() {
       </header>
 
       {/* Main content */}
-      <main className="flex flex-1 flex-col items-center justify-center px-4 pb-20">
+      <main className="flex flex-1 flex-col items-center justify-center px-4">
         <div
           className="w-full max-w-md rounded-lg p-8 text-center"
           style={{
