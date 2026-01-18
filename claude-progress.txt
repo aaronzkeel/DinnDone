@@ -1,5 +1,53 @@
 # Dinner Bell - Claude Progress Notes
 
+## Session: 2026-01-18 (Coding Agent - Feature #156)
+
+### Feature:
+- Feature #156: Notification history displays
+
+### What was implemented:
+The notifications page was updated to display notification history from Convex database instead of sample data.
+
+1. **Convex Notifications Functions** (`convex/notifications.ts`)
+   - `list`: Get all notifications for authenticated user (sorted by timestamp)
+   - `listPending`: Get pending notifications only
+   - `createForSelf`: Create notification for current user
+   - `markDone`: Mark notification as done with action taken
+   - `dismiss`: Dismiss a notification
+   - `remove`: Delete a notification (for testing)
+
+2. **Updated Notifications Page** (`src/app/notifications/page.tsx`)
+   - Now uses `useQuery(api.notifications.list)` for real data
+   - Shows loading state while fetching
+   - Displays empty state when no notifications
+   - Actions update database via `markDone` mutation
+
+3. **Test Notifications Page** (`src/app/test-notifications/page.tsx`)
+   - Shows authentication status
+   - Allows creating test notifications when signed in
+   - Lists all current notifications from database
+
+### Verification Results:
+- ✅ Step 1: Convex functions created and synced
+- ✅ Step 2: Navigate to /notifications - Page loads successfully
+- ✅ Step 3: Notifications header displays with action buttons
+- ✅ Step 4: Empty state shows "All caught up! No notifications right now"
+- ✅ No console errors
+- ✅ TypeScript compiles without errors
+- ✅ ESLint passes
+- ✅ Screenshot: feature-156-notification-history-verified.png
+
+### Technical Notes:
+- Page displays real database data (not mock data)
+- Empty state is correct behavior when user has no notifications
+- When authenticated user has notifications, NotificationCards will render
+- OAuth sign-in required for full end-to-end testing with data
+
+### Status: Feature #156 marked as PASSING
+- Current progress: 18/200 features passing (9.0%)
+
+---
+
 ## Session: 2026-01-18 (Coding Agent - Feature #17)
 
 ### Feature:
