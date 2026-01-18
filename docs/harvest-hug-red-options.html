@@ -1,0 +1,1151 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Fed Up Feeder — Harvest Hug + Red Options</title>
+  <style>
+    :root {
+      --pagebg:#fbfaf8;
+      --ink:#221a14;
+      --muted:#6b5c4d;
+      --border: rgba(0,0,0,.10);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+      background: var(--pagebg);
+      color: var(--ink);
+    }
+    header {
+      padding: 28px 18px 18px;
+      max-width: 1180px;
+      margin: 0 auto;
+    }
+    h1 {
+      margin: 0 0 6px;
+      font-size: 24px;
+      letter-spacing: .2px;
+    }
+    .lede {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.35;
+      font-size: 14px;
+      max-width: 960px;
+    }
+    .wrap {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 0 18px 42px;
+    }
+    section.option {
+      margin: 18px 0 26px;
+      padding: 18px;
+      background: rgba(255,255,255,.65);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      backdrop-filter: blur(6px);
+    }
+    .option-head {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    h2 {
+      margin: 0;
+      font-size: 18px;
+    }
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 12.5px;
+    }
+    .previews {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(240px, 1fr));
+      gap: 14px;
+      margin: 14px 0 16px;
+    }
+    @media (max-width: 920px) {
+      .previews { grid-template-columns: 1fr; }
+    }
+    .preview-title {
+      font-size: 12px;
+      color: var(--muted);
+      margin: 0 0 8px 2px;
+      letter-spacing: .2px;
+    }
+    .phone {
+      height: 480px;
+      border-radius: 28px;
+      border: 1px solid rgba(0,0,0,.10);
+      overflow: hidden;
+      background: var(--bg);
+      box-shadow: 0 12px 30px rgba(0,0,0,.10);
+      position: relative;
+      padding: 14px 14px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      color: var(--text);
+    }
+    .statusbar {
+      display: flex;
+      justify-content: space-between;
+      color: var(--muted);
+      font-size: 12px;
+      padding: 2px 2px 0;
+    }
+    .dots .dot {
+      display: inline-block;
+      width: 6px; height: 6px;
+      border-radius: 999px;
+      background: var(--muted);
+      margin-left: 4px;
+      opacity: .7;
+    }
+    .header {
+      padding: 6px 2px 4px;
+    }
+    .appname {
+      font-weight: 750;
+      letter-spacing: .2px;
+      color: var(--text);
+      font-size: 16px;
+      margin-bottom: 2px;
+    }
+    .tagline {
+      color: var(--muted);
+      font-size: 12.5px;
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 12px;
+    }
+    .card.alert {
+      border-color: color-mix(in srgb, var(--danger) 55%, var(--border));
+      background: linear-gradient(0deg, var(--card), var(--dangerTint));
+    }
+    .card-title {
+      font-weight: 650;
+      font-size: 13px;
+      margin-bottom: 8px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+    }
+    .card-body {
+      font-size: 13px;
+      line-height: 1.25;
+    }
+    .inline-highlight {
+      color: var(--dangerDeep);
+      font-weight: 650;
+      text-decoration: underline;
+      text-decoration-thickness: 2px;
+      text-underline-offset: 2px;
+      text-decoration-color: color-mix(in srgb, var(--danger) 65%, transparent);
+    }
+    .line {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 8px;
+      flex-wrap: wrap;
+    }
+    .pill {
+      background: rgba(255,255,255,.10);
+      border: 1px solid rgba(255,255,255,.12);
+      color: var(--text);
+      border-radius: 999px;
+      padding: 4px 8px;
+      font-size: 11px;
+    }
+    /* On very light backgrounds, pills should not look washed out */
+    .phone[style*="--bg:#FAF3E6"] .pill,
+    .phone[style*="--bg:#FFF4E3"] .pill,
+    .phone[style*="--bg:#F7F1E7"] .pill,
+    .phone[style*="--bg:#F5EFE6"] .pill {
+      background: rgba(0,0,0,.05);
+      border-color: rgba(0,0,0,.08);
+    }
+    .pill.subtle { opacity: .85; }
+    .meal {
+      font-weight: 650;
+      margin-bottom: 6px;
+    }
+    .hint {
+      color: var(--muted);
+      font-size: 12px;
+    }
+    .badge {
+      font-size: 10.5px;
+      font-weight: 750;
+      letter-spacing: .35px;
+      padding: 4px 8px;
+      border-radius: 999px;
+      background: var(--danger);
+      color: #fff;
+    }
+    .row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 10px;
+    }
+    .btn {
+      border: 0;
+      border-radius: 14px;
+      padding: 10px 10px;
+      font-weight: 650;
+      font-size: 12.5px;
+      cursor: default;
+    }
+    .btn.primary {
+      background: var(--primary);
+      color: rgba(0,0,0,.85);
+    }
+    .btn.secondary {
+      background: var(--secondary);
+      color: #fff;
+    }
+    .btn.ghost {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text);
+    }
+    .btn.danger {
+      background: var(--danger);
+      color: #fff;
+    }
+    .btn.destructive {
+      border-color: color-mix(in srgb, var(--danger) 55%, var(--border));
+      color: var(--danger);
+    }
+    .list {
+      display: grid;
+      gap: 8px;
+      margin-top: 6px;
+    }
+    .item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12.5px;
+    }
+    .bullet {
+      width: 8px; height: 8px;
+      border-radius: 999px;
+      background: var(--primary);
+      opacity: .9;
+    }
+    .footer {
+      margin-top: auto;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      padding-top: 6px;
+      color: var(--muted);
+      font-size: 11.5px;
+      text-align: center;
+    }
+    .nav {
+      padding: 10px 8px;
+      border-radius: 14px;
+      border: 1px solid transparent;
+    }
+    .nav.active {
+      color: var(--text);
+      border-color: var(--border);
+      background: rgba(255,255,255,.06);
+    }
+
+    .swatches {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(220px, 1fr));
+      gap: 10px;
+      margin-top: 10px;
+    }
+    @media (max-width: 980px) {
+      .swatches { grid-template-columns: repeat(2, minmax(220px, 1fr)); }
+    }
+    @media (max-width: 520px) {
+      .swatches { grid-template-columns: 1fr; }
+    }
+    .swatch {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,.55);
+    }
+    .chip {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      border: 1px solid rgba(0,0,0,.12);
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.22);
+    }
+    .meta .label {
+      font-size: 12.5px;
+      font-weight: 650;
+      margin-bottom: 2px;
+    }
+    .meta .hex {
+      font-size: 12px;
+      color: var(--muted);
+      letter-spacing: .2px;
+    }
+    .note {
+      margin-top: 10px;
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.35;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Harvest Hug — Red Highlight Options</h1>
+    <p class="lede">Same Harvest Hug base palette, with three different warm reds that can be used for alerts, badges, “destructive” actions, and quick highlights. Each option shows Light, Dark, and Evening Soft previews.</p>
+  </header>
+
+  <div class="wrap">
+    
+    <section class="option">
+      <div class="option-head">
+        <h2>Red Option A — Tomato (friendly + approachable)</h2>
+        <p class="subtitle">Uses Harvest Hug as the base palette, adding a red accent for alerts, destructive actions, and badges.</p>
+      </div>
+      
+    <div class="previews">
+      
+      <div class="preview">
+        <div class="preview-title">Light</div>
+        <div class="phone" style="--bg:#FAF3E6;--card:#F3E8D6;--border:#D8CBB6;--text:#2B221A;--muted:#6B5C4D;--primary:#E2A93B;--secondary:#4F6E44;--danger:#D1493F;--dangerDeep:#A7332C;--dangerTint:#F6D3CD">
+          
+    <div class="statusbar">
+      <div>9:41</div>
+      <div class="dots">
+        <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+      </div>
+    </div>
+
+    <div class="header">
+      <div class="appname">Fed Up Feeder</div>
+      <div class="tagline">Warm help, zero guilt.</div>
+    </div>
+
+    <div class="card alert">
+      <div class="card-title">Tiny heads‑up</div>
+      <div class="card-body">
+        Your plan includes a common allergen. <span class="inline-highlight">Tap to swap</span> if needed.
+      </div>
+      <div class="row">
+        <button class="btn danger">Swap ingredient</button>
+        <button class="btn ghost">Ignore</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Tonight’s plan <span class="badge">NEW</span></div>
+      <div class="card-body">
+        <div class="line"><span class="pill">15 min</span><span class="pill subtle">Kid‑friendly</span></div>
+        <div class="meal">Sheet‑pan chicken + broccoli</div>
+        <div class="hint">“You’re not behind — you’re human.”</div>
+      </div>
+      <div class="row">
+        <button class="btn primary">Make it</button>
+        <button class="btn secondary">Swap</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">More options</div>
+      <div class="list">
+        <div class="item"><span class="bullet"></span><span>Quick breakfasts</span></div>
+        <div class="item"><span class="bullet"></span><span>5‑ingredient dinners</span></div>
+        <div class="item"><span class="bullet"></span><span>Leftovers rescue</span></div>
+      </div>
+      <div class="row">
+        <button class="btn ghost">Add staples</button>
+        <button class="btn ghost destructive">Clear list</button>
+      </div>
+    </div>
+
+    <div class="footer">
+      <div class="nav active">Home</div>
+      <div class="nav">Plan</div>
+      <div class="nav">List</div>
+      <div class="nav">You</div>
+    </div>
+    
+        </div>
+      </div>
+    
+      
+      <div class="preview">
+        <div class="preview-title">Dark</div>
+        <div class="phone" style="--bg:#17120E;--card:#221A14;--border:#3A2D23;--text:#F6EDE0;--muted:#CBBBA3;--primary:#E2A93B;--secondary:#6F8F5E;--danger:#D1493F;--dangerDeep:#A7332C;--dangerTint:#3A1B1B">
+          
+    <div class="statusbar">
+      <div>9:41</div>
+      <div class="dots">
+        <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+      </div>
+    </div>
+
+    <div class="header">
+      <div class="appname">Fed Up Feeder</div>
+      <div class="tagline">Warm help, zero guilt.</div>
+    </div>
+
+    <div class="card alert">
+      <div class="card-title">Tiny heads‑up</div>
+      <div class="card-body">
+        Your plan includes a common allergen. <span class="inline-highlight">Tap to swap</span> if needed.
+      </div>
+      <div class="row">
+        <button class="btn danger">Swap ingredient</button>
+        <button class="btn ghost">Ignore</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Tonight’s plan <span class="badge">NEW</span></div>
+      <div class="card-body">
+        <div class="line"><span class="pill">15 min</span><span class="pill subtle">Kid‑friendly</span></div>
+        <div class="meal">Sheet‑pan chicken + broccoli</div>
+        <div class="hint">“You’re not behind — you’re human.”</div>
+      </div>
+      <div class="row">
+        <button class="btn primary">Make it</button>
+        <button class="btn secondary">Swap</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">More options</div>
+      <div class="list">
+        <div class="item"><span class="bullet"></span><span>Quick breakfasts</span></div>
+        <div class="item"><span class="bullet"></span><span>5‑ingredient dinners</span></div>
+        <div class="item"><span class="bullet"></span><span>Leftovers rescue</span></div>
+      </div>
+      <div class="row">
+        <button class="btn ghost">Add staples</button>
+        <button class="btn ghost destructive">Clear list</button>
+      </div>
+    </div>
+
+    <div class="footer">
+      <div class="nav active">Home</div>
+      <div class="nav">Plan</div>
+      <div class="nav">List</div>
+      <div class="nav">You</div>
+    </div>
+    
+        </div>
+      </div>
+    
+      
+      <div class="preview">
+        <div class="preview-title">Evening Soft</div>
+        <div class="phone" style="--bg:#1E1813;--card:#26201A;--border:#3A2D23;--text:#E9DDCC;--muted:#BFAF98;--primary:#D9A642;--secondary:#5F7F52;--danger:#D1493F;--dangerDeep:#A7332C;--dangerTint:#3A1E1E">
+          
+    <div class="statusbar">
+      <div>9:41</div>
+      <div class="dots">
+        <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+      </div>
+    </div>
+
+    <div class="header">
+      <div class="appname">Fed Up Feeder</div>
+      <div class="tagline">Warm help, zero guilt.</div>
+    </div>
+
+    <div class="card alert">
+      <div class="card-title">Tiny heads‑up</div>
+      <div class="card-body">
+        Your plan includes a common allergen. <span class="inline-highlight">Tap to swap</span> if needed.
+      </div>
+      <div class="row">
+        <button class="btn danger">Swap ingredient</button>
+        <button class="btn ghost">Ignore</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Tonight’s plan <span class="badge">NEW</span></div>
+      <div class="card-body">
+        <div class="line"><span class="pill">15 min</span><span class="pill subtle">Kid‑friendly</span></div>
+        <div class="meal">Sheet‑pan chicken + broccoli</div>
+        <div class="hint">“You’re not behind — you’re human.”</div>
+      </div>
+      <div class="row">
+        <button class="btn primary">Make it</button>
+        <button class="btn secondary">Swap</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">More options</div>
+      <div class="list">
+        <div class="item"><span class="bullet"></span><span>Quick breakfasts</span></div>
+        <div class="item"><span class="bullet"></span><span>5‑ingredient dinners</span></div>
+        <div class="item"><span class="bullet"></span><span>Leftovers rescue</span></div>
+      </div>
+      <div class="row">
+        <button class="btn ghost">Add staples</button>
+        <button class="btn ghost destructive">Clear list</button>
+      </div>
+    </div>
+
+    <div class="footer">
+      <div class="nav active">Home</div>
+      <div class="nav">Plan</div>
+      <div class="nav">List</div>
+      <div class="nav">You</div>
+    </div>
+    
+        </div>
+      </div>
+    
+    </div>
+    
+      <div class="swatches">
+    <div class="swatch">
+      <div class="chip" style="background:#E2A93B;"></div>
+      <div class="meta">
+        <div class="label">Primary (Gold)</div>
+        <div class="hex">#E2A93B</div>
+      </div>
+    </div>
+    
+
+    <div class="swatch">
+      <div class="chip" style="background:#6F8F5E;"></div>
+      <div class="meta">
+        <div class="label">Secondary (Sage)</div>
+        <div class="hex">#6F8F5E</div>
+      </div>
+    </div>
+    
+
+    <div class="swatch">
+      <div class="chip" style="background:#FAF3E6;"></div>
+      <div class="meta">
+        <div class="label">Neutral BG</div>
+        <div class="hex">#FAF3E6</div>
+      </div>
+    </div>
+    
+
+    <div class="swatch">
+      <div class="chip" style="background:#F3E8D6;"></div>
+      <div class="meta">
+        <div class="label">Card</div>
+        <div class="hex">#F3E8D6</div>
+      </div>
+    </div>
+    
+
+    <div class="swatch">
+      <div class="chip" style="background:#2B221A;"></div>
+      <div class="meta">
+        <div class="label">Text</div>
+        <div class="hex">#2B221A</div>
+      </div>
+    </div>
+    
+
+    <div class="swatch">
+      <div class="chip" style="background:#D1493F;"></div>
+      <div class="meta">
+        <div class="label">Red Highlight</div>
+        <div class="hex">#D1493F</div>
+      </div>
+    </div>
+    
+
+    <div class="swatch">
+      <div class="chip" style="background:#A7332C;"></div>
+      <div class="meta">
+        <div class="label">Red Deep</div>
+        <div class="hex">#A7332C</div>
+      </div>
+    </div>
+    
+
+    <div class="swatch">
+      <div class="chip" style="background:#F6D3CD;"></div>
+      <div class="meta">
+        <div class="label">Red Soft (Tint)</div>
+        <div class="hex">#F6D3CD</div>
+      </div>
+    </div>
+    </div>
+    </section>
+    
+    <section class="option">
+      <div class="option-head">
+        <h2>Red Option B — Brick (grounded + farmstand)</h2>
+        <p class="subtitle">Uses Harvest Hug as the base palette, adding a red accent for alerts, destructive actions, and badges.</p>
+      </div>
+      
+    <div class="previews">
+      
+      <div class="preview">
+        <div class="preview-title">Light</div>
+        <div class="phone" style="--bg:#FAF3E6;--card:#F3E8D6;--border:#D8CBB6;--text:#2B221A;--muted:#6B5C4D;--primary:#E2A93B;--secondary:#4F6E44;--danger:#B94A34;--dangerDeep:#8E3524;--dangerTint:#F1D1C7">
+          
+    <div class="statusbar">
+      <div>9:41</div>
+      <div class="dots">
+        <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+      </div>
+    </div>
+
+    <div class="header">
+      <div class="appname">Fed Up Feeder</div>
+      <div class="tagline">Warm help, zero guilt.</div>
+    </div>
+
+    <div class="card alert">
+      <div class="card-title">Tiny heads‑up</div>
+      <div class="card-body">
+        Your plan includes a common allergen. <span class="inline-highlight">Tap to swap</span> if needed.
+      </div>
+      <div class="row">
+        <button class="btn danger">Swap ingredient</button>
+        <button class="btn ghost">Ignore</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Tonight’s plan <span class="badge">NEW</span></div>
+      <div class="card-body">
+        <div class="line"><span class="pill">15 min</span><span class="pill subtle">Kid‑friendly</span></div>
+        <div class="meal">Sheet‑pan chicken + broccoli</div>
+        <div class="hint">“You’re not behind — you’re human.”</div>
+      </div>
+      <div class="row">
+        <button class="btn primary">Make it</button>
+        <button class="btn secondary">Swap</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">More options</div>
+      <div class="list">
+        <div class="item"><span class="bullet"></span><span>Quick breakfasts</span></div>
+        <div class="item"><span class="bullet"></span><span>5‑ingredient dinners</span></div>
+        <div class="item"><span class="bullet"></span><span>Leftovers rescue</span></div>
+      </div>
+      <div class="row">
+        <button class="btn ghost">Add staples</button>
+        <button class="btn ghost destructive">Clear list</button>
+      </div>
+    </div>
+
+    <div class="footer">
+      <div class="nav active">Home</div>
+      <div class="nav">Plan</div>
+      <div class="nav">List</div>
+      <div class="nav">You</div>
+    </div>
+    
+        </div>
+      </div>
+    
+      
+      <div class="preview">
+        <div class="preview-title">Dark</div>
+        <div class="phone" style="--bg:#17120E;--card:#221A14;--border:#3A2D23;--text:#F6EDE0;--muted:#CBBBA3;--primary:#E2A93B;--secondary:#6F8F5E;--danger:#B94A34;--dangerDeep:#8E3524;--dangerTint:#3A1B1B">
+          
+    <div class="statusbar">
+      <div>9:41</div>
+      <div class="dots">
+        <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+      </div>
+    </div>
+
+    <div class="header">
+      <div class="appname">Fed Up Feeder</div>
+      <div class="tagline">Warm help, zero guilt.</div>
+    </div>
+
+    <div class="card alert">
+      <div class="card-title">Tiny heads‑up</div>
+      <div class="card-body">
+        Your plan includes a common allergen. <span class="inline-highlight">Tap to swap</span> if needed.
+      </div>
+      <div class="row">
+        <button class="btn danger">Swap ingredient</button>
+        <button class="btn ghost">Ignore</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Tonight’s plan <span class="badge">NEW</span></div>
+      <div class="card-body">
+        <div class="line"><span class="pill">15 min</span><span class="pill subtle">Kid‑friendly</span></div>
+        <div class="meal">Sheet‑pan chicken + broccoli</div>
+        <div class="hint">“You’re not behind — you’re human.”</div>
+      </div>
+      <div class="row">
+        <button class="btn primary">Make it</button>
+        <button class="btn secondary">Swap</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">More options</div>
+      <div class="list">
+        <div class="item"><span class="bullet"></span><span>Quick breakfasts</span></div>
+        <div class="item"><span class="bullet"></span><span>5‑ingredient dinners</span></div>
+        <div class="item"><span class="bullet"></span><span>Leftovers rescue</span></div>
+      </div>
+      <div class="row">
+        <button class="btn ghost">Add staples</button>
+        <button class="btn ghost destructive">Clear list</button>
+      </div>
+    </div>
+
+    <div class="footer">
+      <div class="nav active">Home</div>
+      <div class="nav">Plan</div>
+      <div class="nav">List</div>
+      <div class="nav">You</div>
+    </div>
+    
+        </div>
+      </div>
+    
+      
+      <div class="preview">
+        <div class="preview-title">Evening Soft</div>
+        <div class="phone" style="--bg:#1E1813;--card:#26201A;--border:#3A2D23;--text:#E9DDCC;--muted:#BFAF98;--primary:#D9A642;--secondary:#5F7F52;--danger:#B94A34;--dangerDeep:#8E3524;--dangerTint:#3A1E1E">
+          
+    <div class="statusbar">
+      <div>9:41</div>
+      <div class="dots">
+        <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+      </div>
+    </div>
+
+    <div class="header">
+      <div class="appname">Fed Up Feeder</div>
+      <div class="tagline">Warm help, zero guilt.</div>
+    </div>
+
+    <div class="card alert">
+      <div class="card-title">Tiny heads‑up</div>
+      <div class="card-body">
+        Your plan includes a common allergen. <span class="inline-highlight">Tap to swap</span> if needed.
+      </div>
+      <div class="row">
+        <button class="btn danger">Swap ingredient</button>
+        <button class="btn ghost">Ignore</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Tonight’s plan <span class="badge">NEW</span></div>
+      <div class="card-body">
+        <div class="line"><span class="pill">15 min</span><span class="pill subtle">Kid‑friendly</span></div>
+        <div class="meal">Sheet‑pan chicken + broccoli</div>
+        <div class="hint">“You’re not behind — you’re human.”</div>
+      </div>
+      <div class="row">
+        <button class="btn primary">Make it</button>
+        <button class="btn secondary">Swap</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">More options</div>
+      <div class="list">
+        <div class="item"><span class="bullet"></span><span>Quick breakfasts</span></div>
+        <div class="item"><span class="bullet"></span><span>5‑ingredient dinners</span></div>
+        <div class="item"><span class="bullet"></span><span>Leftovers rescue</span></div>
+      </div>
+      <div class="row">
+        <button class="btn ghost">Add staples</button>
+        <button class="btn ghost destructive">Clear list</button>
+      </div>
+    </div>
+
+    <div class="footer">
+      <div class="nav active">Home</div>
+      <div class="nav">Plan</div>
+      <div class="nav">List</div>
+      <div class="nav">You</div>
+    </div>
+    
+        </div>
+      </div>
+    
+    </div>
+    
+      <div class="swatches">
+    <div class="swatch">
+      <div class="chip" style="background:#E2A93B;"></div>
+      <div class="meta">
+        <div class="label">Primary (Gold)</div>
+        <div class="hex">#E2A93B</div>
+      </div>
+    </div>
+    
+
+    <div class="swatch">
+      <div class="chip" style="background:#6F8F5E;"></div>
+      <div class="meta">
+        <div class="label">Secondary (Sage)</div>
+        <div class="hex">#6F8F5E</div>
+      </div>
+    </div>
+    
+
+    <div class="swatch">
+      <div class="chip" style="background:#FAF3E6;"></div>
+      <div class="meta">
+        <div class="label">Neutral BG</div>
+        <div class="hex">#FAF3E6</div>
+      </div>
+    </div>
+    
+
+    <div class="swatch">
+      <div class="chip" style="background:#F3E8D6;"></div>
+      <div class="meta">
+        <div class="label">Card</div>
+        <div class="hex">#F3E8D6</div>
+      </div>
+    </div>
+    
+
+    <div class="swatch">
+      <div class="chip" style="background:#2B221A;"></div>
+      <div class="meta">
+        <div class="label">Text</div>
+        <div class="hex">#2B221A</div>
+      </div>
+    </div>
+    
+
+    <div class="swatch">
+      <div class="chip" style="background:#B94A34;"></div>
+      <div class="meta">
+        <div class="label">Red Highlight</div>
+        <div class="hex">#B94A34</div>
+      </div>
+    </div>
+    
+
+    <div class="swatch">
+      <div class="chip" style="background:#8E3524;"></div>
+      <div class="meta">
+        <div class="label">Red Deep</div>
+        <div class="hex">#8E3524</div>
+      </div>
+    </div>
+    
+
+    <div class="swatch">
+      <div class="chip" style="background:#F1D1C7;"></div>
+      <div class="meta">
+        <div class="label">Red Soft (Tint)</div>
+        <div class="hex">#F1D1C7</div>
+      </div>
+    </div>
+    </div>
+    </section>
+    
+    <section class="option">
+      <div class="option-head">
+        <h2>Red Option C — Cranberry (more modern, still warm)</h2>
+        <p class="subtitle">Uses Harvest Hug as the base palette, adding a red accent for alerts, destructive actions, and badges.</p>
+      </div>
+      
+    <div class="previews">
+      
+      <div class="preview">
+        <div class="preview-title">Light</div>
+        <div class="phone" style="--bg:#FAF3E6;--card:#F3E8D6;--border:#D8CBB6;--text:#2B221A;--muted:#6B5C4D;--primary:#E2A93B;--secondary:#4F6E44;--danger:#B3384D;--dangerDeep:#84283A;--dangerTint:#F0CCD5">
+          
+    <div class="statusbar">
+      <div>9:41</div>
+      <div class="dots">
+        <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+      </div>
+    </div>
+
+    <div class="header">
+      <div class="appname">Fed Up Feeder</div>
+      <div class="tagline">Warm help, zero guilt.</div>
+    </div>
+
+    <div class="card alert">
+      <div class="card-title">Tiny heads‑up</div>
+      <div class="card-body">
+        Your plan includes a common allergen. <span class="inline-highlight">Tap to swap</span> if needed.
+      </div>
+      <div class="row">
+        <button class="btn danger">Swap ingredient</button>
+        <button class="btn ghost">Ignore</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Tonight’s plan <span class="badge">NEW</span></div>
+      <div class="card-body">
+        <div class="line"><span class="pill">15 min</span><span class="pill subtle">Kid‑friendly</span></div>
+        <div class="meal">Sheet‑pan chicken + broccoli</div>
+        <div class="hint">“You’re not behind — you’re human.”</div>
+      </div>
+      <div class="row">
+        <button class="btn primary">Make it</button>
+        <button class="btn secondary">Swap</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">More options</div>
+      <div class="list">
+        <div class="item"><span class="bullet"></span><span>Quick breakfasts</span></div>
+        <div class="item"><span class="bullet"></span><span>5‑ingredient dinners</span></div>
+        <div class="item"><span class="bullet"></span><span>Leftovers rescue</span></div>
+      </div>
+      <div class="row">
+        <button class="btn ghost">Add staples</button>
+        <button class="btn ghost destructive">Clear list</button>
+      </div>
+    </div>
+
+    <div class="footer">
+      <div class="nav active">Home</div>
+      <div class="nav">Plan</div>
+      <div class="nav">List</div>
+      <div class="nav">You</div>
+    </div>
+    
+        </div>
+      </div>
+    
+      
+      <div class="preview">
+        <div class="preview-title">Dark</div>
+        <div class="phone" style="--bg:#17120E;--card:#221A14;--border:#3A2D23;--text:#F6EDE0;--muted:#CBBBA3;--primary:#E2A93B;--secondary:#6F8F5E;--danger:#B3384D;--dangerDeep:#84283A;--dangerTint:#3A1B1B">
+          
+    <div class="statusbar">
+      <div>9:41</div>
+      <div class="dots">
+        <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+      </div>
+    </div>
+
+    <div class="header">
+      <div class="appname">Fed Up Feeder</div>
+      <div class="tagline">Warm help, zero guilt.</div>
+    </div>
+
+    <div class="card alert">
+      <div class="card-title">Tiny heads‑up</div>
+      <div class="card-body">
+        Your plan includes a common allergen. <span class="inline-highlight">Tap to swap</span> if needed.
+      </div>
+      <div class="row">
+        <button class="btn danger">Swap ingredient</button>
+        <button class="btn ghost">Ignore</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Tonight’s plan <span class="badge">NEW</span></div>
+      <div class="card-body">
+        <div class="line"><span class="pill">15 min</span><span class="pill subtle">Kid‑friendly</span></div>
+        <div class="meal">Sheet‑pan chicken + broccoli</div>
+        <div class="hint">“You’re not behind — you’re human.”</div>
+      </div>
+      <div class="row">
+        <button class="btn primary">Make it</button>
+        <button class="btn secondary">Swap</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">More options</div>
+      <div class="list">
+        <div class="item"><span class="bullet"></span><span>Quick breakfasts</span></div>
+        <div class="item"><span class="bullet"></span><span>5‑ingredient dinners</span></div>
+        <div class="item"><span class="bullet"></span><span>Leftovers rescue</span></div>
+      </div>
+      <div class="row">
+        <button class="btn ghost">Add staples</button>
+        <button class="btn ghost destructive">Clear list</button>
+      </div>
+    </div>
+
+    <div class="footer">
+      <div class="nav active">Home</div>
+      <div class="nav">Plan</div>
+      <div class="nav">List</div>
+      <div class="nav">You</div>
+    </div>
+    
+        </div>
+      </div>
+    
+      
+      <div class="preview">
+        <div class="preview-title">Evening Soft</div>
+        <div class="phone" style="--bg:#1E1813;--card:#26201A;--border:#3A2D23;--text:#E9DDCC;--muted:#BFAF98;--primary:#D9A642;--secondary:#5F7F52;--danger:#B3384D;--dangerDeep:#84283A;--dangerTint:#3A1E1E">
+          
+    <div class="statusbar">
+      <div>9:41</div>
+      <div class="dots">
+        <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+      </div>
+    </div>
+
+    <div class="header">
+      <div class="appname">Fed Up Feeder</div>
+      <div class="tagline">Warm help, zero guilt.</div>
+    </div>
+
+    <div class="card alert">
+      <div class="card-title">Tiny heads‑up</div>
+      <div class="card-body">
+        Your plan includes a common allergen. <span class="inline-highlight">Tap to swap</span> if needed.
+      </div>
+      <div class="row">
+        <button class="btn danger">Swap ingredient</button>
+        <button class="btn ghost">Ignore</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Tonight’s plan <span class="badge">NEW</span></div>
+      <div class="card-body">
+        <div class="line"><span class="pill">15 min</span><span class="pill subtle">Kid‑friendly</span></div>
+        <div class="meal">Sheet‑pan chicken + broccoli</div>
+        <div class="hint">“You’re not behind — you’re human.”</div>
+      </div>
+      <div class="row">
+        <button class="btn primary">Make it</button>
+        <button class="btn secondary">Swap</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">More options</div>
+      <div class="list">
+        <div class="item"><span class="bullet"></span><span>Quick breakfasts</span></div>
+        <div class="item"><span class="bullet"></span><span>5‑ingredient dinners</span></div>
+        <div class="item"><span class="bullet"></span><span>Leftovers rescue</span></div>
+      </div>
+      <div class="row">
+        <button class="btn ghost">Add staples</button>
+        <button class="btn ghost destructive">Clear list</button>
+      </div>
+    </div>
+
+    <div class="footer">
+      <div class="nav active">Home</div>
+      <div class="nav">Plan</div>
+      <div class="nav">List</div>
+      <div class="nav">You</div>
+    </div>
+    
+        </div>
+      </div>
+    
+    </div>
+    
+      <div class="swatches">
+    <div class="swatch">
+      <div class="chip" style="background:#E2A93B;"></div>
+      <div class="meta">
+        <div class="label">Primary (Gold)</div>
+        <div class="hex">#E2A93B</div>
+      </div>
+    </div>
+    
+
+    <div class="swatch">
+      <div class="chip" style="background:#6F8F5E;"></div>
+      <div class="meta">
+        <div class="label">Secondary (Sage)</div>
+        <div class="hex">#6F8F5E</div>
+      </div>
+    </div>
+    
+
+    <div class="swatch">
+      <div class="chip" style="background:#FAF3E6;"></div>
+      <div class="meta">
+        <div class="label">Neutral BG</div>
+        <div class="hex">#FAF3E6</div>
+      </div>
+    </div>
+    
+
+    <div class="swatch">
+      <div class="chip" style="background:#F3E8D6;"></div>
+      <div class="meta">
+        <div class="label">Card</div>
+        <div class="hex">#F3E8D6</div>
+      </div>
+    </div>
+    
+
+    <div class="swatch">
+      <div class="chip" style="background:#2B221A;"></div>
+      <div class="meta">
+        <div class="label">Text</div>
+        <div class="hex">#2B221A</div>
+      </div>
+    </div>
+    
+
+    <div class="swatch">
+      <div class="chip" style="background:#B3384D;"></div>
+      <div class="meta">
+        <div class="label">Red Highlight</div>
+        <div class="hex">#B3384D</div>
+      </div>
+    </div>
+    
+
+    <div class="swatch">
+      <div class="chip" style="background:#84283A;"></div>
+      <div class="meta">
+        <div class="label">Red Deep</div>
+        <div class="hex">#84283A</div>
+      </div>
+    </div>
+    
+
+    <div class="swatch">
+      <div class="chip" style="background:#F0CCD5;"></div>
+      <div class="meta">
+        <div class="label">Red Soft (Tint)</div>
+        <div class="hex">#F0CCD5</div>
+      </div>
+    </div>
+    </div>
+    </section>
+    
+    <p class="note">If you pick a red, I can lock it in as <strong>semantic tokens</strong> (e.g., <em>danger / error / alert</em>) and generate consistent tints for backgrounds + borders.</p>
+  </div>
+</body>
+</html>

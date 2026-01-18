@@ -1,0 +1,127 @@
+{
+  "_meta": {
+    "models": {
+      "householdMembers": "The Zink family - 5 members with Aaron and Katie as admins",
+      "messages": "Sample chat conversation between a user and Zylo (7-day rolling history)",
+      "mealSuggestions": "Example meal options Zylo might suggest, tiered by effort"
+    },
+    "relationships": [
+      "Chat messages are per-user (each family member has their own conversation)"
+    ]
+  },
+  "householdMembers": [
+    {
+      "id": "hm-001",
+      "name": "Aaron",
+      "isAdmin": true
+    },
+    {
+      "id": "hm-002",
+      "name": "Katie",
+      "isAdmin": true
+    },
+    {
+      "id": "hm-003",
+      "name": "Lizzie",
+      "isAdmin": false
+    },
+    {
+      "id": "hm-004",
+      "name": "Ethan",
+      "isAdmin": false
+    },
+    {
+      "id": "hm-005",
+      "name": "Elijah",
+      "isAdmin": false
+    }
+  ],
+  "messages": [
+    {
+      "id": "msg-001",
+      "role": "user",
+      "content": "What can I make tonight?",
+      "timestamp": "2024-01-10T17:30:00Z"
+    },
+    {
+      "id": "msg-002",
+      "role": "zylo",
+      "content": "Happy to help! What proteins do you have thawed or ready to go?",
+      "timestamp": "2024-01-10T17:30:05Z"
+    },
+    {
+      "id": "msg-003",
+      "role": "user",
+      "content": "Chicken thighs and some ground turkey",
+      "timestamp": "2024-01-10T17:30:30Z"
+    },
+    {
+      "id": "msg-004",
+      "role": "zylo",
+      "content": "Nice options! Any veggies that need to be used up soon?",
+      "timestamp": "2024-01-10T17:30:35Z"
+    },
+    {
+      "id": "msg-005",
+      "role": "user",
+      "content": "Bell peppers and some spinach that's getting sad",
+      "timestamp": "2024-01-10T17:31:00Z"
+    },
+    {
+      "id": "msg-006",
+      "role": "zylo",
+      "content": "Perfect timing on that spinach. Energy level tonight - easy, medium, or feeling ambitious?",
+      "timestamp": "2024-01-10T17:31:05Z"
+    },
+    {
+      "id": "msg-007",
+      "role": "user",
+      "content": "Easy please, long day",
+      "timestamp": "2024-01-10T17:31:20Z"
+    },
+    {
+      "id": "msg-008",
+      "role": "zylo",
+      "content": "Got it. Here are 3 options that'll rescue that spinach:",
+      "timestamp": "2024-01-10T17:31:25Z"
+    }
+  ],
+  "mealSuggestions": [
+    {
+      "id": "ms-001",
+      "name": "One-Pan Chicken & Peppers",
+      "effortTier": "super-easy",
+      "prepTime": 10,
+      "cookTime": 25,
+      "cleanupRating": "low",
+      "servings": 5,
+      "ingredients": ["Chicken thighs", "Bell peppers", "Olive oil", "Garlic", "Italian seasoning"],
+      "briefInstructions": "Season chicken, toss peppers in oil, roast together at 425F for 25 min.",
+      "isFlexMeal": false
+    },
+    {
+      "id": "ms-002",
+      "name": "Turkey Spinach Skillet",
+      "effortTier": "super-easy",
+      "prepTime": 5,
+      "cookTime": 15,
+      "cleanupRating": "low",
+      "servings": 5,
+      "ingredients": ["Ground turkey", "Spinach", "Garlic", "Onion", "Rice or tortillas"],
+      "briefInstructions": "Brown turkey, add garlic and onion, wilt in spinach. Serve over rice or in tortillas.",
+      "isFlexMeal": true
+    },
+    {
+      "id": "ms-003",
+      "name": "Stuffed Bell Peppers",
+      "effortTier": "middle",
+      "prepTime": 15,
+      "cookTime": 30,
+      "cleanupRating": "medium",
+      "servings": 5,
+      "ingredients": ["Bell peppers", "Ground turkey", "Rice", "Tomato sauce", "Cheese"],
+      "briefInstructions": "Hollow peppers, mix turkey with cooked rice and sauce, stuff peppers, bake with cheese on top.",
+      "isFlexMeal": true
+    }
+  ]
+}

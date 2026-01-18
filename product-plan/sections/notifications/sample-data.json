@@ -1,0 +1,148 @@
+{
+  "_meta": {
+    "models": {
+      "notifications": "Individual nudges sent to users with actions and status tracking",
+      "notificationPreferences": "Per-user settings for which notifications to receive",
+      "crisisDayMute": "24-hour silence toggle for overwhelming days"
+    },
+    "relationships": [
+      "Each HouseholdMember has their own NotificationPreferences",
+      "Notifications are delivered based on user preferences and role",
+      "Crisis Day Mute overrides all notification delivery for that user"
+    ]
+  },
+  "householdMembers": [
+    { "id": "hm-001", "name": "Aaron", "isAdmin": true },
+    { "id": "hm-002", "name": "Katie", "isAdmin": true },
+    { "id": "hm-003", "name": "Lizzie", "isAdmin": false },
+    { "id": "hm-004", "name": "Ethan", "isAdmin": false },
+    { "id": "hm-005", "name": "Elijah", "isAdmin": false }
+  ],
+  "notifications": [
+    {
+      "id": "notif-001",
+      "type": "daily-brief",
+      "message": "Tonight: Sheet Pan Salmon (Aaron cooking). All ingredients on hand. Ready to go!",
+      "timestamp": "2024-01-15T07:00:00Z",
+      "status": "done",
+      "actions": [
+        { "id": "confirm", "label": "Looks good", "isPrimary": true },
+        { "id": "adjust", "label": "Adjust", "isPrimary": false }
+      ],
+      "resolvedAt": "2024-01-15T07:15:00Z",
+      "resolvedAction": "confirm"
+    },
+    {
+      "id": "notif-002",
+      "type": "thaw-guardian",
+      "message": "Friendly reminder: move chicken to fridge tonight for Wednesday's stir fry.",
+      "timestamp": "2024-01-15T19:30:00Z",
+      "status": "pending",
+      "actions": [
+        { "id": "done", "label": "Done", "isPrimary": true },
+        { "id": "skip", "label": "Skip", "isPrimary": false }
+      ]
+    },
+    {
+      "id": "notif-003",
+      "type": "strategic-pivot",
+      "message": "Still on for Taco Tuesday tomorrow? Just checking — tap if plans changed.",
+      "timestamp": "2024-01-15T16:00:00Z",
+      "status": "done",
+      "actions": [
+        { "id": "all-set", "label": "All set", "isPrimary": true },
+        { "id": "swap", "label": "Need to swap", "isPrimary": false }
+      ],
+      "resolvedAt": "2024-01-15T16:05:00Z",
+      "resolvedAction": "all-set"
+    },
+    {
+      "id": "notif-004",
+      "type": "weekly-plan-ready",
+      "message": "Next week's plan is ready — 3 minutes to review and approve?",
+      "timestamp": "2024-01-14T18:00:00Z",
+      "status": "done",
+      "actions": [
+        { "id": "review", "label": "Review", "isPrimary": true },
+        { "id": "later", "label": "Later", "isPrimary": false }
+      ],
+      "resolvedAt": "2024-01-14T18:30:00Z",
+      "resolvedAction": "review"
+    },
+    {
+      "id": "notif-005",
+      "type": "leftover-check",
+      "message": "Any salmon left from last night? Don't let it go to waste!",
+      "timestamp": "2024-01-16T12:00:00Z",
+      "status": "pending",
+      "actions": [
+        { "id": "ate-them", "label": "We ate them", "isPrimary": true },
+        { "id": "still-have", "label": "Still have some", "isPrimary": false },
+        { "id": "tossed", "label": "Tossed", "isPrimary": false }
+      ]
+    },
+    {
+      "id": "notif-006",
+      "type": "inventory-sos",
+      "message": "Anyone home? Can you check if we have soy sauce?",
+      "timestamp": "2024-01-15T14:00:00Z",
+      "status": "done",
+      "actions": [
+        { "id": "check", "label": "I'll check", "isPrimary": true },
+        { "id": "cant", "label": "Can't right now", "isPrimary": false }
+      ],
+      "resolvedAt": "2024-01-15T14:10:00Z",
+      "resolvedAction": "check"
+    },
+    {
+      "id": "notif-007",
+      "type": "cook-reminder",
+      "message": "Hey Katie — you're cooking tomorrow. Taco Tuesday is on the menu. Got it?",
+      "timestamp": "2024-01-15T19:30:00Z",
+      "status": "pending",
+      "actions": [
+        { "id": "got-it", "label": "Got it", "isPrimary": true },
+        { "id": "swap", "label": "Need to swap", "isPrimary": false }
+      ]
+    }
+  ],
+  "notificationPreferences": {
+    "userId": "hm-001",
+    "enabledTypes": [
+      "daily-brief",
+      "strategic-pivot",
+      "thaw-guardian",
+      "weekly-plan-ready",
+      "leftover-check",
+      "cook-reminder"
+    ],
+    "quietHoursStart": "21:00",
+    "quietHoursEnd": "07:00",
+    "fandomVoice": "samwise",
+    "pushEnabled": true
+  },
+  "crisisDayMute": {
+    "isActive": false
+  },
+  "fandomVoiceExamples": {
+    "_note": "Examples of how notifications change with different voices",
+    "default": {
+      "thaw-guardian": "Friendly reminder: move chicken to fridge tonight for tomorrow's stir fry."
+    },
+    "samwise": {
+      "thaw-guardian": "There's some good in this world, Mr. Frodo, and it's worth cooking for. Chicken goes in the fridge tonight!"
+    },
+    "nacho-libre": {
+      "thaw-guardian": "Beneath the clothes, we find a man. Beneath the freezer, we find tomorrow's chicken. Move it to the fridge!"
+    },
+    "the-office": {
+      "thaw-guardian": "That chicken needs to thaw. That's what she said. Move it to the fridge for tomorrow."
+    },
+    "star-wars": {
+      "thaw-guardian": "The chicken... it calls to you. Move it to the fridge, you must."
+    },
+    "harry-potter": {
+      "thaw-guardian": "Zylo has a reminder! Chicken must go to the fridge for tomorrow, or dinner will be most disappointing!"
+    }
+  }
+}

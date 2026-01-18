@@ -1,0 +1,167 @@
+{
+  "_meta": {
+    "models": {
+      "stores": "The stores this household typically shops at. Items are assigned to one store for an easy, low-friction shopping trip.",
+      "groceryItems": "Each grocery item represents something on your shared shopping list. Items are grouped by store, then ordered by category for a familiar in-store flow."
+    },
+    "relationships": [
+      "Grocery items are shared across all household members in real-time",
+      "Each grocery item can be assigned to a store (Meijer, Costco, Aldi, Trader Joe's)",
+      "Items can optionally include mealSources to show which planned meal(s) they came from",
+      "Items with organicRequired flag should be bought organic (Dirty Dozen or household rules)"
+    ]
+  },
+  "stores": [
+    { "id": "store-meijer", "name": "Meijer" },
+    { "id": "store-costco", "name": "Costco" },
+    { "id": "store-aldi", "name": "Aldi" },
+    { "id": "store-trader-joes", "name": "Trader Joe's" }
+  ],
+  "groceryItems": [
+    {
+      "id": "gi-001",
+      "name": "Spinach",
+      "category": "Produce",
+      "quantity": "1 bunch",
+      "isChecked": false,
+      "organicRequired": true,
+      "storeId": "store-aldi",
+      "mealSources": [
+        { "mealId": "pm-003", "mealName": "Mom's Chicken Stir Fry", "date": "2024-01-17" }
+      ]
+    },
+    {
+      "id": "gi-002",
+      "name": "Strawberries",
+      "category": "Produce",
+      "quantity": "1 lb",
+      "isChecked": false,
+      "organicRequired": true,
+      "storeId": "store-costco"
+    },
+    {
+      "id": "gi-003",
+      "name": "Avocados",
+      "category": "Produce",
+      "quantity": "3",
+      "isChecked": false,
+      "organicRequired": false,
+      "storeId": "store-trader-joes"
+    },
+    {
+      "id": "gi-004",
+      "name": "Bananas",
+      "category": "Produce",
+      "quantity": "1 bunch",
+      "isChecked": false,
+      "organicRequired": false,
+      "storeId": "store-aldi"
+    },
+    {
+      "id": "gi-005",
+      "name": "Grapes",
+      "category": "Produce",
+      "quantity": "1 lb",
+      "isChecked": false,
+      "organicRequired": true,
+      "storeId": "store-meijer"
+    },
+    {
+      "id": "gi-006",
+      "name": "Eggs",
+      "category": "Dairy",
+      "quantity": "1 dozen",
+      "isChecked": false,
+      "organicRequired": true,
+      "storeId": "store-meijer"
+    },
+    {
+      "id": "gi-007",
+      "name": "Greek Yogurt",
+      "category": "Dairy",
+      "quantity": "32 oz",
+      "isChecked": false,
+      "organicRequired": false,
+      "storeId": "store-costco"
+    },
+    {
+      "id": "gi-008",
+      "name": "Butter",
+      "category": "Dairy",
+      "quantity": "1 lb",
+      "isChecked": false,
+      "organicRequired": true,
+      "storeId": "store-costco"
+    },
+    {
+      "id": "gi-009",
+      "name": "Chicken Thighs",
+      "category": "Meat",
+      "quantity": "2 lbs",
+      "isChecked": false,
+      "organicRequired": true,
+      "storeId": "store-meijer",
+      "mealSources": [
+        { "mealId": "pm-001", "mealName": "Sheet Pan Salmon & Asparagus", "date": "2024-01-15" },
+        { "mealId": "pm-003", "mealName": "Mom's Chicken Stir Fry", "date": "2024-01-17" }
+      ]
+    },
+    {
+      "id": "gi-010",
+      "name": "Ground Turkey",
+      "category": "Meat",
+      "quantity": "1 lb",
+      "isChecked": false,
+      "organicRequired": true,
+      "storeId": "store-aldi"
+    },
+    {
+      "id": "gi-011",
+      "name": "Olive Oil",
+      "category": "Pantry",
+      "quantity": "1 bottle",
+      "isChecked": false,
+      "organicRequired": false,
+      "storeId": "store-costco"
+    },
+    {
+      "id": "gi-012",
+      "name": "Black Beans",
+      "category": "Pantry",
+      "quantity": "2 cans",
+      "isChecked": false,
+      "organicRequired": false,
+      "storeId": "store-aldi",
+      "mealSources": [
+        { "mealId": "pm-002", "mealName": "Taco Tuesday", "date": "2024-01-16" }
+      ]
+    },
+    {
+      "id": "gi-013",
+      "name": "Frozen Berries",
+      "category": "Frozen",
+      "quantity": "1 bag",
+      "isChecked": true,
+      "organicRequired": true,
+      "storeId": "store-costco"
+    },
+    {
+      "id": "gi-014",
+      "name": "Almond Milk",
+      "category": "Dairy",
+      "quantity": "1/2 gallon",
+      "isChecked": true,
+      "organicRequired": false,
+      "storeId": "store-trader-joes"
+    },
+    {
+      "id": "gi-015",
+      "name": "Salsa",
+      "category": "Pantry",
+      "quantity": "1 jar",
+      "isChecked": true,
+      "organicRequired": false,
+      "storeId": "store-trader-joes"
+    }
+  ]
+}
