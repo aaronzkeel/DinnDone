@@ -225,3 +225,46 @@
 - **9/200 features passing (4.5%)**
 - All placeholder pages working correctly
 - Navigation structure clean and DRY
+
+## Session: 2026-01-18 (Regression Test - Feature #2)
+
+### Feature Tested:
+- Feature #2: Google Fonts loaded (Lora + Plus Jakarta Sans)
+
+### Verification Results:
+- ✅ Step 1: Fonts imported - next/font configured in layout.tsx
+- ✅ Step 2: Lora renders for headings - computed: 'Lora, Lora Fallback'
+- ✅ Step 3: Plus Jakarta Sans renders for body - computed: 'Plus Jakarta Sans, Plus Jakarta Sans Fallback'
+- ✅ No console errors
+
+### Status: STILL PASSING - No regression found
+[Testing] Feature #2 verified - still passing
+
+## Session: 2026-01-18 ~17:20 (Coding Agent - Feature #12 Verification)
+
+### Feature:
+- Feature #12: Tab navigation switches views
+
+### Verification Results:
+- ✅ Step 1: Tap Plan tab - navigated to /weekly-planning
+- ✅ Step 2: Verify /weekly-planning route loads - "Weekly Planning" page rendered
+- ✅ Step 3: Tap List tab - navigated to /grocery-list, "Grocery List" page rendered
+- ✅ Bonus: All 4 tabs verified working (Home, Plan, List, Alerts)
+- ✅ Active tab shows correct highlight state (sage green)
+- ✅ No console errors
+- ✅ Screenshots captured for verification
+
+### Technical Details:
+- BottomNav uses Next.js Link component for client-side navigation
+- Routes are correctly configured: /, /weekly-planning, /grocery-list, /notifications
+- Active state tracked via usePathname() hook
+- Fixed duplicate BottomNav issue (was in both layout.tsx and individual pages)
+
+### Files Modified (cleanup):
+- `src/app/weekly-planning/page.tsx` - removed duplicate BottomNav
+- `src/app/notifications/page.tsx` - removed duplicate BottomNav
+- `src/app/grocery-list/page.tsx` - removed pb-20 (handled by layout)
+- `src/app/page.tsx` - removed pb-20 (handled by layout)
+
+### Status: Feature #12 marked as PASSING
+- Current progress: 9/200 features passing (4.5%)
