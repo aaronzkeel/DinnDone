@@ -1,7 +1,10 @@
 "use client";
 
 import { useState } from "react";
+import { useAction } from "convex/react";
+import { api } from "../../../convex/_generated/api";
 import { WeekPlanView, EditDayModal } from "@/components/weekly-planning";
+import { RequireAuth } from "@/components/RequireAuth";
 import type {
   HouseholdMember,
   WeekSummary,
@@ -371,8 +374,12 @@ export default function WeeklyPlanningPage() {
   const [selectedWeekId, setSelectedWeekId] = useState("wp-001");
   const [selectedMeal, setSelectedMeal] = useState<PlannedMeal | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [localWeekPlans, setLocalWeekPlans] = useState(weekPlans);
 
-  const selectedWeekPlan = weekPlans[selectedWeekId] || weekPlans["wp-001"];
+  const generateWeekPlan = useAction(api.ai.generateWeekPlan);
+
+  const selectedWeekPlan = localWeekPlans[selectedWeekId] || localWeekPlans["wp-001"];
 
   const handleSelectWeek = (weekId: string) => {
     setSelectedWeekId(weekId);
@@ -433,38 +440,89 @@ export default function WeeklyPlanningPage() {
     console.log("Open pantry audit");
   };
 
-  return (
-    <div
-      className="flex min-h-[calc(100vh-120px)] flex-col font-sans"
-      style={{ backgroundColor: "var(--color-bg)" }}
-    >
-      <WeekPlanView
-        currentUser={currentUser}
-        availableWeeks={availableWeeks}
-        selectedWeekPlan={selectedWeekPlan}
-        householdMembers={householdMembers}
-        onSelectWeek={handleSelectWeek}
-        onSelectMeal={handleSelectMeal}
-        onApprovePlan={handleApprovePlan}
-        onAddWeek={handleAddWeek}
-        onTapMeal={handleSelectMeal}
-        onPantryAudit={handlePantryAudit}
-      />
+  const handleGeneratePlan = async () => {
+    setIsGenerating(true);
+    try {
+      const result = await generateWeekPlan({
+        weekStartDate: selectedWeekPlan.weekStartDate,
+        householdSize: householdMembers.length,
+      });
 
-      {/* Edit Day Modal */}
-      {isModalOpen && selectedMeal && (
-        <EditDayModal
-          currentMeal={selectedMeal}
-          alternatives={sampleAlternatives}
+      if (result.success && result.meals) {
+        // Convert AI meals to PlannedMeal format
+        const newMeals: PlannedMeal[] = result.meals.map((meal, index) => ({
+          id: `pm-gen-${selectedWeekId}-${index}`,
+          date: meal.date,
+          dayOfWeek: meal.dayOfWeek,
+          mealName: meal.mealName,
+          effortTier: meal.effortTier,
+          prepTime: meal.prepTime,
+          cookTime: meal.cookTime,
+          cleanupRating: meal.cleanupRating,
+          assignedCookId: householdMembers[index % 2]?.id || "hm-001", // Alternate between first two members
+          eaterIds: householdMembers.map((m) => m.id),
+          servings: householdMembers.length,
+          ingredients: meal.ingredients,
+          isFlexMeal: meal.isFlexMeal,
+          isUnplanned: false,
+        }));
+
+        // Update local state with new meals
+        setLocalWeekPlans((prev) => ({
+          ...prev,
+          [selectedWeekId]: {
+            ...prev[selectedWeekId],
+            meals: newMeals,
+          },
+        }));
+      } else {
+        console.error("Failed to generate plan:", result.error);
+        alert("Failed to generate plan: " + (result.error || "Unknown error"));
+      }
+    } catch (error) {
+      console.error("Error generating plan:", error);
+      alert("Error generating plan. Please try again.");
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
+  return (
+    <RequireAuth>
+      <div
+        className="flex min-h-[calc(100vh-120px)] flex-col font-sans"
+        style={{ backgroundColor: "var(--color-bg)" }}
+      >
+        <WeekPlanView
+          currentUser={currentUser}
+          availableWeeks={availableWeeks}
+          selectedWeekPlan={selectedWeekPlan}
           householdMembers={householdMembers}
-          onChangeCook={handleChangeCook}
-          onToggleEater={handleToggleEater}
-          onSelectAlternative={handleSelectAlternative}
-          onMoreOptions={handleMoreOptions}
-          onUnplan={handleUnplan}
-          onClose={handleCloseModal}
+          onSelectWeek={handleSelectWeek}
+          onSelectMeal={handleSelectMeal}
+          onApprovePlan={handleApprovePlan}
+          onAddWeek={handleAddWeek}
+          onTapMeal={handleSelectMeal}
+          onPantryAudit={handlePantryAudit}
+          onGeneratePlan={handleGeneratePlan}
+          isGenerating={isGenerating}
         />
-      )}
-    </div>
+
+        {/* Edit Day Modal */}
+        {isModalOpen && selectedMeal && (
+          <EditDayModal
+            currentMeal={selectedMeal}
+            alternatives={sampleAlternatives}
+            householdMembers={householdMembers}
+            onChangeCook={handleChangeCook}
+            onToggleEater={handleToggleEater}
+            onSelectAlternative={handleSelectAlternative}
+            onMoreOptions={handleMoreOptions}
+            onUnplan={handleUnplan}
+            onClose={handleCloseModal}
+          />
+        )}
+      </div>
+    </RequireAuth>
   );
 }

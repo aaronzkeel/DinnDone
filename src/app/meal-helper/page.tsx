@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { MealHelperHome } from "@/components/meal-helper";
+import { RequireAuth } from "@/components/RequireAuth";
 import type {
   HouseholdMember,
   PlannedMealSummary,
@@ -114,17 +115,19 @@ export default function MealHelperPage() {
   };
 
   return (
-    <MealHelperHome
-      currentUser={sampleUser}
-      tonightMeal={sampleTonightMeal}
-      householdMembers={sampleHouseholdMembers}
-      messages={messages}
-      onThisWorks={handleThisWorks}
-      onNewPlan={handleNewPlan}
-      onImWiped={handleImWiped}
-      onOpenInventoryCheck={handleOpenInventoryCheck}
-      onSendMessage={handleSendMessage}
-      onVoiceInput={handleVoiceInput}
-    />
+    <RequireAuth>
+      <MealHelperHome
+        currentUser={sampleUser}
+        tonightMeal={sampleTonightMeal}
+        householdMembers={sampleHouseholdMembers}
+        messages={messages}
+        onThisWorks={handleThisWorks}
+        onNewPlan={handleNewPlan}
+        onImWiped={handleImWiped}
+        onOpenInventoryCheck={handleOpenInventoryCheck}
+        onSendMessage={handleSendMessage}
+        onVoiceInput={handleVoiceInput}
+      />
+    </RequireAuth>
   );
 }

@@ -4,6 +4,7 @@ import { useState, useMemo } from "react";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import { NotificationsList, NotificationSettings } from "@/components/notifications";
+import { RequireAuth } from "@/components/RequireAuth";
 import type {
   Notification,
   CrisisDayMute,
@@ -28,7 +29,7 @@ const defaultPreferences: NotificationPreferences = {
   pushEnabled: true,
 };
 
-export default function NotificationsPage() {
+function NotificationsContent() {
   // Fetch notifications from Convex
   const convexNotifications = useQuery(api.notifications.list);
   const markDone = useMutation(api.notifications.markDone);
@@ -177,5 +178,13 @@ export default function NotificationsPage() {
       onOpenSettings={handleOpenSettings}
       onOpenPreview={handleOpenPreview}
     />
+  );
+}
+
+export default function NotificationsPage() {
+  return (
+    <RequireAuth>
+      <NotificationsContent />
+    </RequireAuth>
   );
 }

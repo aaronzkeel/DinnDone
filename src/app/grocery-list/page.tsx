@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { GroceryList } from '@/components/grocery-list'
+import { RequireAuth } from '@/components/RequireAuth'
 import type { GroceryItem, GroceryStore } from '@/types/grocery'
 
 // Sample data for initial rendering - will be replaced with real API data later
@@ -229,21 +230,23 @@ export default function GroceryListPage() {
   }
 
   return (
-    <div className="h-[calc(100vh-120px)]">
-      <GroceryList
-        stores={stores}
-        items={items}
-        syncStatus="synced"
-        onAddItem={handleAddItem}
-        onVoiceInput={handleVoiceInput}
-        onToggleChecked={handleToggleChecked}
-        onDeleteItem={handleDeleteItem}
-        onUpdateItem={handleUpdateItem}
-        onMoveItem={handleMoveItem}
-        onAddStore={handleAddStore}
-        onRenameStore={handleRenameStore}
-        onDeleteStore={handleDeleteStore}
-      />
-    </div>
+    <RequireAuth>
+      <div className="h-[calc(100vh-120px)]">
+        <GroceryList
+          stores={stores}
+          items={items}
+          syncStatus="synced"
+          onAddItem={handleAddItem}
+          onVoiceInput={handleVoiceInput}
+          onToggleChecked={handleToggleChecked}
+          onDeleteItem={handleDeleteItem}
+          onUpdateItem={handleUpdateItem}
+          onMoveItem={handleMoveItem}
+          onAddStore={handleAddStore}
+          onRenameStore={handleRenameStore}
+          onDeleteStore={handleDeleteStore}
+        />
+      </div>
+    </RequireAuth>
   )
 }
