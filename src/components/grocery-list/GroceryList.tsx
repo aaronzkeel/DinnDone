@@ -351,9 +351,48 @@ export function GroceryList({
               </svg>
             </div>
             <p className="text-stone-500 dark:text-stone-400 font-medium">Your list is empty</p>
-            <p className="text-stone-400 dark:text-stone-500 text-sm mt-1">
-              Add items above or tap the mic to speak
+            <p className="text-stone-400 dark:text-stone-500 text-sm mt-1 mb-4">
+              Add your first item to get started
             </p>
+            {addingToStoreKey === 'empty-state' ? (
+              <form
+                className="flex gap-2 w-full max-w-xs"
+                onSubmit={(e) => {
+                  e.preventDefault()
+                  const name = draftNewItemName.trim()
+                  if (!name) return
+                  onAddItem?.(name, {})
+                  setDraftNewItemName('')
+                  setAddingToStoreKey(null)
+                }}
+              >
+                <input
+                  autoFocus
+                  value={draftNewItemName}
+                  onChange={(e) => setDraftNewItemName(e.target.value)}
+                  placeholder="Item name..."
+                  className="flex-1 h-11 px-4 rounded-xl bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 text-sm text-stone-800 dark:text-stone-100 placeholder:text-stone-400 dark:placeholder:text-stone-500 focus:outline-none focus:ring-2 focus:ring-yellow-400 dark:focus:ring-yellow-500"
+                />
+                <button
+                  type="submit"
+                  className="h-11 px-5 rounded-xl bg-yellow-500 dark:bg-yellow-600 text-white font-semibold hover:bg-yellow-600 dark:hover:bg-yellow-500 transition-colors"
+                >
+                  Add
+                </button>
+              </form>
+            ) : (
+              <button
+                type="button"
+                onClick={() => {
+                  setAddingToStoreKey('empty-state')
+                  setDraftNewItemName('')
+                }}
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-yellow-500 dark:bg-yellow-600 text-white font-semibold hover:bg-yellow-600 dark:hover:bg-yellow-500 transition-colors"
+              >
+                <Plus size={18} />
+                Add first item
+              </button>
+            )}
           </div>
         )}
 
