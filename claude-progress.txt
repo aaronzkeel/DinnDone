@@ -1,5 +1,45 @@
 # Dinner Bell - Claude Progress Notes
 
+## Session: 2026-01-18 (Coding Agent - Feature #169)
+
+### Feature:
+- Feature #169: Notification settings accessible
+
+### What was verified:
+The functionality was already fully implemented in a previous session. This session verified it works correctly.
+
+1. **NotificationsList component** (`src/components/notifications/NotificationsList.tsx`)
+   - Settings icon (gear) in the header calls `onOpenSettings` prop
+
+2. **NotificationsPage** (`src/app/notifications/page.tsx`)
+   - State management for list vs settings view (`useState<"list" | "settings">`)
+   - `handleOpenSettings` changes view to "settings"
+   - Renders `NotificationSettings` component when view === "settings"
+
+3. **NotificationSettings component** (`src/components/notifications/NotificationSettings.tsx`)
+   - Push Notifications master toggle
+   - 7 Nudge Types with individual toggles
+   - Quiet Hours (Do Not Disturb) with time pickers
+   - Fandom Voice selector (Default, Samwise, Nacho Libre, Harry Potter, Star Wars, The Office)
+   - Reset to defaults button
+   - Back button to return to notifications list
+
+### Verification Results:
+- ✅ Step 1: Settings icon visible on Notifications page header (gear icon on the right)
+- ✅ Step 2: Tapping settings button opens NotificationSettings view
+- ✅ Step 3: Full NotificationSettings view displays with all sections
+- ✅ Back button returns to notifications list
+- ✅ No console errors
+- ✅ Screenshots captured:
+  - feature-169-notifications-page-with-settings-button.png
+  - feature-169-notification-settings-view.png
+  - feature-169-notification-settings-bottom.png
+
+### Status: Feature #169 marked as PASSING
+- Current progress: 23/200 features passing (11.5%)
+
+---
+
 ## Session: 2026-01-18 (Coding Agent - Feature #18)
 
 ### Feature:
