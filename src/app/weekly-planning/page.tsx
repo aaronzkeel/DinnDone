@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useAction } from "convex/react";
 import { api } from "../../../convex/_generated/api";
-import { WeekPlanView, EditDayModal } from "@/components/weekly-planning";
+import { WeekPlanView, EditDayModal, PantryAudit } from "@/components/weekly-planning";
 import { RequireAuth } from "@/components/RequireAuth";
 import type {
   HouseholdMember,
@@ -11,6 +11,7 @@ import type {
   WeekPlan,
   PlannedMeal,
   MealAlternative,
+  PantryCheckItem,
 } from "@/types/weekly-planning";
 
 // Sample data - will be replaced with Convex queries
@@ -376,6 +377,8 @@ export default function WeeklyPlanningPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
   const [localWeekPlans, setLocalWeekPlans] = useState(weekPlans);
+  const [showPantryAudit, setShowPantryAudit] = useState(false);
+  const [pantryItems, setPantryItems] = useState<PantryCheckItem[]>([]);
 
   const generateWeekPlan = useAction(api.ai.generateWeekPlan);
 
@@ -437,6 +440,20 @@ export default function WeeklyPlanningPage() {
       },
     }));
     console.log("Plan approved:", selectedWeekId);
+
+    // Extract unique ingredients from all meals in the week to create pantry items
+    const allIngredients = selectedWeekPlan.meals.flatMap((meal) => meal.ingredients);
+    const uniqueIngredients = [...new Set(allIngredients)];
+
+    // Create pantry check items from ingredients
+    const items: PantryCheckItem[] = uniqueIngredients.map((ingredient, index) => ({
+      id: `pantry-${index}`,
+      name: ingredient,
+      alreadyHave: false,
+    }));
+
+    setPantryItems(items);
+    setShowPantryAudit(true);
   };
 
   const handleAddWeek = () => {
@@ -445,8 +462,34 @@ export default function WeeklyPlanningPage() {
   };
 
   const handlePantryAudit = () => {
-    // TODO: Open pantry audit modal
-    console.log("Open pantry audit");
+    // Extract unique ingredients from all meals in the week to create pantry items
+    const allIngredients = selectedWeekPlan.meals.flatMap((meal) => meal.ingredients);
+    const uniqueIngredients = [...new Set(allIngredients)];
+
+    // Create pantry check items from ingredients
+    const items: PantryCheckItem[] = uniqueIngredients.map((ingredient, index) => ({
+      id: `pantry-${index}`,
+      name: ingredient,
+      alreadyHave: false,
+    }));
+
+    setPantryItems(items);
+    setShowPantryAudit(true);
+  };
+
+  const handleTogglePantryItem = (itemId: string) => {
+    setPantryItems((prev) =>
+      prev.map((item) =>
+        item.id === itemId ? { ...item, alreadyHave: !item.alreadyHave } : item
+      )
+    );
+  };
+
+  const handleCompletePantryAudit = () => {
+    setShowPantryAudit(false);
+    // TODO: Generate grocery list from unchecked items
+    const uncheckedItems = pantryItems.filter((item) => !item.alreadyHave);
+    console.log("Items to add to grocery list:", uncheckedItems.map((i) => i.name));
   };
 
   const handleGeneratePlan = async () => {
@@ -495,6 +538,24 @@ export default function WeeklyPlanningPage() {
       setIsGenerating(false);
     }
   };
+
+  // If pantry audit is showing, render it instead of the week plan view
+  if (showPantryAudit) {
+    return (
+      <RequireAuth>
+        <div
+          className="flex min-h-[calc(100vh-120px)] flex-col font-sans"
+          style={{ backgroundColor: "var(--color-bg)" }}
+        >
+          <PantryAudit
+            items={pantryItems}
+            onToggleItem={handleTogglePantryItem}
+            onComplete={handleCompletePantryAudit}
+          />
+        </div>
+      </RequireAuth>
+    );
+  }
 
   return (
     <RequireAuth>
