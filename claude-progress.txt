@@ -1,5 +1,42 @@
 # Dinner Bell - Claude Progress Notes
 
+## Session: 2026-01-18 (Coding Agent - Feature #13)
+
+### Feature:
+- Feature #13: Active tab shows highlight state
+
+### Verification Results:
+- ✅ Step 1: Navigate to Grocery List - Done, navigated to /grocery-list
+- ✅ Step 2: Verify List tab has active styling:
+  - List tab uses Sage Green color (#4F6E44 / rgb(79, 110, 68))
+  - Icon has thicker stroke (2.5 vs 2 for inactive)
+  - Font weight is heavier (600 vs 500)
+- ✅ Step 3: Other tabs show inactive styling:
+  - Home, Plan, Alerts all use muted color (rgb(107, 92, 77))
+  - Icons have standard stroke (2)
+  - Font weight is normal (500)
+- ✅ Bonus: Navigation changes the active state correctly (tested List → Home transition)
+- ✅ No JavaScript errors
+- ✅ Screenshots captured showing both states
+
+### Implementation (already existed):
+- `src/components/BottomNav.tsx` correctly implements:
+  - `isActive` check via `pathname === item.href`
+  - Active color: `var(--color-secondary)` (Sage Green)
+  - Inactive color: `var(--color-muted)`
+  - Active icon strokeWidth: 2.5, inactive: 2
+  - Active label fontWeight: 600, inactive: 500
+  - `aria-current="page"` for accessibility
+
+### Screenshots:
+- feature-13-list-tab-active.png (List tab highlighted)
+- feature-13-home-tab-active.png (Home tab highlighted after navigation)
+
+### Status: Feature #13 marked as PASSING
+- Current progress: 32/200 features passing (16.0%)
+
+---
+
 ## Session: 2026-01-18 (Coding Agent - Feature #9)
 
 ### Feature:
