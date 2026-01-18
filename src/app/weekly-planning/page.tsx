@@ -1,25 +1,9 @@
-import { DarkModeToggle } from "@/components/DarkModeToggle";
-
 export default function WeeklyPlanningPage() {
   return (
     <div
-      className="flex min-h-screen flex-col font-sans"
+      className="flex min-h-[calc(100vh-120px)] flex-col font-sans"
       style={{ backgroundColor: "var(--color-bg)" }}
     >
-      {/* Header */}
-      <header
-        className="flex items-center justify-between px-4 py-3"
-        style={{ borderBottom: "1px solid var(--color-border)" }}
-      >
-        <span
-          className="font-heading text-lg font-semibold"
-          style={{ color: "var(--color-text)" }}
-        >
-          Weekly Plan
-        </span>
-        <DarkModeToggle />
-      </header>
-
       {/* Main content */}
       <main className="flex flex-1 flex-col items-center justify-center px-4">
         <div

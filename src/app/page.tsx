@@ -1,26 +1,11 @@
 import { SignInButton } from "@/components/SignInButton";
-import { DarkModeToggle } from "@/components/DarkModeToggle";
 
 export default function Home() {
   return (
     <div
-      className="flex min-h-screen flex-col font-sans"
+      className="flex min-h-[calc(100vh-120px)] flex-col font-sans"
       style={{ backgroundColor: "var(--color-bg)" }}
     >
-      {/* Header with theme toggle */}
-      <header
-        className="flex items-center justify-between px-4 py-3"
-        style={{ borderBottom: "1px solid var(--color-border)" }}
-      >
-        <span
-          className="font-heading text-lg font-semibold"
-          style={{ color: "var(--color-text)" }}
-        >
-          Dinner Bell
-        </span>
-        <DarkModeToggle />
-      </header>
-
       {/* Main content */}
       <main className="flex flex-1 items-center justify-center px-4">
         <div
@@ -42,7 +27,6 @@ export default function Home() {
           <SignInButton />
         </div>
       </main>
-
     </div>
   );
 }
