@@ -1,6 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
+import { useAction } from "convex/react";
+import { api } from "../../../convex/_generated/api";
 import { MealHelperHome, MealOptionDetails, EmergencyExit, WeekSwapList } from "@/components/meal-helper";
 import { RequireAuth } from "@/components/RequireAuth";
 import type {
@@ -135,9 +137,39 @@ const sampleWeekMeals: Array<PlannedMealSummary & { dayLabel: string }> = [
 // View states for the meal helper page
 type ViewState = "home" | "meal-details" | "emergency-exit" | "week-swap";
 
+// System prompt for Zylo to have context about the meal helper
+const ZYLO_SYSTEM_PROMPT = `You are Zylo, a warm and encouraging meal planning assistant for the Dinner Bell family meal planning app.
+
+Your personality:
+- Friendly, supportive, and never judgmental
+- You understand that feeding a family is hard work
+- You celebrate small wins and normalize "good enough" meals
+- You keep responses concise (2-3 sentences max unless asked for more)
+- You use occasional emojis but don't overdo it (max 1-2 per message)
+
+Context about tonight's meal plan:
+- Tonight's planned meal: Chicken Stir Fry
+- Effort level: Medium
+- Cook: Katie
+- Prep time: 15 min, Cook time: 20 min
+- Key ingredients: Chicken breast, Bell peppers, Broccoli, Soy sauce, Garlic, Ginger, Rice
+- This is a flex meal (can be easily swapped)
+
+When users ask about meals:
+- Suggest meals from the weekly plan when possible
+- Be helpful with substitutions and modifications
+- If they seem overwhelmed, remind them that takeout or leftovers are valid options
+- Don't lecture about nutrition unless specifically asked
+
+Remember: Your job is to reduce dinner decision fatigue, not add to it.`;
+
 export default function MealHelperPage() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [currentView, setCurrentView] = useState<ViewState>("home");
+  const [isLoading, setIsLoading] = useState(false);
+
+  // Convex action for AI chat
+  const chatAction = useAction(api.ai.chat);
 
   const handleThisWorks = () => {
     // Open MealOptionDetails screen when "This works" is tapped
@@ -183,7 +215,7 @@ export default function MealHelperPage() {
     setMessages((prev) => [...prev, newMessage]);
   };
 
-  const handleSendMessage = (content: string) => {
+  const handleSendMessage = useCallback(async (content: string) => {
     // Add user message
     const userMessage: ChatMessage = {
       id: Date.now().toString(),
@@ -192,18 +224,59 @@ export default function MealHelperPage() {
       timestamp: new Date().toISOString(),
     };
     setMessages((prev) => [...prev, userMessage]);
+    setIsLoading(true);
 
-    // Simulate Zylo response
-    setTimeout(() => {
-      const zyloMessage: ChatMessage = {
+    try {
+      // Build conversation history for context
+      const conversationHistory: Array<{ role: "system" | "user" | "assistant"; content: string }> = [
+        { role: "system", content: ZYLO_SYSTEM_PROMPT },
+        // Include recent messages for context (last 10 messages max)
+        ...messages.slice(-10).map((msg) => ({
+          role: (msg.role === "user" ? "user" : "assistant") as "user" | "assistant",
+          content: msg.content,
+        })),
+        { role: "user", content },
+      ];
+
+      // Call the Convex AI action
+      const response = await chatAction({
+        messages: conversationHistory,
+        maxTokens: 300,
+      });
+
+      if (response.success && response.content) {
+        const zyloMessage: ChatMessage = {
+          id: (Date.now() + 1).toString(),
+          role: "zylo",
+          content: response.content,
+          timestamp: new Date().toISOString(),
+        };
+        setMessages((prev) => [...prev, zyloMessage]);
+      } else {
+        // Handle error - show friendly error message from Zylo
+        const errorMessage: ChatMessage = {
+          id: (Date.now() + 1).toString(),
+          role: "zylo",
+          content: "Hmm, I'm having trouble connecting right now. Let me try again in a moment! 🔄",
+          timestamp: new Date().toISOString(),
+        };
+        setMessages((prev) => [...prev, errorMessage]);
+        console.error("AI chat error:", response.error);
+      }
+    } catch (error) {
+      // Handle unexpected errors
+      const errorMessage: ChatMessage = {
         id: (Date.now() + 1).toString(),
         role: "zylo",
-        content: "Got it! Let me think about that... Based on what you've told me, I'd suggest keeping tonight's plan. The stir fry is quick and everyone likes it!",
+        content: "Oops, something went wrong on my end. Mind trying that again? 💛",
         timestamp: new Date().toISOString(),
       };
-      setMessages((prev) => [...prev, zyloMessage]);
-    }, 1000);
-  };
+      setMessages((prev) => [...prev, errorMessage]);
+      console.error("Chat error:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [chatAction, messages]);
 
   const handleVoiceInput = () => {
     console.log("Voice input triggered");
@@ -318,6 +391,7 @@ export default function MealHelperPage() {
         onOpenInventoryCheck={handleOpenInventoryCheck}
         onSendMessage={handleSendMessage}
         onVoiceInput={handleVoiceInput}
+        isLoading={isLoading}
       />
     </RequireAuth>
   );

@@ -22,6 +22,7 @@ export function MealHelperHome({
   panel,
   onSendMessage,
   onVoiceInput,
+  isLoading = false,
 }: MealHelperHomeProps) {
   return (
     <div
@@ -104,11 +105,47 @@ export function MealHelperHome({
                 ))}
               </div>
             )}
+
+            {/* Loading indicator while waiting for AI response */}
+            {isLoading && (
+              <div className="flex items-center gap-2 ml-10 mt-3">
+                <div
+                  className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0"
+                  style={{ backgroundColor: "var(--color-primary)", opacity: 0.2 }}
+                >
+                  <span style={{ color: "var(--color-primary)" }} className="text-sm font-bold">
+                    Z
+                  </span>
+                </div>
+                <div
+                  className="rounded-2xl rounded-bl-md px-4 py-3"
+                  style={{
+                    backgroundColor: "var(--color-card)",
+                    border: "1px solid var(--color-border)",
+                  }}
+                >
+                  <div className="flex gap-1">
+                    <span
+                      className="w-2 h-2 rounded-full animate-bounce"
+                      style={{ backgroundColor: "var(--color-muted)", animationDelay: "0ms" }}
+                    />
+                    <span
+                      className="w-2 h-2 rounded-full animate-bounce"
+                      style={{ backgroundColor: "var(--color-muted)", animationDelay: "150ms" }}
+                    />
+                    <span
+                      className="w-2 h-2 rounded-full animate-bounce"
+                      style={{ backgroundColor: "var(--color-muted)", animationDelay: "300ms" }}
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         )}
       </div>
 
-      <ChatInput onSendMessage={onSendMessage} onVoiceInput={onVoiceInput} />
+      <ChatInput onSendMessage={onSendMessage} onVoiceInput={onVoiceInput} disabled={isLoading} />
     </div>
   );
 }

@@ -96,4 +96,6 @@ export interface MealHelperHomeProps {
   /** Chat input */
   onSendMessage?: (content: string) => void;
   onVoiceInput?: () => void;
+  /** Loading state for AI responses */
+  isLoading?: boolean;
 }
