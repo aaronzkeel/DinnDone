@@ -1,5 +1,48 @@
 # Dinner Bell - Claude Progress Notes
 
+## Session: 2026-01-18 (Coding Agent - Feature #18)
+
+### Feature:
+- Feature #18: Service worker registered
+
+### What was implemented:
+1. **Service Worker** (`public/sw.js`)
+   - Network-first caching strategy for app performance
+   - Pre-caches essential assets (/, manifest.json, icons)
+   - Handles offline fallback gracefully
+   - Skips Convex API/WebSocket requests to avoid interference
+   - Clean cache management on updates
+
+2. **Offline Page** (`public/offline.html`)
+   - Styled with Harvest Hug palette
+   - User-friendly "You're Offline" message
+   - "Try Again" button to reload
+
+3. **Service Worker Registration** (`src/components/ServiceWorkerRegistration.tsx`)
+   - Client component that registers SW on mount
+   - Logs success/failure to console
+   - Handles update detection
+
+4. **Layout Integration** (`src/app/layout.tsx`)
+   - Added ServiceWorkerRegistration component to app shell
+
+### Verification Results:
+- ✅ Step 1: Load app in production mode - Built and served via `npm run build` / `npm run start`
+- ✅ Step 2: Check DevTools > Application > Service Workers - Verified via JavaScript
+- ✅ Step 3: Verify service worker is registered:
+  - hasServiceWorker: true
+  - scope: http://localhost:3000/
+  - state: "activated"
+  - scriptURL: http://localhost:3000/sw.js
+  - Console: "[PWA] Service Worker registered successfully: http://localhost:3000/"
+- ✅ No console errors
+- ✅ Screenshot captured: feature-18-service-worker-registered.png
+
+### Status: Feature #18 marked as PASSING
+- Current progress: 23/200 features passing (11.5%)
+
+---
+
 ## Session: 2026-01-18 (Coding Agent - Feature #88)
 
 ### Feature:
@@ -936,3 +979,24 @@ Updated `convex/schema.ts` with all required entities:
 
 ### Status: STILL PASSING - No regression found
 [Testing] Feature #12 verified - still passing
+
+## Session: 2026-01-18 17:04 (Regression Test - Feature #65)
+
+### Feature Tested:
+- Feature #65: Meal Helper page renders
+
+### Verification Results:
+- ✅ Step 1: Navigate to Meal Helper tab - /meal-helper route works
+- ✅ Step 2: Verify page loads without errors - No console errors
+- ✅ Step 3: Verify MealHelperHome component renders:
+  - Tonight's Plan card: Chicken Stir Fry with Medium/Flex badges
+  - Details: 35 min | Medium cleanup | Katie cooking
+  - Ingredients: Chicken breast, Bell peppers, Broccoli, Soy sauce, Garlic, +2 more
+  - Action buttons: This works (gold), New plan, I'm wiped
+  - Check what we've got link present
+  - Zylo chat greeting: Hey Aaron. Want to stick with tonight's plan or adjust it?
+  - Voice input and text input available
+- ✅ Screenshot: regression-test-feature-65-meal-helper.png
+
+### Status: STILL PASSING - No regression found
+[Testing] Feature #65 verified - still passing
