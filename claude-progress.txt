@@ -1,5 +1,40 @@
 # Dinner Bell - Claude Progress Notes
 
+## Session: 2026-01-18 (Coding Agent - Feature #16)
+
+### Feature:
+- Feature #16: Cards use correct background colors
+
+### What was verified:
+The card background colors are correctly configured in the CSS with the Harvest Hug palette from DESIGN-TOKENS.md.
+
+1. **CSS Variables** (`src/app/globals.css`)
+   - Light mode: `--color-card: #F3E8D6`
+   - Dark mode: `--color-card: #221A14`
+
+2. **Card Components** using `var(--color-card)`:
+   - TonightPlanCard, MealSuggestionCard, ChatMessage
+   - NotificationCard, NotificationSettings, NotificationsList
+   - DayCard, WeekSelector, EditDayModal
+   - Header dropdown, BottomNav, ChatInput
+   - All card components consistently use `backgroundColor: "var(--color-card)"`
+
+### Verification Results:
+- ✅ Step 1: View a card component - TonightPlanCard on /meal-helper page
+- ✅ Step 2: Light mode uses #F3E8D6 - Verified (`rgb(243, 232, 214)`)
+- ✅ Step 3: Dark mode uses #221A14 - Verified (`rgb(34, 26, 20)`)
+- ✅ Theme toggle cycles correctly: System (light) → Light → Dark
+- ✅ No console errors
+- ✅ Screenshots captured:
+  - feature-16-light-mode-card.png
+  - feature-16-dark-mode-card.png
+  - feature-16-dark-mode-notifications.png
+
+### Status: Feature #16 marked as PASSING
+- Current progress: 25/200 features passing (12.5%)
+
+---
+
 ## Session: 2026-01-18 (Coding Agent - Feature #169)
 
 ### Feature:
@@ -1040,3 +1075,44 @@ Updated `convex/schema.ts` with all required entities:
 
 ### Status: STILL PASSING - No regression found
 [Testing] Feature #65 verified - still passing
+
+## Session: 2026-01-18 (Regression Test - Feature #19)
+
+### Feature Tested:
+- Feature #19: OpenRouter API connection works
+
+### Verification Results:
+- ✅ Step 1: Test Convex action exists in convex/ai.ts (testConnection action)
+- ✅ Step 2: OPENROUTER_API_KEY is set and configured correctly
+- ✅ Step 3: Response received from Gemini model:
+  - Model: google/gemini-2.0-flash-001
+  - Message: OpenRouter API connection successful!
+  - AI Response: "Hello! Zylo here, ready to help with your meal planning. 🛎️"
+- ✅ No console errors
+- ✅ Screenshot: regression-test-feature-19-openrouter-success.png
+
+### Status: STILL PASSING - No regression found
+[Testing] Feature #19 verified - still passing
+
+## Session: 2026-01-18 17:06 (Regression Test - Feature #4)
+
+### Feature Tested:
+- Feature #4: Convex schema defines all core entities
+
+### Verification Results:
+- ✅ Step 1: convex/schema.ts exists
+- ✅ Step 2: All 7 entity tables defined:
+  1. householdMembers (line 67)
+  2. weekPlans (line 82)
+  3. plannedMeals (line 88)
+  4. groceryItems (line 132)
+  5. stores (line 76)
+  6. notifications (line 154)
+  7. notificationPreferences (line 175)
+- ✅ Step 3: npx convex dev --once completed successfully - schema syncs
+- ✅ Bonus: All 4 app pages load correctly using the schema
+- ✅ No console errors
+- ✅ Screenshots: regression-test-feature-4-*.png
+
+### Status: STILL PASSING - No regression found
+[Testing] Feature #4 verified - still passing
