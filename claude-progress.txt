@@ -1382,3 +1382,26 @@ The feature was already mostly implemented. The key components existed:
 
 ### Status: Feature #132 marked as PASSING
 - Current progress: 30/200 features passing (15.0%)
+
+## Session: 2026-01-18 17:16 (Regression Test - Feature #15)
+
+### Feature Tested:
+- Feature #15: Dark mode toggles correctly
+
+### Verification Results:
+- ✅ Step 1: Started in System (light) mode - respects system preference
+- ✅ Step 2: Toggled to Dark mode - verified dark palette:
+  - Background changed to dark brown/charcoal
+  - Card background darkened appropriately
+  - Text switched to light colors
+  - Button shows 'Dark mode' with moon icon
+- ✅ Step 3: Toggled back to System (light) - colors changed back:
+  - Background returned to warm beige (#FAF6F1)
+  - Card background returned to cream (#F3E8D6)
+  - Text returned to dark colors
+- ✅ Theme cycles correctly: System (light) → Light mode → Dark mode → System (light)
+- ✅ No console errors
+- ✅ Screenshots: regression-test-feature-15-*.png
+
+### Status: STILL PASSING - No regression found
+[Testing] Feature #15 verified - still passing

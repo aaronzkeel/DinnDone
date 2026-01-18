@@ -426,8 +426,17 @@ export default function WeeklyPlanningPage() {
   };
 
   const handleApprovePlan = () => {
-    // TODO: Call Convex mutation to approve plan
-    console.log("Approve plan:", selectedWeekId);
+    // Update local state to mark plan as approved
+    setLocalWeekPlans((prev) => ({
+      ...prev,
+      [selectedWeekId]: {
+        ...prev[selectedWeekId],
+        status: "approved" as const,
+        approvedBy: currentUser.id,
+        approvedAt: new Date().toISOString(),
+      },
+    }));
+    console.log("Plan approved:", selectedWeekId);
   };
 
   const handleAddWeek = () => {
