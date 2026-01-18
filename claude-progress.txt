@@ -148,3 +148,18 @@
 
 ### Status: Feature #6 marked as PASSING
 - Current progress: 7/200 features passing (3.5%)
+
+## Session: 2026-01-18 ~16:39 (Regression Test - Feature #3)
+
+### Feature Tested:
+- Feature #3: Convex backend connected
+
+### Verification Results:
+- ✅ Step 1: ConvexClientProvider wraps app in layout.tsx (lines 36-39)
+- ✅ Step 2: NEXT_PUBLIC_CONVEX_URL set to https://basic-condor-768.convex.cloud
+- ✅ Step 3: No connection errors in console - browser shows only HMR/React info logs
+- ✅ All network requests return 200 OK
+- ✅ App loads and renders correctly
+
+### Status: STILL PASSING - No regression found
+[Testing] Feature #3 verified - still passing

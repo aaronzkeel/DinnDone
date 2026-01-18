@@ -3,6 +3,7 @@ import { Lora, Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 import { ConvexClientProvider } from "./ConvexClientProvider";
 import { ThemeProvider } from "@/components/ThemeProvider";
+import { BottomNav } from "@/components/BottomNav";
 
 const lora = Lora({
   variable: "--font-heading",
@@ -32,7 +33,10 @@ export default function RootLayout({
         className={`${lora.variable} ${plusJakartaSans.variable} antialiased`}
       >
         <ThemeProvider>
-          <ConvexClientProvider>{children}</ConvexClientProvider>
+          <ConvexClientProvider>
+            <main className="pb-20">{children}</main>
+            <BottomNav />
+          </ConvexClientProvider>
         </ThemeProvider>
       </body>
     </html>
