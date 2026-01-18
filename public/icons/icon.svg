@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- Background circle -->
+  <circle cx="256" cy="256" r="256" fill="#4F6E44"/>
+
+  <!-- Bell shape -->
+  <path d="M256 96c-8.8 0-16 7.2-16 16v16c-53 10.3-96 54.4-96 108v60c0 35.3-28.7 64-64 64v32h384v-32c-35.3 0-64-28.7-64-64v-60c0-53.6-43-97.7-96-108v-16c0-8.8-7.2-16-16-16h-16zm-32 336c0 17.7 14.3 32 32 32s32-14.3 32-32h-64z" fill="#FAF3E6" transform="translate(16, 16) scale(0.9)"/>
+
+  <!-- Small plate/dome for serving -->
+  <ellipse cx="256" cy="380" rx="80" ry="16" fill="#E2A93B"/>
+</svg>

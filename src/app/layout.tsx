@@ -21,6 +21,22 @@ const plusJakartaSans = Plus_Jakarta_Sans({
 export const metadata: Metadata = {
   title: "Dinner Bell",
   description: "AI-powered meal planning companion",
+  manifest: "/manifest.json",
+  themeColor: "#4F6E44",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "Dinner Bell",
+  },
+  icons: {
+    icon: [
+      { url: "/icons/icon-192x192.png", sizes: "192x192", type: "image/png" },
+      { url: "/icons/icon-512x512.png", sizes: "512x512", type: "image/png" },
+    ],
+    apple: [
+      { url: "/icons/icon-192x192.png", sizes: "192x192", type: "image/png" },
+    ],
+  },
 };
 
 export default function RootLayout({
