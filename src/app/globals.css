@@ -1,26 +1,185 @@
 @import "tailwindcss";
 
+/* ==========================================================================
+   Harvest Hug + Brick Color Palette
+   From DESIGN-TOKENS.md (LOCKED)
+   ========================================================================== */
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Fonts */
+  --font-heading: 'Lora', Georgia, serif;
+  --font-sans: 'Plus Jakarta Sans', system-ui, sans-serif;
+
+  /* Light Mode Colors (default) */
+  --color-primary: #E2A93B;      /* Gold — secondary buttons, accents */
+  --color-secondary: #4F6E44;    /* Sage Green — primary "go" actions */
+  --color-danger: #B94A34;       /* Brick Red — alerts, destructive */
+  --color-danger-deep: #8E3524;
+  --color-danger-tint: #F1D1C7;
+  --color-bg: #FAF3E6;           /* Page background */
+  --color-card: #F3E8D6;         /* Card backgrounds */
+  --color-text: #2B221A;         /* Primary text */
+  --color-muted: #6B5C4D;        /* Secondary/muted text */
+  --color-border: #D8CBB6;       /* Borders, dividers */
+
+  /* Background/foreground aliases */
+  --background: var(--color-bg);
+  --foreground: var(--color-text);
+}
+
+/* Dark mode via class (for manual toggle) */
+.dark {
+  --color-secondary: #6F8F5E;    /* Sage Green (lighter for dark bg) */
+  --color-danger-tint: #3A1B1B;
+  --color-bg: #17120E;           /* Page background */
+  --color-card: #221A14;         /* Card backgrounds */
+  --color-text: #F6EDE0;         /* Primary text */
+  --color-muted: #CBBBA3;        /* Secondary/muted text */
+  --color-border: #3A2D23;       /* Borders, dividers */
+
+  --background: var(--color-bg);
+  --foreground: var(--color-text);
+}
+
+/* Also respect system preference when no explicit class */
+@media (prefers-color-scheme: dark) {
+  :root:not(.light) {
+    --color-secondary: #6F8F5E;
+    --color-danger-tint: #3A1B1B;
+    --color-bg: #17120E;
+    --color-card: #221A14;
+    --color-text: #F6EDE0;
+    --color-muted: #CBBBA3;
+    --color-border: #3A2D23;
+
+    --background: var(--color-bg);
+    --foreground: var(--color-text);
+  }
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+  --font-sans: var(--font-sans);
+  --font-heading: var(--font-heading);
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  /* Custom colors for Tailwind */
+  --color-primary: var(--color-primary);
+  --color-secondary: var(--color-secondary);
+  --color-danger: var(--color-danger);
+  --color-danger-deep: var(--color-danger-deep);
+  --color-danger-tint: var(--color-danger-tint);
+  --color-harvest-bg: var(--color-bg);
+  --color-harvest-card: var(--color-card);
+  --color-harvest-text: var(--color-text);
+  --color-harvest-muted: var(--color-muted);
+  --color-harvest-border: var(--color-border);
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans);
+}
+
+/* ==========================================================================
+   Button Styles — Per DESIGN-TOKENS.md
+   - Green (#4F6E44) = Primary positive actions ("Make it", "Confirm", "Save")
+   - Gold (#E2A93B) = Secondary actions ("Swap", "Change", "Edit")
+   - Red (#B94A34) = Danger/Destructive ("Delete", "Remove")
+   ========================================================================== */
+
+/* Base button styles */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 500;
+  font-family: var(--font-sans);
+  border-radius: 0.5rem;
+  border: none;
+  cursor: pointer;
+  transition: all 0.15s ease-in-out;
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Primary Positive — Sage Green (#4F6E44) */
+.btn-primary {
+  background-color: var(--color-secondary);
+  color: white;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background-color: #3d5735;
+}
+
+.btn-primary:active:not(:disabled) {
+  background-color: #324a2c;
+}
+
+/* Secondary Action — Gold (#E2A93B) */
+.btn-secondary {
+  background-color: var(--color-primary);
+  color: #2B221A;
+}
+
+.btn-secondary:hover:not(:disabled) {
+  background-color: #c99430;
+}
+
+.btn-secondary:active:not(:disabled) {
+  background-color: #b08228;
+}
+
+/* Danger/Destructive — Brick Red (#B94A34) */
+.btn-danger {
+  background-color: var(--color-danger);
+  color: white;
+}
+
+.btn-danger:hover:not(:disabled) {
+  background-color: #9e3f2d;
+}
+
+.btn-danger:active:not(:disabled) {
+  background-color: #843426;
+}
+
+/* Ghost Button — Transparent with border */
+.btn-ghost {
+  background-color: transparent;
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+}
+
+.btn-ghost:hover:not(:disabled) {
+  background-color: var(--color-card);
+}
+
+.btn-ghost:active:not(:disabled) {
+  background-color: var(--color-border);
+}
+
+/* Ghost Destructive — Transparent with red text */
+.btn-ghost-destructive {
+  background-color: transparent;
+  color: var(--color-danger);
+  border: 1px solid transparent;
+}
+
+.btn-ghost-destructive:hover:not(:disabled) {
+  background-color: var(--color-danger-tint);
+  border-color: var(--color-danger);
+}
+
+.btn-ghost-destructive:active:not(:disabled) {
+  background-color: var(--color-danger);
+  color: white;
 }
