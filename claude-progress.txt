@@ -441,3 +441,75 @@ Updated `convex/schema.ts` with all required entities:
 ### Status: Feature #19 marked as PASSING
 - Current progress: 12/200 features passing (6.0%)
 
+
+## Session: 2026-01-18 (Regression Test - Feature #19)
+
+### Feature Tested:
+- Feature #19: OpenRouter API connection works
+
+### Verification Results:
+- ✅ Step 1: Test Convex action calls OpenRouter - testConnection action triggers correctly
+- ✅ Step 2: OPENROUTER_API_KEY is set - Connection successful
+- ✅ Step 3: Response received from Gemini - Model: google/gemini-2.0-flash-001
+- ✅ AI Response: "Hey there! 👋 Zylo here, ready to help you plan some delicious dinners!"
+- ✅ No console errors
+- ✅ Screenshot captured: regression-test-feature-19-openrouter.png
+
+### Status: STILL PASSING - No regression found
+[Testing] Feature #19 verified - still passing
+
+## Session: 2026-01-18 (Coding Agent - Feature #20)
+
+### Feature:
+- Feature #20: Grocery List page renders
+
+### What was implemented:
+1. **GroceryList Component** (`src/components/grocery-list/GroceryList.tsx`)
+   - Full grocery list UI with store filtering (All, individual stores, Unassigned)
+   - Items grouped by store with count badges
+   - Drag-and-drop support for moving items between stores
+   - Inline add item functionality per store section
+   - Store manager modal for adding/renaming/deleting stores
+   - Density toggle (comfortable/compact views)
+   - Voice input button (placeholder)
+   - Sync status indicator (synced/syncing/offline)
+   - Collapsible "Done" section for checked items
+
+2. **GroceryListItem Component** (`src/components/grocery-list/GroceryListItem.tsx`)
+   - Checkbox for toggling item completion
+   - Inline editing for name and quantity
+   - Drag handle for reordering
+   - Organic badge display
+   - Meal sources popover (shows which meals an item is for)
+   - Delete button (visible on hover)
+   - Refactored to avoid useEffect state sync anti-pattern
+
+3. **Grocery Types** (`src/types/grocery.ts`)
+   - GroceryCategory, GroceryStore, MealSource, GroceryItem types
+   - GroceryListProps interface for component props
+
+4. **Updated Page** (`src/app/grocery-list/page.tsx`)
+   - Wired up GroceryList component with sample data
+   - Implemented all handler functions (add, toggle, delete, update, move items)
+   - Store management handlers (add, rename, delete stores)
+
+### Verification Results:
+- Step 1: Navigate to /grocery-list - Done
+- Step 2: Page loads without errors - No console errors
+- Step 3: GroceryListView component renders - Full component renders
+  - Store filter buttons visible
+  - Items grouped by store (Meijer, Costco, Aldi, Trader Joes)
+  - Organic badges showing
+  - Meal indicators visible
+  - Add item buttons working
+  - Responsive on mobile (375x667)
+
+### Files Created/Modified:
+- `src/components/grocery-list/GroceryList.tsx` (NEW)
+- `src/components/grocery-list/GroceryListItem.tsx` (NEW)
+- `src/components/grocery-list/index.ts` (NEW)
+- `src/types/grocery.ts` (NEW)
+- `src/app/grocery-list/page.tsx` (UPDATED)
+
+### Status: Feature #20 marked as PASSING
+- Current progress: 12/200 features passing (6.0%)
