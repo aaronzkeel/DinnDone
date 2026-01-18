@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { MealHelperHome, MealOptionDetails } from "@/components/meal-helper";
+import { MealHelperHome, MealOptionDetails, EmergencyExit } from "@/components/meal-helper";
 import { RequireAuth } from "@/components/RequireAuth";
 import type {
   HouseholdMember,
@@ -45,7 +45,7 @@ const sampleTonightMeal: PlannedMealSummary = {
 };
 
 // View states for the meal helper page
-type ViewState = "home" | "meal-details";
+type ViewState = "home" | "meal-details" | "emergency-exit";
 
 export default function MealHelperPage() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -67,13 +67,27 @@ export default function MealHelperPage() {
   };
 
   const handleImWiped = () => {
+    // Open EmergencyExit screen when "I'm wiped" is tapped
+    setCurrentView("emergency-exit");
+  };
+
+  const handleEmergencyOption = (optionId: string) => {
+    // Map option IDs to friendly names
+    const optionNames: Record<string, string> = {
+      leftovers: "leftovers night",
+      freezer: "something from the freezer",
+      takeout: "grabbing takeout",
+    };
+    const optionName = optionNames[optionId] || optionId;
+
     const newMessage: ChatMessage = {
       id: Date.now().toString(),
       role: "zylo",
-      content: "I totally get it! Here are some zero-effort options: 1) Order in from your favorite spot, 2) Cereal night (kids love it), 3) Frozen pizza emergency stash. No judgment here! 💛",
+      content: `Perfect! ${optionName.charAt(0).toUpperCase() + optionName.slice(1)} it is. No judgment, just fed. That's a win! 💛`,
       timestamp: new Date().toISOString(),
     };
     setMessages((prev) => [...prev, newMessage]);
+    setCurrentView("home");
   };
 
   const handleOpenInventoryCheck = () => {
@@ -162,6 +176,18 @@ export default function MealHelperPage() {
           onBack={handleBack}
           onCookThis={handleCookThis}
           onIngredientCheck={handleIngredientCheck}
+        />
+      </RequireAuth>
+    );
+  }
+
+  // Render EmergencyExit when "I'm wiped" is clicked
+  if (currentView === "emergency-exit") {
+    return (
+      <RequireAuth>
+        <EmergencyExit
+          onBack={handleBack}
+          onChooseOption={handleEmergencyOption}
         />
       </RequireAuth>
     );

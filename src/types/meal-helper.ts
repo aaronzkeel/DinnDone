@@ -65,6 +65,11 @@ export interface ChatMessageProps {
   currentUser?: HouseholdMember;
 }
 
+export interface EmergencyExitProps {
+  onBack?: () => void;
+  onChooseOption?: (optionId: string) => void;
+}
+
 export interface MealHelperHomeProps {
   /** Current user */
   currentUser: HouseholdMember;

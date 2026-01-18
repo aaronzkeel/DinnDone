@@ -1,5 +1,51 @@
 # Dinner Bell - Claude Progress Notes
 
+## Session: 2026-01-18 (Coding Agent - Feature #71)
+
+### Feature:
+- Feature #71: Im wiped button opens emergency exit
+
+### What was implemented:
+1. **Created EmergencyExit component** (`src/components/meal-helper/EmergencyExit.tsx`):
+   - "Emergency Exit" heading with supportive message
+   - Three zero-energy options: Leftovers night, Freezer save, Clean takeout
+   - Each option has icon, title, and description
+   - Back button to return to home view
+   - Uses Harvest Hug palette (CSS variables)
+
+2. **Added EmergencyExitProps type** (`src/types/meal-helper.ts`):
+   - onBack?: () => void
+   - onChooseOption?: (optionId: string) => void
+
+3. **Updated meal-helper page** (`src/app/meal-helper/page.tsx`):
+   - Added "emergency-exit" to ViewState type
+   - handleImWiped now navigates to EmergencyExit screen
+   - Added handleEmergencyOption handler for option selection
+   - Added conditional rendering for EmergencyExit view
+
+4. **Created test page** (`src/app/test-emergency-exit/page.tsx`)
+
+### Verification Results:
+- ✅ Step 1: View Tonight's Plan card - Card visible with meal details
+- ✅ Step 2: Tap I'm wiped button - Button triggers navigation to EmergencyExit
+- ✅ Step 3: Verify EmergencyExit screen opens:
+  - Heading: "Emergency Exit"
+  - Message: "Gotcha. Let's get everyone fed with as little effort as possible."
+  - Three options: Leftovers night, Freezer save, Clean takeout
+  - Back button works
+  - Option selection closes screen
+- ✅ No console errors
+- ✅ TypeScript compiles without errors
+
+### Screenshots:
+- feature-71-emergency-exit-screen.png
+- feature-71-option-selected.png
+
+### Status: Feature #71 marked as PASSING
+- Current progress: 40/200 features passing (20.0%)
+
+---
+
 ## Session: 2026-01-18 (Coding Agent - Feature #24)
 
 ### Feature:
