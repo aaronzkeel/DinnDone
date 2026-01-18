@@ -1,63 +1,46 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
+import { useQuery, useMutation } from "convex/react";
+import { api } from "../../../convex/_generated/api";
 import { NotificationsList } from "@/components/notifications";
 import type { Notification, CrisisDayMute } from "@/types/notifications";
 
-// Sample notifications for initial UI (will be replaced with real data from Convex)
-const sampleNotifications: Notification[] = [
-  {
-    id: "1",
-    type: "daily-brief",
-    message: "Tonight: Tacos! Katie is cooking. Don't forget to check if we have lime.",
-    timestamp: new Date(Date.now() - 1000 * 60 * 30).toISOString(), // 30 mins ago
-    status: "pending",
-    actions: [
-      { id: "got-it", label: "Got it!", isPrimary: true },
-      { id: "view-plan", label: "View Plan", isPrimary: false },
-    ],
-  },
-  {
-    id: "2",
-    type: "thaw-guardian",
-    message: "Heads up! Tomorrow's dinner is Chicken Stir Fry. Time to move chicken from freezer to fridge.",
-    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 2).toISOString(), // 2 hours ago
-    status: "pending",
-    actions: [
-      { id: "done", label: "Done!", isPrimary: true },
-      { id: "skip", label: "Skip", isPrimary: false },
-    ],
-  },
-  {
-    id: "3",
-    type: "weekly-plan-ready",
-    message: "Your meal plan for next week is ready! Take a look and make any swaps.",
-    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString(), // 1 day ago
-    status: "done",
-    resolvedAction: "Approved",
-  },
-];
-
 export default function NotificationsPage() {
-  const [notifications, setNotifications] = useState<Notification[]>(sampleNotifications);
+  // Fetch notifications from Convex
+  const convexNotifications = useQuery(api.notifications.list);
+  const markDone = useMutation(api.notifications.markDone);
+
   const [crisisDayMute, setCrisisDayMute] = useState<CrisisDayMute>({
     isActive: false,
   });
 
-  const handleAction = (notificationId: string, actionId: string) => {
-    // Mark the notification as done with the action taken
-    setNotifications((prev) =>
-      prev.map((n) =>
-        n.id === notificationId
-          ? {
-              ...n,
-              status: "done" as const,
-              resolvedAt: new Date().toISOString(),
-              resolvedAction: actionId,
-            }
-          : n
-      )
-    );
+  // Convert Convex notifications to component format
+  const notifications: Notification[] = useMemo(() => {
+    if (!convexNotifications) return [];
+
+    return convexNotifications.map((n) => ({
+      id: n._id,
+      type: n.type,
+      message: n.message,
+      timestamp: n.timestamp,
+      status: n.status,
+      actions: n.actions,
+      resolvedAt: n.resolvedAt,
+      resolvedAction: n.resolvedAction,
+    }));
+  }, [convexNotifications]);
+
+  const handleAction = async (notificationId: string, actionId: string) => {
+    try {
+      // Call Convex mutation to mark notification as done
+      await markDone({
+        notificationId: notificationId as Parameters<typeof markDone>[0]["notificationId"],
+        actionId,
+      });
+    } catch (error) {
+      console.error("Failed to mark notification as done:", error);
+    }
   };
 
   const handleToggleCrisisMute = () => {
@@ -79,6 +62,18 @@ export default function NotificationsPage() {
     // TODO: Navigate to or open preview modal
     console.log("Open notification preview");
   };
+
+  // Show loading state while fetching
+  if (convexNotifications === undefined) {
+    return (
+      <div className="flex items-center justify-center h-[calc(100vh-120px)]" style={{ backgroundColor: "var(--color-bg)" }}>
+        <div className="text-center">
+          <div className="animate-spin w-8 h-8 border-2 border-t-transparent rounded-full mx-auto mb-2" style={{ borderColor: "var(--color-primary)", borderTopColor: "transparent" }}></div>
+          <p style={{ color: "var(--color-muted)" }}>Loading notifications...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <NotificationsList

@@ -1,5 +1,47 @@
 # Dinner Bell - Claude Progress Notes
 
+## Session: 2026-01-18 (Coding Agent - Feature #17)
+
+### Feature:
+- Feature #17: PWA manifest configured
+
+### What was implemented:
+1. **manifest.json** (`public/manifest.json`)
+   - App name: "Dinner Bell"
+   - Short name: "Dinner Bell"
+   - Description: "AI-powered meal planning companion"
+   - Display: standalone (PWA mode)
+   - Background color: #FAF3E6 (Harvest Hug bg)
+   - Theme color: #4F6E44 (Sage Green)
+   - Icons: 192x192 and 512x512 PNG
+
+2. **PWA Icons** (`public/icons/`)
+   - icon-192x192.png - Bell icon with sage green bg, cream bell, gold clapper
+   - icon-512x512.png - Same design at larger size
+   - icon.svg - Source SVG for reference
+
+3. **Icon Generation Script** (`scripts/generate-icons.mjs`)
+   - Uses Sharp library to convert SVG to PNG
+   - Generates both required PWA icon sizes
+
+4. **Updated Layout** (`src/app/layout.tsx`)
+   - Added manifest link
+   - Added apple-touch-icon for iOS
+   - Added icon links for both sizes
+
+### Verification Results:
+- ✅ Step 1: manifest.json exists - Accessible at /manifest.json
+- ✅ Step 2: Name is "Dinner Bell" - Verified in manifest content
+- ✅ Step 3: Icons configured - Both 192x192 and 512x512 PNG icons load correctly
+- ✅ HTML includes manifest link and icon links
+- ✅ No console errors
+- ✅ Screenshots captured: feature-17-icon-192.png, feature-17-icon-512.png, feature-17-pwa-manifest-verified.png
+
+### Status: Feature #17 marked as PASSING
+- Current progress: 19/200 features passing (9.5%)
+
+---
+
 ## Session: 2026-01-18 (Coding Agent - Feature #114)
 
 ### Feature:
@@ -764,3 +806,24 @@ Updated `convex/schema.ts` with all required entities:
 
 ### Status: STILL PASSING - No regression found
 [Testing] Feature #15 verified - still passing
+
+## Session: 2026-01-18 (Regression Test - Feature #5)
+
+### Feature Tested:
+- Feature #5: Convex Auth configured with Google OAuth
+
+### Verification Results:
+- ✅ Step 1: Auth provider is configured in Convex
+  - Redirect URL: https://basic-condor-768.convex.site/api/auth/callback/google
+- ✅ Step 2: Google OAuth credentials are set
+  - Client ID: 310882050130-86t2srbo0878bhuvqbeqposcvapng3ct.apps.googleusercontent.com
+  - Scopes: openid profile email
+  - PKCE enabled (S256)
+- ✅ Step 3: Sign in with Google button works
+  - Button clicks and redirects to Google OAuth
+  - Shows 'Sign in to continue to basic-condor-768.convex.site'
+- ✅ No console errors
+- ✅ Screenshot: regression-test-feature-5-google-oauth.png
+
+### Status: STILL PASSING - No regression found
+[Testing] Feature #5 verified - still passing
