@@ -573,3 +573,58 @@ Updated `convex/schema.ts` with all required entities:
 
 ### Status: Feature #110 marked as PASSING
 - Current progress: 13/200 features passing (6.5%)
+[Testing] Feature #3 verified - still passing
+[Testing] Feature #3 verified - still passing
+
+## Session: 2026-01-18 16:53 (Regression Test - Feature #1)
+
+### Feature Tested:
+- Feature #1: Tailwind configured with Harvest Hug + Brick palette
+
+### Verification Results:
+- ✅ Step 1: Tailwind config has custom colors (globals.css with @theme inline for Tailwind v4)
+- ✅ Step 2: Verified hex values via getComputedStyle():
+  - primary: #e2a93b ✅
+  - secondary: #4f6e44 ✅
+  - danger: #b94a34 ✅
+  - bg: #faf3e6 ✅
+  - text: #2b221a ✅
+- ✅ Step 3: Colors render correctly on Home and Grocery List pages
+- ✅ No console errors
+- ✅ Screenshots: regression-test-feature-1-colors-*.png
+
+### Status: STILL PASSING - No regression found
+[Testing] Feature #1 verified - still passing
+
+
+## Session: 2026-01-18 (Coding Agent - Feature #25)
+
+### Feature:
+- Feature #25: User can add grocery item
+
+### Verification Results:
+- ✅ Step 1: Find Add item input in a store section - Found "+ Add item" button in Meijer section
+- ✅ Step 2: Type item name and press Enter - Typed "TEST_APPLE_12345" and submitted via form
+- ✅ Step 3: Verify item appears in the list - Item appeared in Meijer section with name and quantity "1"
+- ✅ Bonus: Tested adding item to Costco section as well (TEST_BANANAS_67890) - worked correctly
+- ✅ Verified delete functionality works to clean up test items
+- ✅ No console errors
+- ✅ TypeScript compiles without errors
+- ✅ ESLint passes with no warnings
+- ✅ Screenshot captured: feature-25-add-item-success.png
+
+### Technical Notes:
+- The add item functionality uses local React state (useState) in the grocery-list page
+- Items are added via the `handleAddItem` function which creates a new GroceryItem object
+- The GroceryList component has inline add forms in each store section
+- Form submits via Enter key or clicking the "Add" button
+- Items get a default quantity of "1" when added
+- Feature #26 (persistence to Convex) is a separate feature - this feature only tests UI functionality
+
+### Files Verified (no changes needed):
+- `src/app/grocery-list/page.tsx` - Has handleAddItem with proper local state management
+- `src/components/grocery-list/GroceryList.tsx` - Has inline add forms in store sections
+- `src/types/grocery.ts` - Proper TypeScript types
+
+### Status: Feature #25 marked as PASSING
+- Current progress: 16/200 features passing (8.0%)
