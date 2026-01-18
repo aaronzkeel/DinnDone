@@ -80,3 +80,20 @@ export interface CrisisMuteBannerProps {
   /** Called when user taps to disable */
   onDisable?: () => void;
 }
+
+export interface NotificationSettingsProps {
+  /** Current preferences */
+  preferences: NotificationPreferences;
+  /** Called when user toggles a notification type */
+  onToggleType?: (type: NotificationType) => void;
+  /** Called when user updates quiet hours */
+  onUpdateQuietHours?: (start: string, end: string) => void;
+  /** Called when user changes fandom voice */
+  onChangeFandomVoice?: (voice: FandomVoice) => void;
+  /** Called when user toggles push notifications */
+  onTogglePush?: () => void;
+  /** Called when user resets to defaults */
+  onResetDefaults?: () => void;
+  /** Called when user taps back button */
+  onBack?: () => void;
+}
