@@ -1,0 +1,201 @@
+"use client";
+
+import { useState } from "react";
+import { useAction } from "convex/react";
+import { api } from "../../../convex/_generated/api";
+import { Sparkles, Loader2, Check, Clock, Users } from "lucide-react";
+
+interface GeneratedMeal {
+  dayOfWeek: string;
+  date: string;
+  mealName: string;
+  effortTier: "super-easy" | "middle" | "more-prep";
+  prepTime: number;
+  cookTime: number;
+  cleanupRating: "low" | "medium" | "high";
+  ingredients: string[];
+  isFlexMeal: boolean;
+}
+
+export default function TestGeneratePlanPage() {
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [meals, setMeals] = useState<GeneratedMeal[] | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  const generateWeekPlan = useAction(api.ai.generateWeekPlan);
+
+  // Get next Monday's date
+  const getNextMonday = () => {
+    const today = new Date();
+    const dayOfWeek = today.getDay();
+    const daysUntilMonday = dayOfWeek === 0 ? 1 : 8 - dayOfWeek;
+    const nextMonday = new Date(today);
+    nextMonday.setDate(today.getDate() + daysUntilMonday);
+    return nextMonday.toISOString().split("T")[0];
+  };
+
+  const handleGenerate = async () => {
+    setIsGenerating(true);
+    setError(null);
+    setMeals(null);
+
+    try {
+      const result = await generateWeekPlan({
+        weekStartDate: getNextMonday(),
+        householdSize: 5,
+      });
+
+      if (result.success && result.meals) {
+        setMeals(result.meals);
+      } else {
+        setError(result.error || "Unknown error");
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to generate plan");
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
+  const getEffortBadgeColor = (tier: string) => {
+    switch (tier) {
+      case "super-easy":
+        return "bg-green-100 text-green-800";
+      case "middle":
+        return "bg-yellow-100 text-yellow-800";
+      case "more-prep":
+        return "bg-orange-100 text-orange-800";
+      default:
+        return "bg-gray-100 text-gray-800";
+    }
+  };
+
+  const getEffortLabel = (tier: string) => {
+    switch (tier) {
+      case "super-easy":
+        return "Super Easy";
+      case "middle":
+        return "Medium";
+      case "more-prep":
+        return "More Prep";
+      default:
+        return tier;
+    }
+  };
+
+  return (
+    <div
+      className="min-h-screen p-6"
+      style={{ backgroundColor: "var(--color-bg)" }}
+    >
+      <div className="max-w-2xl mx-auto">
+        <h1
+          className="text-2xl font-bold mb-4 font-heading"
+          style={{ color: "var(--color-text)" }}
+        >
+          Test: AI Meal Plan Generation
+        </h1>
+        <p className="mb-6" style={{ color: "var(--color-muted)" }}>
+          This page tests Feature #132: AI generates draft week plan
+        </p>
+
+        <button
+          onClick={handleGenerate}
+          disabled={isGenerating}
+          className="flex items-center gap-2 px-6 py-3 rounded-lg text-white font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed mb-6"
+          style={{ backgroundColor: "var(--color-primary)" }}
+        >
+          {isGenerating ? (
+            <>
+              <Loader2 size={18} className="animate-spin" />
+              Generating plan...
+            </>
+          ) : (
+            <>
+              <Sparkles size={18} />
+              Generate 7-Day Plan
+            </>
+          )}
+        </button>
+
+        {error && (
+          <div className="p-4 mb-6 rounded-lg bg-red-100 border border-red-300 text-red-800">
+            <strong>Error:</strong> {error}
+          </div>
+        )}
+
+        {meals && (
+          <div>
+            <div className="flex items-center gap-2 mb-4">
+              <Check className="text-green-600" size={20} />
+              <span
+                className="font-medium"
+                style={{ color: "var(--color-text)" }}
+              >
+                Generated {meals.length} meals!
+              </span>
+            </div>
+
+            <div className="space-y-3">
+              {meals.map((meal, index) => (
+                <div
+                  key={index}
+                  className="p-4 rounded-lg border"
+                  style={{
+                    backgroundColor: "var(--color-card)",
+                    borderColor: "var(--color-border)",
+                  }}
+                >
+                  <div className="flex items-start justify-between mb-2">
+                    <div>
+                      <div
+                        className="text-sm font-medium"
+                        style={{ color: "var(--color-muted)" }}
+                      >
+                        {meal.dayOfWeek} • {meal.date}
+                      </div>
+                      <div
+                        className="text-lg font-semibold"
+                        style={{ color: "var(--color-text)" }}
+                      >
+                        {meal.mealName}
+                      </div>
+                    </div>
+                    <span
+                      className={`text-xs px-2 py-1 rounded-full ${getEffortBadgeColor(meal.effortTier)}`}
+                    >
+                      {getEffortLabel(meal.effortTier)}
+                    </span>
+                  </div>
+
+                  <div
+                    className="flex items-center gap-4 text-sm mb-2"
+                    style={{ color: "var(--color-muted)" }}
+                  >
+                    <span className="flex items-center gap-1">
+                      <Clock size={14} />
+                      {meal.prepTime + meal.cookTime}m total
+                    </span>
+                    <span>Cleanup: {meal.cleanupRating}</span>
+                    {meal.isFlexMeal && (
+                      <span className="px-2 py-0.5 rounded bg-blue-100 text-blue-800 text-xs">
+                        Flex
+                      </span>
+                    )}
+                  </div>
+
+                  <div
+                    className="text-sm"
+                    style={{ color: "var(--color-muted)" }}
+                  >
+                    <strong>Ingredients:</strong> {meal.ingredients.join(", ")}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}

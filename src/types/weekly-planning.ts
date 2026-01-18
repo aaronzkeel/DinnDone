@@ -91,6 +91,10 @@ export interface WeekPlanViewProps {
   onTapMeal?: (mealId: string) => void;
   /** Called when user wants to check pantry */
   onPantryAudit?: () => void;
+  /** Called when user wants to generate a plan for an empty week */
+  onGeneratePlan?: () => void;
+  /** Whether AI is currently generating a plan */
+  isGenerating?: boolean;
 }
 
 export interface DayCardProps {

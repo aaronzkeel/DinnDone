@@ -1,6 +1,6 @@
 "use client";
 
-import { Check, ClipboardList } from "lucide-react";
+import { Check, ClipboardList, Sparkles, Loader2 } from "lucide-react";
 import type { WeekPlanViewProps } from "@/types/weekly-planning";
 import { WeekSelector } from "./WeekSelector";
 import { DayCard } from "./DayCard";
@@ -16,6 +16,8 @@ export function WeekPlanView({
   onAddWeek,
   onTapMeal,
   onPantryAudit,
+  onGeneratePlan,
+  isGenerating,
 }: WeekPlanViewProps) {
   // Check if today is in this week
   const today = new Date().toISOString().split("T")[0];
@@ -83,20 +85,65 @@ export function WeekPlanView({
 
       {/* Meal cards */}
       <div className="flex-1 overflow-auto px-4 pb-4">
-        <div className="space-y-2">
-          {selectedWeekPlan.meals.map((meal) => (
-            <DayCard
-              key={meal.id}
-              meal={meal}
-              householdMembers={householdMembers}
-              isToday={meal.date === today}
-              onTap={() => {
-                onTapMeal?.(meal.id);
-                onSelectMeal?.(meal.id);
-              }}
-            />
-          ))}
-        </div>
+        {selectedWeekPlan.meals.length === 0 ? (
+          /* Empty state - no meals yet */
+          <div className="flex flex-col items-center justify-center h-full min-h-[300px] text-center px-4">
+            <div
+              className="w-16 h-16 rounded-full flex items-center justify-center mb-4"
+              style={{ backgroundColor: "var(--color-primary)", opacity: 0.15 }}
+            >
+              <Sparkles
+                size={32}
+                style={{ color: "var(--color-primary)" }}
+              />
+            </div>
+            <h3
+              className="text-lg font-semibold mb-2"
+              style={{ color: "var(--color-text)" }}
+            >
+              No meals planned yet
+            </h3>
+            <p
+              className="text-sm mb-6 max-w-xs"
+              style={{ color: "var(--color-muted)" }}
+            >
+              Let Zylo create a personalized meal plan for your family.
+            </p>
+            <button
+              onClick={onGeneratePlan}
+              disabled={isGenerating}
+              className="flex items-center gap-2 px-6 py-3 rounded-lg text-white font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              style={{ backgroundColor: "var(--color-primary)" }}
+            >
+              {isGenerating ? (
+                <>
+                  <Loader2 size={18} className="animate-spin" />
+                  Generating plan...
+                </>
+              ) : (
+                <>
+                  <Sparkles size={18} />
+                  Generate plan
+                </>
+              )}
+            </button>
+          </div>
+        ) : (
+          <div className="space-y-2">
+            {selectedWeekPlan.meals.map((meal) => (
+              <DayCard
+                key={meal.id}
+                meal={meal}
+                householdMembers={householdMembers}
+                isToday={meal.date === today}
+                onTap={() => {
+                  onTapMeal?.(meal.id);
+                  onSelectMeal?.(meal.id);
+                }}
+              />
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
