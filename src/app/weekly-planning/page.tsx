@@ -1,11 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { WeekPlanView } from "@/components/weekly-planning";
+import { WeekPlanView, EditDayModal } from "@/components/weekly-planning";
 import type {
   HouseholdMember,
   WeekSummary,
   WeekPlan,
+  PlannedMeal,
+  MealAlternative,
 } from "@/types/weekly-planning";
 
 // Sample data - will be replaced with Convex queries
@@ -341,8 +343,34 @@ const currentUser: HouseholdMember = {
   isAdmin: true,
 };
 
+// Sample alternatives for swapping meals
+const sampleAlternatives: MealAlternative[] = [
+  {
+    id: "alt-001",
+    mealName: "Pasta Primavera",
+    effortTier: "middle",
+    prepTime: 15,
+    cookTime: 20,
+    cleanupRating: "medium",
+    briefDescription: "Fresh seasonal vegetables with pasta and olive oil",
+    isFlexMeal: true,
+  },
+  {
+    id: "alt-002",
+    mealName: "Grilled Chicken Salad",
+    effortTier: "super-easy",
+    prepTime: 10,
+    cookTime: 15,
+    cleanupRating: "low",
+    briefDescription: "Light and healthy with mixed greens",
+    isFlexMeal: false,
+  },
+];
+
 export default function WeeklyPlanningPage() {
   const [selectedWeekId, setSelectedWeekId] = useState("wp-001");
+  const [selectedMeal, setSelectedMeal] = useState<PlannedMeal | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const selectedWeekPlan = weekPlans[selectedWeekId] || weekPlans["wp-001"];
 
@@ -351,8 +379,43 @@ export default function WeeklyPlanningPage() {
   };
 
   const handleSelectMeal = (mealId: string) => {
-    // TODO: Open meal detail/edit modal
-    console.log("Selected meal:", mealId);
+    const meal = selectedWeekPlan.meals.find((m) => m.id === mealId);
+    if (meal) {
+      setSelectedMeal(meal);
+      setIsModalOpen(true);
+    }
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setSelectedMeal(null);
+  };
+
+  const handleChangeCook = (newCookId: string) => {
+    console.log("Change cook to:", newCookId);
+    // TODO: Implement cook change with Convex mutation
+  };
+
+  const handleToggleEater = (memberId: string) => {
+    console.log("Toggle eater:", memberId);
+    // TODO: Implement eater toggle with Convex mutation
+  };
+
+  const handleSelectAlternative = (alternativeId: string) => {
+    console.log("Selected alternative:", alternativeId);
+    handleCloseModal();
+    // TODO: Implement meal swap with Convex mutation
+  };
+
+  const handleMoreOptions = () => {
+    console.log("More options requested");
+    // TODO: Show more options from AI
+  };
+
+  const handleUnplan = () => {
+    console.log("Unplan meal");
+    handleCloseModal();
+    // TODO: Mark meal as unplanned with Convex mutation
   };
 
   const handleApprovePlan = () => {
@@ -387,6 +450,21 @@ export default function WeeklyPlanningPage() {
         onTapMeal={handleSelectMeal}
         onPantryAudit={handlePantryAudit}
       />
+
+      {/* Edit Day Modal */}
+      {isModalOpen && selectedMeal && (
+        <EditDayModal
+          currentMeal={selectedMeal}
+          alternatives={sampleAlternatives}
+          householdMembers={householdMembers}
+          onChangeCook={handleChangeCook}
+          onToggleEater={handleToggleEater}
+          onSelectAlternative={handleSelectAlternative}
+          onMoreOptions={handleMoreOptions}
+          onUnplan={handleUnplan}
+          onClose={handleCloseModal}
+        />
+      )}
     </div>
   );
 }

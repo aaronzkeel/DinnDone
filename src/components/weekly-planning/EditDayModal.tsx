@@ -1,0 +1,308 @@
+"use client";
+
+import { X, Clock, ChefHat, Users, Sparkles } from "lucide-react";
+import type {
+  PlannedMeal,
+  MealAlternative,
+  HouseholdMember,
+} from "@/types/weekly-planning";
+
+const effortLabels = {
+  "super-easy": "Super Easy",
+  middle: "Medium",
+  "more-prep": "More Prep",
+};
+
+const effortDots = {
+  "super-easy": 1,
+  middle: 2,
+  "more-prep": 3,
+};
+
+export interface EditDayModalProps {
+  /** Current meal being edited */
+  currentMeal: PlannedMeal;
+  /** Alternative meal suggestions */
+  alternatives: MealAlternative[];
+  /** All household members */
+  householdMembers: HouseholdMember[];
+  /** Called when user changes the cook */
+  onChangeCook?: (newCookId: string) => void;
+  /** Called when user toggles an eater */
+  onToggleEater?: (memberId: string) => void;
+  /** Called when user selects an alternative */
+  onSelectAlternative?: (alternativeId: string) => void;
+  /** Called when user wants more options */
+  onMoreOptions?: () => void;
+  /** Called when user chooses "I'll figure it out" */
+  onUnplan?: () => void;
+  /** Called when user closes modal */
+  onClose?: () => void;
+}
+
+export function EditDayModal({
+  currentMeal,
+  alternatives,
+  householdMembers,
+  onChangeCook,
+  onToggleEater,
+  onSelectAlternative,
+  onMoreOptions,
+  onUnplan,
+  onClose,
+}: EditDayModalProps) {
+  const cook = householdMembers.find((m) => m.id === currentMeal.assignedCookId);
+  const totalTime = currentMeal.prepTime + currentMeal.cookTime;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
+      {/* Backdrop */}
+      <div
+        className="absolute inset-0 bg-black/50"
+        onClick={onClose}
+        aria-hidden="true"
+      />
+
+      {/* Modal */}
+      <div
+        className="relative w-full sm:max-w-lg rounded-t-3xl sm:rounded-3xl max-h-[90vh] overflow-y-auto"
+        style={{ backgroundColor: "var(--color-card)" }}
+      >
+        {/* Header */}
+        <div
+          className="sticky top-0 px-4 py-3 flex items-center justify-between"
+          style={{
+            backgroundColor: "var(--color-card)",
+            borderBottom: "1px solid var(--color-border)",
+          }}
+        >
+          <h2
+            className="text-lg font-bold font-heading"
+            style={{ color: "var(--color-text)" }}
+          >
+            Edit Day
+          </h2>
+          <button
+            onClick={onClose}
+            className="p-1 rounded-lg hover:opacity-80 transition-colors"
+            aria-label="Close modal"
+          >
+            <X size={20} style={{ color: "var(--color-muted)" }} />
+          </button>
+        </div>
+
+        <div className="p-4 space-y-6">
+          {/* Current Meal */}
+          <div>
+            <h3
+              className="text-xs font-semibold uppercase mb-2"
+              style={{ color: "var(--color-muted)" }}
+            >
+              Current Meal
+            </h3>
+            <div
+              className="p-4 rounded-xl"
+              style={{
+                backgroundColor: "rgba(226, 169, 59, 0.1)",
+                border: "1px solid var(--color-primary)",
+              }}
+            >
+              <div className="flex items-start justify-between gap-2">
+                <h4
+                  className="font-semibold"
+                  style={{ color: "var(--color-text)" }}
+                >
+                  {currentMeal.mealName}
+                </h4>
+                <div className="flex gap-0.5 flex-shrink-0 pt-1">
+                  {Array.from({ length: 3 }).map((_, i) => (
+                    <div
+                      key={i}
+                      className="w-2 h-2 rounded-full"
+                      style={{
+                        backgroundColor:
+                          i < effortDots[currentMeal.effortTier]
+                            ? "var(--color-primary)"
+                            : "var(--color-border)",
+                      }}
+                    />
+                  ))}
+                </div>
+              </div>
+              <div
+                className="flex items-center gap-4 mt-2 text-sm"
+                style={{ color: "var(--color-muted)" }}
+              >
+                <div className="flex items-center gap-1">
+                  <Clock size={14} />
+                  <span>{totalTime}m</span>
+                </div>
+                {cook && (
+                  <div className="flex items-center gap-1">
+                    <ChefHat size={14} />
+                    <span>{cook.name}</span>
+                  </div>
+                )}
+                <div className="flex items-center gap-1">
+                  <Users size={14} />
+                  <span>{currentMeal.eaterIds.length} eating</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Change Cook */}
+          <div>
+            <h3
+              className="text-xs font-semibold uppercase mb-2"
+              style={{ color: "var(--color-muted)" }}
+            >
+              Change Cook
+            </h3>
+            <div className="flex flex-wrap gap-2">
+              {householdMembers.map((member) => (
+                <button
+                  key={member.id}
+                  onClick={() => onChangeCook?.(member.id)}
+                  className="px-4 py-2 rounded-xl text-sm font-medium transition-colors"
+                  style={{
+                    backgroundColor:
+                      member.id === currentMeal.assignedCookId
+                        ? "var(--color-primary)"
+                        : "var(--color-border)",
+                    color:
+                      member.id === currentMeal.assignedCookId
+                        ? "white"
+                        : "var(--color-text)",
+                  }}
+                >
+                  {member.name}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Who's Eating */}
+          <div>
+            <h3
+              className="text-xs font-semibold uppercase mb-2"
+              style={{ color: "var(--color-muted)" }}
+            >
+              Who&apos;s Eating
+            </h3>
+            <div className="flex flex-wrap gap-2">
+              {householdMembers.map((member) => {
+                const isEating = currentMeal.eaterIds.includes(member.id);
+                return (
+                  <button
+                    key={member.id}
+                    onClick={() => onToggleEater?.(member.id)}
+                    className="px-4 py-2 rounded-xl text-sm font-medium transition-colors"
+                    style={{
+                      backgroundColor: isEating
+                        ? "var(--color-secondary)"
+                        : "var(--color-border)",
+                      color: isEating ? "white" : "var(--color-muted)",
+                    }}
+                  >
+                    {member.name}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Swap with Alternative */}
+          {alternatives.length > 0 && (
+            <div>
+              <h3
+                className="text-xs font-semibold uppercase mb-2"
+                style={{ color: "var(--color-muted)" }}
+              >
+                Swap with Alternative
+              </h3>
+              <div className="space-y-2">
+                {alternatives.map((alt) => {
+                  const altTotalTime = alt.prepTime + alt.cookTime;
+                  return (
+                    <button
+                      key={alt.id}
+                      onClick={() => onSelectAlternative?.(alt.id)}
+                      className="w-full text-left p-4 rounded-xl transition-colors hover:opacity-90"
+                      style={{
+                        backgroundColor: "var(--color-card)",
+                        border: "1px solid var(--color-border)",
+                      }}
+                    >
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="flex-1 min-w-0">
+                          <h4
+                            className="font-semibold"
+                            style={{ color: "var(--color-text)" }}
+                          >
+                            {alt.mealName}
+                          </h4>
+                          <p
+                            className="text-sm mt-1"
+                            style={{ color: "var(--color-muted)" }}
+                          >
+                            {alt.briefDescription}
+                          </p>
+                          <div
+                            className="flex items-center gap-3 mt-2 text-xs"
+                            style={{ color: "var(--color-muted)" }}
+                          >
+                            <span>{effortLabels[alt.effortTier]}</span>
+                            <span>•</span>
+                            <span>{altTotalTime}m</span>
+                          </div>
+                        </div>
+                        <div className="flex gap-0.5 flex-shrink-0 pt-1">
+                          {Array.from({ length: 3 }).map((_, i) => (
+                            <div
+                              key={i}
+                              className="w-2 h-2 rounded-full"
+                              style={{
+                                backgroundColor:
+                                  i < effortDots[alt.effortTier]
+                                    ? "var(--color-primary)"
+                                    : "var(--color-border)",
+                              }}
+                            />
+                          ))}
+                        </div>
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* Action Buttons */}
+          <div className="space-y-2 pt-2 pb-4">
+            <button
+              onClick={onMoreOptions}
+              className="w-full px-4 py-3 rounded-xl font-semibold transition-colors flex items-center justify-center gap-2 text-white"
+              style={{ backgroundColor: "var(--color-primary)" }}
+            >
+              <Sparkles size={18} />
+              More options
+            </button>
+            <button
+              onClick={onUnplan}
+              className="w-full px-4 py-3 rounded-xl font-medium transition-colors"
+              style={{
+                backgroundColor: "transparent",
+                border: "1px solid var(--color-border)",
+                color: "var(--color-muted)",
+              }}
+            >
+              I&apos;ll figure it out
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
