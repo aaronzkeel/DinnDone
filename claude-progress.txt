@@ -1,5 +1,54 @@
 # Dinner Bell - Claude Progress Notes
 
+## Session: 2026-01-18 (Coding Agent - Feature #9)
+
+### Feature:
+- Feature #9: HouseholdMember seeded for Zink family
+
+### What was implemented:
+1. **convex/householdMembers.ts** - Full CRUD operations for household members:
+   - `list`: Query all household members
+   - `get`: Get single member by ID
+   - `getByUserId`: Get member by linked auth user
+   - `seedZinkFamily`: Mutation to seed the Zink family
+   - `create`, `update`, `remove`: Standard CRUD mutations
+
+2. **src/app/test-household/page.tsx** - Verification test page:
+   - Button to seed household members
+   - Displays all members with admin/viewer roles
+   - Verification checklist showing pass/fail status
+   - Real-time updates via Convex queries
+
+### Seeded Data:
+- **Aaron** - Admin
+- **Katie** - Admin
+- **Lizzie** - Viewer (kid)
+- **Ethan** - Viewer (kid)
+- **Elijah** - Viewer (kid)
+
+### Verification Results:
+- ✅ Step 1: Query HouseholdMember table - Created `list` query, works correctly
+- ✅ Step 2: Verify 5 members exist - 5/5 members present
+- ✅ Step 3: Verify Aaron and Katie are admins, kids are viewers - Correct roles assigned
+- ✅ Data persists after page refresh
+- ✅ No console errors
+- ✅ TypeScript compiles without errors
+- ✅ ESLint passes
+
+### Screenshots:
+- feature-9-household-members-seeded.png
+- feature-9-household-members-verification.png
+- feature-9-household-members-persisted.png
+
+### Files Created:
+- `convex/householdMembers.ts`
+- `src/app/test-household/page.tsx`
+
+### Status: Feature #9 marked as PASSING
+- Current progress: 27/200 features passing (13.5%)
+
+---
+
 ## Session: 2026-01-18 (Coding Agent - Feature #118)
 
 ### Feature:
@@ -1159,3 +1208,53 @@ Updated `convex/schema.ts` with all required entities:
 
 ### Status: STILL PASSING - No regression found
 [Testing] Feature #4 verified - still passing
+
+## Session: 2026-01-18 17:10 (Regression Test - Feature #16)
+
+### Feature Tested:
+- Feature #16: Cards use correct background colors
+
+### Verification Results:
+- ✅ Step 1: Viewed card components on grocery list page (store sections)
+- ✅ Step 2: Light mode CSS variable --color-card = #f3e8d6 (correct)
+  - Cards render with rgb(243, 232, 214) = #F3E8D6
+- ✅ Step 3: Dark mode CSS variable --color-card = #221a14 (correct)
+  - Cards render with rgb(34, 26, 20) = #221A14
+- ✅ Theme toggle cycles correctly: System → Light → Dark → System
+- ✅ No console errors
+- ✅ Screenshots: regression-test-feature-16-light-mode.png, regression-test-feature-16-dark-mode.png
+
+### Status: STILL PASSING - No regression found
+[Testing] Feature #16 verified - still passing
+[Testing] Feature #16 verified - still passing
+
+## Session: 2026-01-18 17:10 (Regression Test - Feature #16)
+
+### Feature Tested:
+- Feature #16: Cards use correct background colors
+
+### Verification Results:
+- ✅ Step 1: Viewed card component (Welcome card on home page)
+- ✅ Step 2: Light mode uses #F3E8D6 - Verified (CSS var: #f3e8d6, computed: rgb(243, 232, 214))
+- ✅ Step 3: Dark mode uses #221A14 - Verified (CSS var: #221a14, computed: rgb(34, 26, 20))
+- ✅ Theme toggle cycles correctly: System (light) → Light → Dark → System (light)
+- ✅ No console errors (only non-critical themeColor metadata warnings)
+- ✅ Screenshots: regression-test-feature-16-light-mode.png, regression-test-feature-16-dark-mode.png
+
+### Status: STILL PASSING - No regression found
+[Testing] Feature #16 verified - still passing
+
+## Session: 2026-01-18 17:11 (Regression Test - Feature #16)
+
+### Feature Tested:
+- Feature #16: Cards use correct background colors
+
+### Verification Results:
+- ✅ Step 1: View a card component - Welcome card visible on home page
+- ✅ Step 2: Light mode uses #F3E8D6 - Confirmed: rgb(243, 232, 214) = #F3E8D6
+- ✅ Step 3: Dark mode uses #221A14 - Confirmed: rgb(34, 26, 20) = #221A14
+- ✅ No console errors
+- ✅ Screenshots: regression-test-feature-16-welcome-light-mode.png, regression-test-feature-16-dark-mode.png
+
+### Status: STILL PASSING - No regression found
+[Testing] Feature #16 verified - still passing
