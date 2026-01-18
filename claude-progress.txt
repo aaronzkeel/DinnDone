@@ -54,3 +54,75 @@
 ### Notes:
 - This parallel agent was assigned Feature #2, but it was already done
 - Session ending cleanly with no changes needed
+
+## Session: 2026-01-18 16:36 (Regression Test - Feature #5)
+
+### Feature Tested:
+- Feature #5: Convex Auth configured with Google OAuth
+
+### Verification Results:
+- ✅ Step 1: Auth provider configured in Convex (convex/auth.ts)
+- ✅ Step 2: Google OAuth credentials set (redirects to Google with client_id)
+- ✅ Step 3: Sign in with Google button works (redirects to accounts.google.com)
+- ✅ No console errors
+
+### Status: STILL PASSING - No regression found
+
+## Session: 2026-01-18 - Testing Agent Regression Test
+
+[Testing] Feature #1 verified - still passing
+- Tailwind configured with Harvest Hug + Brick palette
+- Verified CSS variables: primary (#E2A93B), secondary (#4F6E44), danger (#B94A34)
+- Verified colors render in both light and dark mode
+- No console errors
+- Current progress: 6/200 features passing (3.0%)
+
+## Session: 2026-01-18 16:37 (Regression Test - Feature #1)
+
+### Feature Tested:
+- Feature #1: Tailwind configured with Harvest Hug + Brick palette
+
+### Verification Results:
+- ✅ Step 1: Custom colors defined in globals.css via CSS vars + @theme inline
+- ✅ Step 2: primary (#E2A93B), secondary (#4F6E44), danger (#B94A34) confirmed
+- ✅ Step 3: Colors render correctly - verified via screenshot + computed styles
+- ✅ No console errors
+
+### Status: STILL PASSING - No regression found
+
+## Session: 2026-01-18 ~16:40 (Coding Agent - Bottom Nav Implementation)
+
+### Work Done:
+1. Fixed feature dependency blocking issue (feature ID 0 can't be marked via API)
+   - Removed dependency on feature 0 from features 1, 2, 3, 11, 17 using feature_set_dependencies
+
+2. Verified already-passing features:
+   - Feature #1: Tailwind palette ✅
+   - Feature #2: Google Fonts ✅
+   - Feature #3: Convex backend connected ✅
+   - Feature #5: Google OAuth configured ✅
+
+3. Implemented Feature #11: Bottom tab navigation renders
+   - Created `src/components/BottomNav.tsx`
+   - 4 tabs: Home, Plan, List, Alerts with lucide-react icons
+   - Uses Harvest Hug palette colors
+   - Active tab shows sage green, inactive shows muted
+   - Added to home page with proper padding
+
+4. Skipped Feature #6 (User can sign in with Google) - requires manual OAuth flow
+
+### Files Created/Modified:
+- `src/components/BottomNav.tsx` (NEW)
+- `src/app/page.tsx` (added BottomNav, pb-20 padding)
+- `package.json` (added lucide-react)
+
+### Current Status:
+- **7/200 features passing (3.5%)**
+- App running at http://localhost:3000
+- Dark mode working
+- Bottom nav showing on mobile viewport
+
+### Next Steps:
+- Feature #12: Tab navigation switches views (need placeholder pages)
+- Feature #17: PWA manifest
+- Feature #4: Convex schema defines all core entities

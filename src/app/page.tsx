@@ -1,5 +1,6 @@
 import { SignInButton } from "@/components/SignInButton";
 import { DarkModeToggle } from "@/components/DarkModeToggle";
+import { BottomNav } from "@/components/BottomNav";
 
 export default function Home() {
   return (
@@ -22,7 +23,7 @@ export default function Home() {
       </header>
 
       {/* Main content */}
-      <main className="flex flex-1 items-center justify-center px-4">
+      <main className="flex flex-1 items-center justify-center px-4 pb-20">
         <div
           className="w-full max-w-md rounded-lg p-8 text-center"
           style={{
@@ -42,6 +43,9 @@ export default function Home() {
           <SignInButton />
         </div>
       </main>
+
+      {/* Bottom Navigation */}
+      <BottomNav />
     </div>
   );
 }
