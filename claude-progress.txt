@@ -1,5 +1,67 @@
 # Dinner Bell - Claude Progress Notes
 
+## Session: 2026-01-18 (Coding Agent - Feature #111)
+
+### Feature:
+- Feature #111: Week selector displays current week
+
+### Verification Results:
+- ✅ Step 1: View Weekly Planning - WeekSelector component renders with week options
+- ✅ Step 2: Verify week selector shows date range:
+  - "This Week" (current week)
+  - "Next Week"
+  - "Jan 26 - Feb 1" (date range format)
+  - "Feb 2 - 8" (date range format)
+- ✅ Step 3: Verify current week is selected by default - "This Week" selected with gold highlight
+- ✅ Week selection works correctly (clicking changes selection)
+- ✅ Status indicators show: filled circle (in-progress), checkmark (approved), empty circle (draft)
+- ✅ No console errors
+
+### Implementation:
+- Created test page: `src/app/test-week-selector/page.tsx`
+- WeekSelector component at `src/components/weekly-planning/WeekSelector.tsx`
+- Dynamically generates week labels based on current date
+- Selected week highlighted with gold/primary color
+
+### Screenshots:
+- feature-111-week-selector-current-week.png
+- feature-111-week-selector-next-week.png
+
+### Status: Feature #111 marked as PASSING
+- Current progress: 37/200 features passing (18.5%)
+
+---
+
+## Session: 2026-01-18 (Coding Agent - Feature #160)
+
+### Feature:
+- Feature #160: Pending notification shows action buttons
+
+### Verification Results:
+- ✅ Step 1: View pending notification - Two pending notifications displayed in "NEEDS ATTENTION" section
+- ✅ Step 2: Verify action buttons display - Both pending notifications show action buttons
+- ✅ Step 3: Verify primary and secondary actions visible:
+  - Primary buttons (gold/highlighted color): "View Plan", "Already done"
+  - Secondary buttons (gray/subtle color): "Got it", "Remind me later"
+- ✅ Action buttons work - Clicking "Got it" moved notification to "EARLIER" with checkmark
+- ✅ No console errors
+
+### Implementation (already existed):
+- `src/components/notifications/NotificationCard.tsx` correctly implements:
+  - Action buttons render only for pending notifications (lines 109-126)
+  - Primary actions use `var(--color-primary)` with white text
+  - Secondary actions use `var(--color-border)` with text color
+  - Buttons trigger `onAction` callback with action ID
+
+### Screenshots:
+- feature-160-pending-notification-action-buttons.png
+- feature-160-action-button-clicked.png
+
+### Status: Feature #160 marked as PASSING
+- Current progress: 36/200 features passing (18.0%)
+
+---
+
 ## Session: 2026-01-18 (Coding Agent - Feature #69)
 
 ### Feature:
