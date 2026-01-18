@@ -1907,3 +1907,84 @@ The feature was already mostly implemented. The key components existed:
 
 ### Status: STILL PASSING - No regression found
 [Testing] Feature #16 verified - still passing
+
+## Session: 2026-01-18 17:35 (Regression Test - Feature #89)
+
+### Feature Tested:
+- Feature #89: User can send chat message
+
+### Verification Results:
+- ✅ Step 1: Type a message in chat input - Works correctly
+- ✅ Step 2: Press send or Enter - Both methods work (tested both)
+- ✅ Step 3: Verify message appears in chat - User messages and Zylo responses both display properly
+- ✅ User messages styled correctly (right-aligned, yellow background)
+- ✅ Zylo responses styled correctly (left-aligned, with Z avatar)
+- ✅ Timestamps show correctly (Just now)
+- ✅ Input clears after sending
+- ✅ Send button disabled when input empty, enabled when text present
+- ✅ No console errors
+- ✅ Screenshot: regression-test-feature-89-chat-messages.png
+
+### Status: STILL PASSING - No regression found
+[Testing] Feature #89 verified - still passing
+
+
+## Session: 2026-01-18 (Coding Agent - Feature #70)
+
+### Feature:
+- Feature #70: New plan button opens swap flow
+
+### What was implemented:
+1. **src/components/meal-helper/WeekSwapList.tsx** - New component that:
+   - Shows "Swap Tonight's Meal" header with back button
+   - Lists week meals with day labels, meal names, time estimates, and ingredients
+   - Filters out the current meal (no need to swap with itself)
+   - Has clickable meal rows with chevron icons
+   - Uses Harvest Hug palette colors and theme variables
+   - Responsive design for mobile and desktop
+
+2. **src/components/meal-helper/index.ts** - Added WeekSwapList export
+
+3. **src/app/meal-helper/page.tsx** - Updated to:
+   - Import WeekSwapList component
+   - Add "week-swap" view state
+   - Create sampleWeekMeals data for 7 days
+   - handleNewPlan now opens WeekSwapList instead of chat message
+   - handleSwapMealSelect shows confirmation and returns to home
+
+4. **src/app/test-week-swap/page.tsx** - Test page for verification
+
+### Verification Results:
+- ✅ Step 1: View Tonight's Plan card - Verified on meal-helper page
+- ✅ Step 2: Tap "New plan" (gold button) - Opens WeekSwapList screen
+- ✅ Step 3: Verify WeekSwapList screen opens - Shows 6 swappable meals:
+  - Tuesday: Taco Night (25m)
+  - Wednesday: Spaghetti Bolognese (45m)
+  - Thursday: Grilled Salmon (30m)
+  - Friday: Pizza Night (25m)
+  - Saturday: Beef Stew (150m)
+  - Sunday: Roast Chicken (110m)
+- ✅ Current meal (Monday - Chicken Stir Fry) is filtered out
+- ✅ Clicking a meal shows selection confirmation
+- ✅ Back button works correctly
+- ✅ Mobile responsive (375x667 viewport tested)
+- ✅ No console errors
+- ✅ TypeScript compiles without errors
+- ✅ ESLint passes (0 errors in modified files)
+
+### Screenshots:
+- feature-70-week-swap-list.png (desktop view of swap list)
+- feature-70-meal-selected.png (after selecting Taco Night)
+- feature-70-week-swap-mobile.png (mobile responsive view)
+
+### Files Created:
+- src/components/meal-helper/WeekSwapList.tsx
+- src/app/test-week-swap/page.tsx
+
+### Files Modified:
+- src/components/meal-helper/index.ts
+- src/app/meal-helper/page.tsx
+
+### Status: Feature #70 marked as PASSING
+- Current progress: 41/200 features passing (20.5%)
+
