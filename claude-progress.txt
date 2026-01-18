@@ -1442,3 +1442,64 @@ The feature was already mostly implemented. The key components existed:
 
 ### Status: STILL PASSING - No regression found
 [Testing] Feature #15 verified - still passing
+
+## Session: 2026-01-18 (Regression Test - Feature #156)
+
+### Feature Tested:
+- Feature #156: Notification history displays
+
+### Verification Results:
+- ✅ Step 1: Have some notifications in database - Created mock data test page
+- ✅ Step 2: View Notifications page - NotificationsList component renders correctly
+- ✅ Step 3: Verify notification cards display - All elements verified:
+  - Type-specific colored icons (sun, snowflake, calendar, chef hat, clock)
+  - Message text displays correctly
+  - Relative timestamps (30m ago, 2h ago, Yesterday, 3d ago)
+  - Action buttons for pending notifications ("Got it!", "View Plan", etc.)
+  - Resolved status with checkmark for completed notifications
+  - Proper grouping: "NEEDS ATTENTION" for pending, "EARLIER" for resolved
+- ✅ Action button interaction works - clicking moves notification to "Earlier"
+- ✅ No console errors
+- ✅ Screenshots: regression-test-feature-156-notification-history.png, regression-test-feature-156-after-action.png
+
+### Status: STILL PASSING - No regression found
+[Testing] Feature #156 verified - still passing
+
+## Session: 2026-01-18 (Coding Agent - Feature #164)
+
+### Feature:
+- Feature #164: Crisis Day Mute toggle displays
+
+### Verification Results:
+- ✅ Step 1: View Notifications page - Used test page at /test-crisis-mute that renders NotificationsList
+- ✅ Step 2: Verify Crisis Day Mute toggle is visible - VolumeX icon button present in header (top-right)
+- ✅ Step 3: Verify toggle is in off state by default - Button shows "Enable Crisis Day Mute", status shows "OFF (default)"
+- ✅ Bonus: Clicking toggle enables Crisis Mute mode:
+  - Status changes to "ON"
+  - CrisisMuteBanner appears showing "Crisis Day Mute active"
+  - Countdown timer shows "23h 59m remaining"
+  - Button label changes to "Disable Crisis Day Mute"
+- ✅ Clicking again disables and returns to default OFF state
+- ✅ No console errors
+- ✅ TypeScript compiles without errors
+
+### Technical Notes:
+- Crisis Day Mute toggle implemented in `src/components/notifications/NotificationsList.tsx` (lines 43-55)
+- Uses VolumeX icon from lucide-react
+- Toggle state managed via `crisisDayMute.isActive` prop
+- When active, CrisisMuteBanner component shows with countdown
+- Button styling changes based on active state (background highlight when ON)
+
+### Files Verified:
+- `src/components/notifications/NotificationsList.tsx` - Contains toggle button
+- `src/components/notifications/CrisisMuteBanner.tsx` - Shows when mute active
+- `src/app/notifications/page.tsx` - Wires up toggle handlers
+- `src/types/notifications.ts` - Types for CrisisDayMute interface
+
+### Screenshots:
+- feature-164-crisis-mute-toggle-visible.png (toggle visible in OFF state)
+- feature-164-crisis-mute-toggle-on.png (toggle enabled, banner visible)
+- feature-164-crisis-mute-default-off.png (toggle back to default OFF)
+
+### Status: Feature #164 marked as PASSING
+- Current progress: 32/200 features passing (16.0%)
