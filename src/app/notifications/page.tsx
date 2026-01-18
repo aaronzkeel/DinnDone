@@ -1,32 +1,93 @@
+"use client";
+
+import { useState } from "react";
+import { NotificationsList } from "@/components/notifications";
+import type { Notification, CrisisDayMute } from "@/types/notifications";
+
+// Sample notifications for initial UI (will be replaced with real data from Convex)
+const sampleNotifications: Notification[] = [
+  {
+    id: "1",
+    type: "daily-brief",
+    message: "Tonight: Tacos! Katie is cooking. Don't forget to check if we have lime.",
+    timestamp: new Date(Date.now() - 1000 * 60 * 30).toISOString(), // 30 mins ago
+    status: "pending",
+    actions: [
+      { id: "got-it", label: "Got it!", isPrimary: true },
+      { id: "view-plan", label: "View Plan", isPrimary: false },
+    ],
+  },
+  {
+    id: "2",
+    type: "thaw-guardian",
+    message: "Heads up! Tomorrow's dinner is Chicken Stir Fry. Time to move chicken from freezer to fridge.",
+    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 2).toISOString(), // 2 hours ago
+    status: "pending",
+    actions: [
+      { id: "done", label: "Done!", isPrimary: true },
+      { id: "skip", label: "Skip", isPrimary: false },
+    ],
+  },
+  {
+    id: "3",
+    type: "weekly-plan-ready",
+    message: "Your meal plan for next week is ready! Take a look and make any swaps.",
+    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString(), // 1 day ago
+    status: "done",
+    resolvedAction: "Approved",
+  },
+];
+
 export default function NotificationsPage() {
+  const [notifications, setNotifications] = useState<Notification[]>(sampleNotifications);
+  const [crisisDayMute, setCrisisDayMute] = useState<CrisisDayMute>({
+    isActive: false,
+  });
+
+  const handleAction = (notificationId: string, actionId: string) => {
+    // Mark the notification as done with the action taken
+    setNotifications((prev) =>
+      prev.map((n) =>
+        n.id === notificationId
+          ? {
+              ...n,
+              status: "done" as const,
+              resolvedAt: new Date().toISOString(),
+              resolvedAction: actionId,
+            }
+          : n
+      )
+    );
+  };
+
+  const handleToggleCrisisMute = () => {
+    setCrisisDayMute((prev) => ({
+      isActive: !prev.isActive,
+      activatedAt: !prev.isActive ? new Date().toISOString() : undefined,
+      expiresAt: !prev.isActive
+        ? new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString()
+        : undefined,
+    }));
+  };
+
+  const handleOpenSettings = () => {
+    // TODO: Navigate to or open settings modal
+    console.log("Open notification settings");
+  };
+
+  const handleOpenPreview = () => {
+    // TODO: Navigate to or open preview modal
+    console.log("Open notification preview");
+  };
+
   return (
-    <div
-      className="flex min-h-[calc(100vh-120px)] flex-col font-sans"
-      style={{ backgroundColor: "var(--color-bg)" }}
-    >
-      {/* Main content */}
-      <main className="flex flex-1 flex-col items-center justify-center px-4">
-        <div
-          className="w-full max-w-md rounded-lg p-8 text-center"
-          style={{
-            backgroundColor: "var(--color-card)",
-            border: "1px solid var(--color-border)",
-          }}
-        >
-          <h1
-            className="text-2xl font-semibold tracking-tight font-heading mb-4"
-            style={{ color: "var(--color-text)" }}
-          >
-            Notifications
-          </h1>
-          <p style={{ color: "var(--color-muted)" }}>
-            Your gentle nudges and reminders.
-          </p>
-          <p className="mt-4 text-sm" style={{ color: "var(--color-muted)" }}>
-            Coming soon...
-          </p>
-        </div>
-      </main>
-    </div>
+    <NotificationsList
+      notifications={notifications}
+      crisisDayMute={crisisDayMute}
+      onAction={handleAction}
+      onToggleCrisisMute={handleToggleCrisisMute}
+      onOpenSettings={handleOpenSettings}
+      onOpenPreview={handleOpenPreview}
+    />
   );
 }
