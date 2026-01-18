@@ -1,12 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { WeekPlanView } from "@/components/weekly-planning";
+import { WeekPlanView, PantryAudit } from "@/components/weekly-planning";
 import type {
   HouseholdMember,
   WeekSummary,
   WeekPlan,
-  PlannedMeal,
+  PantryCheckItem,
 } from "@/types/weekly-planning";
 
 // Sample data
@@ -144,22 +144,41 @@ const initialWeekPlan: WeekPlan = {
   ],
 };
 
+// Common pantry staples to check
+const initialPantryItems: PantryCheckItem[] = [
+  { id: "p1", name: "Olive oil", alreadyHave: false },
+  { id: "p2", name: "Salt & pepper", alreadyHave: false },
+  { id: "p3", name: "Garlic", alreadyHave: false },
+  { id: "p4", name: "Soy sauce", alreadyHave: false },
+  { id: "p5", name: "Rice", alreadyHave: false },
+  { id: "p6", name: "Pasta", alreadyHave: false },
+  { id: "p7", name: "Chicken broth", alreadyHave: false },
+  { id: "p8", name: "Onions", alreadyHave: false },
+];
+
 const currentUser: HouseholdMember = {
   id: "hm-001",
   name: "Aaron",
   isAdmin: true,
 };
 
+type ViewState = "week-plan" | "pantry-audit";
+
 export default function TestApprovePlanPage() {
   const [weekPlan, setWeekPlan] = useState<WeekPlan>(initialWeekPlan);
+  const [view, setView] = useState<ViewState>("week-plan");
+  const [pantryItems, setPantryItems] = useState<PantryCheckItem[]>(initialPantryItems);
 
   const handleApprovePlan = () => {
+    // Approve the plan
     setWeekPlan((prev) => ({
       ...prev,
       status: "approved",
       approvedBy: currentUser.id,
       approvedAt: new Date().toISOString(),
     }));
+    // Open pantry audit screen
+    setView("pantry-audit");
   };
 
   const handleSelectWeek = () => {
@@ -175,17 +194,65 @@ export default function TestApprovePlanPage() {
   };
 
   const handlePantryAudit = () => {
-    console.log("Pantry audit");
+    setView("pantry-audit");
   };
+
+  const handleTogglePantryItem = (itemId: string) => {
+    setPantryItems((prev) =>
+      prev.map((item) =>
+        item.id === itemId ? { ...item, alreadyHave: !item.alreadyHave } : item
+      )
+    );
+  };
+
+  const handlePantryAuditComplete = () => {
+    setView("week-plan");
+  };
+
+  // Show PantryAudit screen after approval
+  if (view === "pantry-audit") {
+    return (
+      <div style={{ backgroundColor: "var(--color-bg)", minHeight: "calc(100vh - 120px)" }}>
+        <div className="p-4 border-b" style={{ borderColor: "var(--color-border)" }}>
+          <h1 className="font-heading font-bold text-lg" style={{ color: "var(--color-text)" }}>
+            Test: Approve Plan (Feature #127)
+          </h1>
+          <p className="text-sm" style={{ color: "var(--color-muted)" }}>
+            Pantry Audit opened after plan approval
+          </p>
+          <div
+            className="mt-2 p-2 rounded-lg text-sm"
+            style={{
+              backgroundColor: "var(--color-card)",
+              border: "1px solid var(--color-border)",
+            }}
+          >
+            <strong>Plan Status:</strong>{" "}
+            <span style={{ color: "var(--color-secondary)", fontWeight: "bold" }}>
+              APPROVED
+            </span>
+            <span style={{ color: "var(--color-muted)", marginLeft: "8px" }}>
+              - Now showing Pantry Audit
+            </span>
+          </div>
+        </div>
+        <PantryAudit
+          items={pantryItems}
+          onToggleItem={handleTogglePantryItem}
+          onComplete={handlePantryAuditComplete}
+        />
+      </div>
+    );
+  }
 
   return (
     <div style={{ backgroundColor: "var(--color-bg)", minHeight: "calc(100vh - 120px)" }}>
       <div className="p-4 border-b" style={{ borderColor: "var(--color-border)" }}>
         <h1 className="font-heading font-bold text-lg" style={{ color: "var(--color-text)" }}>
-          Test: Approve Plan (Feature #126)
+          Test: Approve Plan (Feature #126 & #127)
         </h1>
         <p className="text-sm" style={{ color: "var(--color-muted)" }}>
-          Testing "Looks good" button approves plan
+          Click &quot;Looks good&quot; to approve plan and trigger Pantry Audit
         </p>
         <div
           className="mt-2 p-2 rounded-lg text-sm"

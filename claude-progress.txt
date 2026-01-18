@@ -1,5 +1,50 @@
 # Dinner Bell - Claude Progress Notes
 
+## Session: 2026-01-18 (Coding Agent - Feature #127)
+
+### Feature:
+- Feature #127: Approving plan triggers pantry audit
+
+### What was implemented:
+1. **Created PantryAudit component** (`src/components/weekly-planning/PantryAudit.tsx`):
+   - "Pantry Audit" heading with description
+   - Progress indicator showing checked items count
+   - List of pantry staples with toggleable checkboxes
+   - "Done" button to complete audit
+   - "Back to week plan" navigation
+   - Uses Harvest Hug palette (CSS variables)
+
+2. **Updated weekly-planning index** (`src/components/weekly-planning/index.ts`):
+   - Added PantryAudit export
+
+3. **Updated test-approve-plan page** (`src/app/test-approve-plan/page.tsx`):
+   - Added view state management (week-plan vs pantry-audit)
+   - handleApprovePlan now approves plan AND opens PantryAudit
+   - Added pantry items state with sample staples
+   - Added toggle and complete handlers
+
+### Verification Results:
+- ✅ Step 1: Approve a plan - Clicked "Looks good" on draft plan
+- ✅ Step 2: Verify pantry audit screen appears:
+  - PantryAudit screen opens immediately after approval
+  - Shows "Pantry Audit" heading
+  - Progress indicator: "0 of 8"
+- ✅ Step 3: Verify items to check are listed:
+  - 8 pantry staples: Olive oil, Salt & pepper, Garlic, Soy sauce, Rice, Pasta, Chicken broth, Onions
+  - Items are toggleable (progress updates when checked)
+  - "Done" button and "Back to week plan" navigation
+- ✅ No console errors
+
+### Screenshots:
+- feature-127-step1-before-approval.png
+- feature-127-step2-pantry-audit-screen.png
+- feature-127-step3-items-listed.png
+
+### Status: Feature #127 marked as PASSING
+- Current progress: 42/200 features passing (21.0%)
+
+---
+
 ## Session: 2026-01-18 (Coding Agent - Feature #71)
 
 ### Feature:
@@ -1832,6 +1877,21 @@ The feature was already mostly implemented. The key components existed:
 
 ### Status: STILL PASSING - No regression found
 [Testing] Feature #6 verified - still passing
+
+## Session: 2026-01-18 (Regression Test - Feature #16)
+
+### Feature Tested:
+- Feature #16: Cards use correct background colors
+
+### Verification Results:
+- ✅ Step 1: View a card component - Card visible on home page (Welcome to Dinner Bell card)
+- ✅ Step 2: Verify light mode uses #F3E8D6 - Confirmed exact match (rgb(243, 232, 214))
+- ✅ Step 3: Verify dark mode uses #221A14 - Confirmed exact match (rgb(34, 26, 20))
+- ✅ No console errors
+- ✅ Screenshots: regression-test-feature-16-light-mode.png, regression-test-feature-16-dark-mode.png
+
+### Status: STILL PASSING - No regression found
+[Testing] Feature #16 verified - still passing
 
 ## Session: 2026-01-18 (Regression Test - Feature #16)
 
