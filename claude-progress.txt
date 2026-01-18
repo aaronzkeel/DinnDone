@@ -1,0 +1,56 @@
+# Dinner Bell - Claude Progress Notes
+
+## Session: 2025-01-18 - Feature #15 Dark Mode Toggle
+
+### Completed
+- Feature #15: Dark mode toggles correctly ✅
+
+### What was implemented
+1. **ThemeProvider** (`src/components/ThemeProvider.tsx`)
+   - Uses `useSyncExternalStore` for hydration-safe theme state management
+   - Stores theme preference in localStorage (`dinner-bell-theme` key)
+   - Supports three modes: light, dark, system
+   - Listens for system preference changes when in "system" mode
+   - Updates document class (`light`/`dark`) to trigger CSS variables
+
+2. **DarkModeToggle** (`src/components/DarkModeToggle.tsx`)
+   - Cycles through: light → dark → system → light
+   - Shows appropriate icon: sun (light), moon (dark), monitor (system)
+   - Displays current mode label on larger screens
+
+3. **CSS Variables** (`src/app/globals.css`)
+   - Light mode colors from DESIGN-TOKENS.md (Harvest Hug palette)
+   - Dark mode colors triggered by `.dark` class
+   - System preference fallback via `@media (prefers-color-scheme: dark)`
+   - All colors: bg, card, text, muted, border, primary, secondary, danger
+
+4. **Layout Updates** (`src/app/layout.tsx`)
+   - Switched from Geist fonts to Lora (headings) + Plus Jakarta Sans (body)
+   - ThemeProvider wraps the app
+   - Added `suppressHydrationWarning` to html element
+
+### Verification
+- Light mode: Cream background (#FAF3E6), darker cream cards (#F3E8D6)
+- Dark mode: Dark brown background (#17120E), lighter brown cards (#221A14)
+- Toggle cycles correctly through all three modes
+- Theme persists after page refresh
+- No console errors
+- Linter passes on src/ files
+
+### Current Status
+- 2/200 features passing (1.0%)
+- Feature #15 marked as passing
+
+### Next Session
+- Continue with next available feature from `feature_get_next`
+
+## Session: 2025-01-18 (Feature #2 Agent)
+
+### Status:
+- Feature #2 was already marked as PASSING when this session started
+- No work needed - feature was completed by a previous session
+- Current progress: 6/200 features passing (3.0%)
+
+### Notes:
+- This parallel agent was assigned Feature #2, but it was already done
+- Session ending cleanly with no changes needed
