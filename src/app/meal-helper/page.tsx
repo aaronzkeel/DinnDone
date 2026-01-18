@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { MealHelperHome, MealOptionDetails, EmergencyExit } from "@/components/meal-helper";
+import { MealHelperHome, MealOptionDetails, EmergencyExit, WeekSwapList } from "@/components/meal-helper";
 import { RequireAuth } from "@/components/RequireAuth";
 import type {
   HouseholdMember,
@@ -44,8 +44,96 @@ const sampleTonightMeal: PlannedMealSummary = {
   assignedCookId: "2",
 };
 
+// Sample week meals for swap list
+const sampleWeekMeals: Array<PlannedMealSummary & { dayLabel: string }> = [
+  {
+    id: "1",
+    dayLabel: "Monday (Tonight)",
+    mealName: "Chicken Stir Fry",
+    effortTier: "middle",
+    prepTime: 15,
+    cookTime: 20,
+    cleanupRating: "medium",
+    ingredients: ["Chicken breast", "Bell peppers", "Broccoli", "Soy sauce"],
+    isFlexMeal: true,
+    assignedCookId: "2",
+  },
+  {
+    id: "2",
+    dayLabel: "Tuesday",
+    mealName: "Taco Night",
+    effortTier: "super-easy",
+    prepTime: 10,
+    cookTime: 15,
+    cleanupRating: "low",
+    ingredients: ["Ground beef", "Taco shells", "Cheese", "Lettuce", "Salsa"],
+    isFlexMeal: false,
+    assignedCookId: "1",
+  },
+  {
+    id: "3",
+    dayLabel: "Wednesday",
+    mealName: "Spaghetti Bolognese",
+    effortTier: "middle",
+    prepTime: 15,
+    cookTime: 30,
+    cleanupRating: "medium",
+    ingredients: ["Ground beef", "Pasta", "Tomato sauce", "Onion", "Garlic"],
+    isFlexMeal: false,
+    assignedCookId: "2",
+  },
+  {
+    id: "4",
+    dayLabel: "Thursday",
+    mealName: "Grilled Salmon",
+    effortTier: "middle",
+    prepTime: 10,
+    cookTime: 20,
+    cleanupRating: "low",
+    ingredients: ["Salmon fillets", "Lemon", "Asparagus", "Olive oil"],
+    isFlexMeal: false,
+    assignedCookId: "1",
+  },
+  {
+    id: "5",
+    dayLabel: "Friday",
+    mealName: "Pizza Night",
+    effortTier: "super-easy",
+    prepTime: 5,
+    cookTime: 20,
+    cleanupRating: "low",
+    ingredients: ["Pizza dough", "Mozzarella", "Pepperoni", "Tomato sauce"],
+    isFlexMeal: true,
+    assignedCookId: "2",
+  },
+  {
+    id: "6",
+    dayLabel: "Saturday",
+    mealName: "Beef Stew",
+    effortTier: "more-prep",
+    prepTime: 30,
+    cookTime: 120,
+    cleanupRating: "medium",
+    ingredients: ["Beef chuck", "Potatoes", "Carrots", "Onions", "Beef broth"],
+    isFlexMeal: false,
+    assignedCookId: "1",
+  },
+  {
+    id: "7",
+    dayLabel: "Sunday",
+    mealName: "Roast Chicken",
+    effortTier: "more-prep",
+    prepTime: 20,
+    cookTime: 90,
+    cleanupRating: "high",
+    ingredients: ["Whole chicken", "Potatoes", "Carrots", "Herbs", "Butter"],
+    isFlexMeal: false,
+    assignedCookId: "2",
+  },
+];
+
 // View states for the meal helper page
-type ViewState = "home" | "meal-details" | "emergency-exit";
+type ViewState = "home" | "meal-details" | "emergency-exit" | "week-swap";
 
 export default function MealHelperPage() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -57,13 +145,8 @@ export default function MealHelperPage() {
   };
 
   const handleNewPlan = () => {
-    const newMessage: ChatMessage = {
-      id: Date.now().toString(),
-      role: "zylo",
-      content: "No problem! Let me show you some other options from this week's plan that we could swap in.",
-      timestamp: new Date().toISOString(),
-    };
-    setMessages((prev) => [...prev, newMessage]);
+    // Open WeekSwapList screen when "New plan" is tapped
+    setCurrentView("week-swap");
   };
 
   const handleImWiped = () => {
@@ -165,6 +248,35 @@ export default function MealHelperPage() {
     setMessages((prev) => [...prev, newMessage]);
     setCurrentView("home");
   };
+
+  const handleSwapMealSelect = (mealId: string) => {
+    // Find the selected meal to get its name
+    const selectedMeal = sampleWeekMeals.find((m) => m.id === mealId);
+    const mealName = selectedMeal?.mealName || "the selected meal";
+
+    const newMessage: ChatMessage = {
+      id: Date.now().toString(),
+      role: "zylo",
+      content: `Great choice! I've swapped tonight's meal to ${mealName}. The original meal has been moved to later in the week.`,
+      timestamp: new Date().toISOString(),
+    };
+    setMessages((prev) => [...prev, newMessage]);
+    setCurrentView("home");
+  };
+
+  // Render WeekSwapList when "New plan" is clicked
+  if (currentView === "week-swap") {
+    return (
+      <RequireAuth>
+        <WeekSwapList
+          meals={sampleWeekMeals}
+          currentMealId={sampleTonightMeal.id}
+          onSelect={handleSwapMealSelect}
+          onBack={handleBack}
+        />
+      </RequireAuth>
+    );
+  }
 
   // Render MealOptionDetails when "This works" is clicked
   if (currentView === "meal-details") {
