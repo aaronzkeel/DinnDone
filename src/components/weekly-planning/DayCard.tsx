@@ -46,7 +46,7 @@ export function DayCard({
     <button
       onClick={onTap}
       className={`
-        w-full text-left p-4 rounded-xl transition-colors
+        w-full text-left p-4 md:p-5 rounded-xl transition-colors
         ${
           isToday
             ? "border-2"
@@ -64,16 +64,16 @@ export function DayCard({
         ...(isToday && { backgroundColor: "rgba(226, 169, 59, 0.1)" }),
       }}
     >
-      <div className="flex gap-3">
+      <div className="flex gap-3 md:gap-4">
         {/* Date column */}
         <div
-          className="flex flex-col items-center justify-center w-12 flex-shrink-0"
+          className="flex flex-col items-center justify-center w-12 md:w-14 flex-shrink-0"
           style={{
             color: isToday ? "var(--color-primary)" : "var(--color-muted)",
           }}
         >
-          <span className="text-xs font-medium uppercase">{day}</span>
-          <span className="text-xl font-bold">{num}</span>
+          <span className="text-xs md:text-sm font-medium uppercase">{day}</span>
+          <span className="text-xl md:text-2xl font-bold">{num}</span>
         </div>
 
         {/* Meal info */}

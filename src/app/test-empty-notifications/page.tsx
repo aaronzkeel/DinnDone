@@ -1,11 +1,11 @@
 "use client";
 
 import { NotificationsList } from "@/components/notifications";
-import type { NotificationItem } from "@/types/notifications";
+import type { Notification } from "@/types/notifications";
 
 export default function TestEmptyNotificationsPage() {
   // Empty notifications array to test empty state
-  const emptyNotifications: NotificationItem[] = [];
+  const emptyNotifications: Notification[] = [];
 
   return (
     <div style={{ backgroundColor: "var(--color-bg)", minHeight: "100vh" }}>

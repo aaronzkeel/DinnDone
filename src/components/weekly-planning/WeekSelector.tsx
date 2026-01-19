@@ -36,7 +36,8 @@ export function WeekSelector({
         borderColor: "var(--color-border)",
       }}
     >
-      <div className="flex items-center gap-1 px-4 py-2 overflow-x-auto">
+      {/* On tablet (md:) and up, center pills and allow wrapping; on mobile, horizontal scroll */}
+      <div className="flex items-center gap-1.5 px-4 py-3 overflow-x-auto md:overflow-x-visible md:flex-wrap md:justify-center md:gap-2">
         {weeks.map((week) => {
           const isSelected = week.id === selectedWeekId;
           return (

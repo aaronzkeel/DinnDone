@@ -30,6 +30,8 @@ export function WeekPlanView({
       className="flex flex-col h-full"
       style={{ backgroundColor: "var(--color-bg)" }}
     >
+      {/* Centered container for tablet/desktop */}
+      <div className="w-full max-w-3xl mx-auto">
       {/* Week selector */}
       <WeekSelector
         weeks={availableWeeks}
@@ -38,8 +40,8 @@ export function WeekPlanView({
         onAddWeek={onAddWeek}
       />
 
-      {/* Status badge */}
-      <div className="px-4 py-2 flex items-center justify-between">
+      {/* Status badge - increased padding on tablet */}
+      <div className="px-4 py-2 md:py-3 md:px-6 flex items-center justify-between">
         <div
           className={`
             text-xs font-medium px-2 py-1 rounded-full
@@ -83,8 +85,8 @@ export function WeekPlanView({
         </div>
       </div>
 
-      {/* Meal cards */}
-      <div className="flex-1 overflow-auto px-4 pb-4">
+      {/* Meal cards - increased padding on tablet */}
+      <div className="flex-1 overflow-auto px-4 pb-4 md:px-6 md:pb-6">
         {selectedWeekPlan.meals.length === 0 ? (
           /* Empty state - no meals yet */
           <div className="flex flex-col items-center justify-center h-full min-h-[300px] text-center px-4">
@@ -129,7 +131,7 @@ export function WeekPlanView({
             </button>
           </div>
         ) : (
-          <div className="space-y-2">
+          <div className="space-y-2 md:space-y-3">
             {selectedWeekPlan.meals.map((meal) => (
               <DayCard
                 key={meal.id}
@@ -145,6 +147,7 @@ export function WeekPlanView({
           </div>
         )}
       </div>
+      </div>{/* End centered container */}
     </div>
   );
 }

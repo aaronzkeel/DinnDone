@@ -2461,3 +2461,23 @@ The component shows an empty state when `selectedWeekPlan.meals.length === 0`:
 
 ### Status: STILL PASSING - No regression found
 [Testing] Feature #65 verified - still passing
+
+## Session: 2026-01-18 22:15 (Regression Test - Feature #9)
+
+### Feature Tested:
+- Feature #9: HouseholdMember seeded for Zink family
+
+### Verification Results:
+- ✅ Step 1: Query HouseholdMember table - Data loaded via Convex
+- ✅ Step 2: Verify 5 members exist - Confirmed (5/5)
+- ✅ Step 3: Verify Aaron and Katie are admins, kids are viewers:
+  - Aaron - Admin ✓
+  - Katie - Admin ✓
+  - Lizzie - Viewer ✓
+  - Ethan - Viewer ✓
+  - Elijah - Viewer ✓
+- ✅ No console errors
+- ✅ Screenshots: regression-test-feature-9-household-members.png, regression-test-feature-9-verification-checklist.png
+
+### Status: STILL PASSING - No regression found
+[Testing] Feature #9 verified - still passing
