@@ -3285,3 +3285,53 @@ Updated sample data in test pages to include proper ingredient quantities:
 
 ### Status: STILL PASSING - No regression found
 [Testing] Feature #164 verified - still passing
+
+## Session: 2026-01-18 22:50 (Coding Agent - Feature #128)
+
+### Feature:
+- Feature #128: Pantry audit lists ingredients to check
+- Category: functional
+- Description: Items from planned meals display
+- Dependencies: Feature #127 (Approving plan triggers pantry audit)
+
+### What was implemented:
+Updated `src/app/test-approve-plan/page.tsx` to extract ingredients from the week's planned meals:
+
+1. **Created `extractIngredientsFromMeals()` function**:
+   - Iterates through all meals in the week plan
+   - Collects ingredients from each meal
+   - Filters out special entries like "Order from Luigi's" (Pizza Night)
+   - Deduplicates ingredients using a Set (e.g., Olive oil appears in multiple meals)
+   - Converts to `PantryCheckItem[]` format with unique IDs
+
+2. **Replaced hardcoded pantry staples** with ingredients derived from meals:
+   - Previously: 8 generic items (Olive oil, Salt & pepper, Garlic, etc.)
+   - Now: 24 unique ingredients from the 7 planned meals
+
+### Ingredients by Meal:
+- Sheet Pan Salmon & Asparagus: Salmon fillets, Asparagus, Lemon, Olive oil
+- Taco Tuesday: Ground turkey, Taco seasoning, Tortillas, Cheese
+- Pasta Primavera: Pasta, Vegetables, Olive oil, Parmesan
+- Chicken Stir Fry: Chicken breast, Broccoli, Soy sauce, Rice
+- Pizza Night: (Order from Luigi's - filtered out)
+- Grilled Burgers: Ground beef, Buns, Cheese, Lettuce, Tomato
+- Slow Cooker Pot Roast: Beef roast, Potatoes, Carrots, Onion, Broth
+
+### Verification Results:
+- ✅ Step 1: View pantry audit - Screen opens after clicking "Looks good" to approve plan
+- ✅ Step 2: Verify ingredient list shows - 24 unique ingredients displayed as checkable items
+- ✅ Step 3: Verify items are from the week's meals - All ingredients extracted from planned meals
+- ✅ Progress counter works (1 of 24 after checking Salmon fillets)
+- ✅ Toggle functionality works - items can be checked/unchecked
+- ✅ Mobile responsive (tested at 375x667)
+- ✅ No console errors
+
+### Screenshots:
+- feature-128-pantry-audit-ingredients-list.png (top of list with Salmon, Asparagus, Lemon, Olive oil)
+- feature-128-pantry-audit-scrolled-down.png (bottom of list with Beef roast, Potatoes, Carrots, Onion, Broth)
+- feature-128-ingredient-checked.png (Salmon fillets checked, progress 1 of 24)
+- feature-128-mobile-view.png (mobile viewport)
+
+### Status: Feature #128 marked as PASSING
+
+### Current Progress: 80/200 features passing (40.0%)
