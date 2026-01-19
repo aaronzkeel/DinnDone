@@ -1,5 +1,40 @@
 # Dinner Bell - Claude Progress Notes
 
+## Session: 2026-01-19 (Regression Test - Feature #40)
+
+### Feature Tested:
+- Feature #40: User can rename store
+- Category: functional
+- Description: Existing stores can be renamed
+- Dependencies: Feature #39 (User can add new store)
+
+### Note:
+Feature #40 was already marked as PASSING. Ran regression test to verify it still works.
+
+### Verification Results:
+- ✅ Step 1: Open store management - Clicked "Edit" button to open Stores modal
+- ✅ Step 2: Edit store name - Changed "Target" to "Target Superstore" in inline input field
+- ✅ Step 3: Verify new name displays everywhere:
+  - Store management modal input field updated immediately
+  - Filter pills at top of grocery list updated in real-time
+  - Name persisted after closing and reopening modal
+- ✅ Zero console errors
+
+### Implementation Details:
+- GroceryList.tsx lines 644-717: Store manager modal with inline editing
+- onRenameStore callback wired up at line 675
+- Real-time updates to filter pills as user types
+
+### Screenshots:
+- regression-test-feature-40-store-management-modal.png (store management open)
+- regression-test-feature-40-store-renamed.png (after renaming to Target Superstore)
+- regression-test-feature-40-rename-verified.png (rename persists in filter pills)
+
+### Status: STILL PASSING - No regression found
+[Testing] Feature #40 verified - still passing
+
+### Current Progress: 141/200 features passing (70.5%)
+
 ## Session: 2026-01-19 (Coding Agent - Feature #180)
 
 ### Feature:
@@ -5539,3 +5574,34 @@ Feature was ALREADY IMPLEMENTED. No code changes needed.
 
 ### Current Progress: 140/200 features passing (70.0%)
 
+
+## Session: 2026-01-19 (Regression Test - Feature #137)
+
+### Feature Tested:
+- Feature #137: Only admins can approve plan
+- Category: functional
+- Description: Viewer accounts cannot approve
+- Dependencies: Feature #126, #8
+
+### Verification Results:
+- ✅ Step 1: Sign in as kid account
+  - Clicked "Switch to Kid" button
+  - Current user changed to "Tommy (kid)" with "Viewer" badge (gray)
+
+- ✅ Step 2: View weekly plan
+  - Weekly plan displayed with all 7 days visible
+  - Plan status shows "DRAFT"
+
+- ✅ Step 3: Verify Looks good button is hidden or disabled
+  - "Looks good" button is HIDDEN when user is Viewer
+  - Only "Pantry Audit" button visible in action area
+  - Switched back to Admin and confirmed "Looks good" button reappears
+  - Button visibility is role-based (Admin: visible, Viewer: hidden)
+
+- ✅ Zero console errors
+
+### Screenshot:
+- regression-test-feature-137-kid-mode.png (kid user without Looks good button)
+
+### Status: STILL PASSING - No regression found
+[Testing] Feature #137 verified - still passing
