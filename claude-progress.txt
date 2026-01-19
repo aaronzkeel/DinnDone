@@ -2335,3 +2335,22 @@ The feature was already mostly implemented. The key components existed:
 ### Status: STILL PASSING - No regression found
 [Testing] Feature #110 verified - still passing
 [Testing] Feature #56 verified - still passing
+
+## Session: 2026-01-18 22:10 (Regression Test - Feature #111)
+
+### Feature Tested:
+- Feature #111: Week selector displays current week
+
+### Verification Results:
+- ✅ Step 1: View Weekly Planning - Test page shows WeekSelector component
+- ✅ Step 2: Verify week selector shows date range - Date ranges visible:
+  - This Week (2026-01-12)
+  - Next Week (2026-01-19)
+  - Jan 26 - Feb 1 (2026-01-26)
+  - Feb 2 - 8 (2026-02-02)
+- ✅ Step 3: Verify current week is selected by default - "This Week" highlighted with gold background
+- ✅ No console errors
+- ✅ Screenshot: regression-test-feature-111-week-selector.png
+
+### Status: STILL PASSING - No regression found
+[Testing] Feature #111 verified - still passing
