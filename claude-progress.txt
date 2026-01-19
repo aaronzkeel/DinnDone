@@ -4623,3 +4623,61 @@ The feature was ALREADY IMPLEMENTED. No code changes needed.
 
 ### Status: STILL PASSING - No regression found
 [Testing] Feature #13 verified - still passing
+
+## Session: 2026-01-19 03:26 (Coding Agent - Feature #154)
+
+### Feature:
+- Feature #154: Handles AI generation failure
+- Category: error-handling
+- Description: Error message if plan generation fails
+- Dependencies: Feature #132 (AI generates draft week plan)
+
+### What was implemented:
+Updated `src/app/test-generate-plan/page.tsx` with comprehensive error handling:
+
+1. **Step 1: Simulate API Failure**:
+   - Added 'simulateFailure' state toggle
+   - Added 'Feature #154 Test Error Handling' section with toggle button
+   - 'Failure Mode ON' (red) / 'Failure Mode OFF' (gray) states
+   - Warning message when failure mode is active
+
+2. **Step 2: Try to Generate Plan**:
+   - When failure mode is ON, generation fails after 1.5s simulated delay
+   - Shows user-friendly error message instead of technical error
+
+3. **Step 3: Friendly Error Message and Retry Option**:
+   - Enhanced error panel with:
+     - Warning icon (AlertTriangle)
+     - 'Unable to Generate Plan' heading
+     - User-friendly error message
+     - 'Try Again' button (gold/primary color) that retries generation
+     - 'Dismiss' button to clear the error
+   - Added `getFriendlyErrorMessage()` function that converts:
+     - Network errors → 'We couldn't reach the AI service...'
+     - API key issues → 'There's an issue with our AI service configuration...'
+     - Rate limiting → 'We're experiencing high demand...'
+     - Server errors (500/502/503) → 'Our AI service is temporarily unavailable...'
+     - Timeout → 'The request took too long...'
+     - JSON parsing errors → 'We received an unexpected response...'
+     - Default fallback → 'Something went wrong...'
+
+### Test Steps Verified:
+- ✅ Step 1: Simulate API failure - Toggle button enables/disables failure simulation
+- ✅ Step 2: Try to generate plan - Click 'Generate 7-Day Plan' with failure mode ON
+- ✅ Step 3: Verify friendly error message and retry option:
+  - Error panel shows with warning icon
+  - User-friendly message displayed
+  - 'Try Again' button works (successfully generated plan after disabling failure mode)
+  - 'Dismiss' button clears the error
+- ✅ Zero console errors
+
+### Screenshots:
+- feature-154-step1-failure-mode-enabled.png (toggle enabled, showing warning)
+- feature-154-step3-error-panel-full.png (error panel with retry button)
+- feature-154-step3-error-with-retry.png (same view scrolled)
+- feature-154-retry-success.png (after successful retry)
+
+### Status: Feature #154 marked as PASSING
+
+### Current Progress: 113/200 features passing (56.5%)
+
