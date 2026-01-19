@@ -5385,3 +5385,28 @@ aria-label={item.isChecked ? \`Uncheck ${item.name}\` : \`Check ${item.name}\`}
 ### Status: STILL PASSING - No regression found
 [Testing] Feature #56 verified - still passing
 
+
+## Session: 2026-01-19 (Regression Test - Feature #122)
+
+### Feature Tested:
+- Feature #122: User can reassign cook in modal
+- Category: functional
+- Description: Cook selector shows Aaron and Katie (and Sam)
+- Dependencies: Feature #118
+
+### Verification Results:
+- ✅ Step 1: Open edit modal - Modal displayed on test page at /test-edit-day-modal
+- ✅ Step 2: Find cook assignment section - 'Change Cook' section visible with Aaron, Katie, Sam buttons
+- ✅ Step 3: Tap different cook and verify change:
+  - Initial cook: Katie
+  - Changed to Aaron → cook display updated to 'Aaron', Aaron button became active
+  - Changed to Sam → cook display updated to 'Sam', Sam button became active
+- ✅ Zero console errors
+
+### Screenshots:
+- regression-test-feature-122-cook-aaron.png (after selecting Aaron)
+- regression-test-feature-122-cook-sam.png (after selecting Sam)
+
+### Status: STILL PASSING - No regression found
+[Testing] Feature #122 verified - still passing
+
