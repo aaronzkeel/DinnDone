@@ -198,11 +198,11 @@ export function GroceryList({
           </div>
         </div>
 
-        <div className="flex flex-wrap gap-2">
+        <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-1 -mx-4 px-4" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
           <button
             type="button"
             onClick={() => setActiveStoreFilter('all')}
-            className={`px-3 py-1.5 rounded-full text-sm font-semibold border transition-colors ${
+            className={`px-3 py-1.5 rounded-full text-sm font-semibold border transition-colors whitespace-nowrap flex-shrink-0 ${
               activeStoreFilter === 'all'
                 ? 'bg-yellow-100 dark:bg-yellow-900/40 border-yellow-200 dark:border-yellow-800 text-yellow-800 dark:text-yellow-200'
                 : 'bg-white dark:bg-stone-800 border-stone-200 dark:border-stone-700 text-stone-600 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-stone-700'
@@ -215,7 +215,7 @@ export function GroceryList({
               key={store.id}
               type="button"
               onClick={() => setActiveStoreFilter(store.id)}
-              className={`px-3 py-1.5 rounded-full text-sm font-semibold border transition-colors ${
+              className={`px-3 py-1.5 rounded-full text-sm font-semibold border transition-colors whitespace-nowrap flex-shrink-0 ${
                 activeStoreFilter === store.id
                   ? 'bg-yellow-100 dark:bg-yellow-900/40 border-yellow-200 dark:border-yellow-800 text-yellow-800 dark:text-yellow-200'
                   : 'bg-white dark:bg-stone-800 border-stone-200 dark:border-stone-700 text-stone-600 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-stone-700'
@@ -227,7 +227,7 @@ export function GroceryList({
           <button
             type="button"
             onClick={() => setActiveStoreFilter('unassigned')}
-            className={`px-3 py-1.5 rounded-full text-sm font-semibold border transition-colors ${
+            className={`px-3 py-1.5 rounded-full text-sm font-semibold border transition-colors whitespace-nowrap flex-shrink-0 ${
               activeStoreFilter === 'unassigned'
                 ? 'bg-yellow-100 dark:bg-yellow-900/40 border-yellow-200 dark:border-yellow-800 text-yellow-800 dark:text-yellow-200'
                 : 'bg-white dark:bg-stone-800 border-stone-200 dark:border-stone-700 text-stone-600 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-stone-700'
