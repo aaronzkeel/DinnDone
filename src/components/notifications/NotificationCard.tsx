@@ -32,6 +32,16 @@ const typeColors: Record<Notification["type"], string> = {
   "cook-reminder": "bg-amber-100 text-amber-600 dark:bg-amber-900 dark:text-amber-400",
 };
 
+const typeLabels: Record<Notification["type"], string> = {
+  "daily-brief": "Daily Brief",
+  "strategic-pivot": "Strategic Pivot",
+  "thaw-guardian": "Thaw Guardian",
+  "weekly-plan-ready": "Weekly Plan Ready",
+  "inventory-sos": "Inventory Alert",
+  "leftover-check": "Leftover Check",
+  "cook-reminder": "Cook Reminder",
+};
+
 function formatTime(timestamp: string): string {
   const date = new Date(timestamp);
   const now = new Date();
@@ -52,12 +62,22 @@ function formatTime(timestamp: string): string {
 export function NotificationCard({ notification, onAction }: NotificationCardProps) {
   const Icon = typeIcons[notification.type];
   const colorClass = typeColors[notification.type];
+  const typeLabel = typeLabels[notification.type];
+  const timeText = formatTime(notification.timestamp);
 
   const isPending = notification.status === "pending";
   const isDone = notification.status === "done";
 
+  // Build accessible label for screen readers
+  const ariaLabel = `${typeLabel}: ${notification.message}. ${timeText}${
+    notification.actions && notification.actions.length > 0
+      ? `. Actions: ${notification.actions.map((a) => a.label).join(", ")}`
+      : ""
+  }`;
+
   return (
-    <div
+    <article
+      aria-label={ariaLabel}
       className={`p-4 rounded-xl transition-colors ${
         isPending
           ? "bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700"
@@ -94,7 +114,7 @@ export function NotificationCard({ notification, onAction }: NotificationCardPro
 
           <div className="flex items-center gap-2 mt-2">
             <span className="text-xs" style={{ color: "var(--color-muted)" }}>
-              {formatTime(notification.timestamp)}
+              {timeText}
             </span>
 
             {isDone && (
@@ -126,6 +146,6 @@ export function NotificationCard({ notification, onAction }: NotificationCardPro
           )}
         </div>
       </div>
-    </div>
+    </article>
   );
 }

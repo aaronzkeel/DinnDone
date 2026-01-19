@@ -4681,3 +4681,69 @@ Updated `src/app/test-generate-plan/page.tsx` with comprehensive error handling:
 
 ### Current Progress: 113/200 features passing (56.5%)
 
+
+## Session: 2026-01-19 03:27 (Regression Test - Feature #194)
+
+### Feature Tested:
+- Feature #194: Notifications page responsive on mobile
+- Category: style
+- Description: Layout works on phone screens
+
+### Verification Results:
+- ✅ Step 1: View on 375px viewport - iPhone-sized viewport (375x812) set and tested
+- ✅ Step 2: Verify no overflow - All 7 NotificationCard components properly contained
+  - Each card: 16px left margin, 359px right edge, 343px width
+  - Zero overflow on any notification card
+  - Minor 12px overflow from test page scaffolding (Expected Icons section) - not part of production UI
+- ✅ Step 3: Verify cards stack properly
+  - Cards use `space-y-3` for vertical stacking
+  - Action buttons use `flex-wrap` for proper wrapping
+  - Icon uses `flex-shrink-0` to maintain size
+  - Text container uses `min-w-0` to prevent overflow
+
+### Components Reviewed:
+- NotificationsList.tsx: Uses px-4 padding, flex layout, overflow-auto
+- NotificationCard.tsx: Fully responsive with flex, min-w-0, flex-wrap
+
+### Console Status:
+- Hydration warning for timestamp (expected SSR behavior, not a regression)
+
+### Screenshots:
+- regression-test-feature-194-mobile-top.png (top of page at 375px)
+- regression-test-feature-194-mobile-bottom.png (bottom of page at 375px)
+- regression-test-feature-194-full-page.png (full page screenshot)
+
+### Status: STILL PASSING - No regression found
+[Testing] Feature #194 verified - still passing
+
+
+## Session: 2026-01-19 03:28 (Regression Test - Feature #157)
+
+### Feature Tested:
+- Feature #157: NotificationCard shows message
+- Category: functional
+- Description: Notification text displays clearly
+
+### Verification Results:
+- ✅ Step 1: View a notification card - All 7 notification cards visible on test page
+- ✅ Step 2: Verify message text is visible - All messages clearly displayed:
+  - daily-brief: 'Good morning\! Today\'s plan: Chicken Stir Fry for dinner. Katie is cooking.'
+  - strategic-pivot: 'Heads up\! We\'re low on chicken. Consider swapping tonight\'s meal.'
+  - thaw-guardian: 'Don\'t forget to thaw the salmon for tomorrow\'s dinner\!'
+  - weekly-plan-ready: 'Your meal plan for next week is ready\! Take a look and approve it.'
+  - inventory-sos: 'Running low on essentials\! Add milk, eggs, and bread to your list.'
+  - leftover-check: 'You made extra pasta last night. Use it up before it goes bad\!'
+  - cook-reminder: 'Time to start dinner\! Tonight: Grilled Salmon with Asparagus (45 min)'
+- ✅ Step 3: Verify appropriate length/truncation - All messages fit within cards, proper text wrapping
+- ✅ Zero console errors
+
+### Implementation Verified:
+- NotificationCard.tsx line 101: {notification.message} displays message prop
+- Proper text styling with color variables for readability
+- min-w-0 class ensures proper text wrapping
+
+### Screenshot:
+- regression-test-feature-157-notification-messages.png
+
+### Status: STILL PASSING - No regression found
+[Testing] Feature #157 verified - still passing
