@@ -108,8 +108,19 @@ export function GroceryList({
 
   return (
     <div className="flex flex-col h-full bg-stone-50 dark:bg-stone-900">
+      {/* Desktop max-width container for comfortable reading */}
+      <div className="w-full max-w-2xl mx-auto">
       {/* Input area - sticky at top */}
       <div className="sticky top-0 z-10 bg-stone-50 dark:bg-stone-900 px-4 pt-4 pb-3 border-b border-stone-200 dark:border-stone-800">
+        {/* Header with total count */}
+        <div className="flex items-center justify-between mb-3">
+          <h1 className="text-lg font-bold text-stone-800 dark:text-stone-100">
+            Grocery List
+          </h1>
+          <span className="text-sm font-medium text-stone-500 dark:text-stone-400" data-testid="total-item-count">
+            {items.length} {items.length === 1 ? 'item' : 'items'}
+          </span>
+        </div>
         <div className="flex items-center justify-between mb-2">
           <div className="flex items-center gap-2 text-sm font-semibold text-stone-700 dark:text-stone-200">
             <Store size={16} className="text-stone-500 dark:text-stone-400" />
@@ -450,6 +461,7 @@ export function GroceryList({
           </div>
         )}
       </div>
+      </div>{/* End desktop max-width container */}
 
       {/* Store manager */}
       {isManagingStores && (
