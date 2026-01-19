@@ -1,5 +1,61 @@
 # Dinner Bell - Claude Progress Notes
 
+## Session: 2026-01-19 (Coding Agent - Feature #98)
+
+### Feature:
+- Feature #98: Effort tier badges have correct colors
+- Category: style
+- Description: Easy=green, Medium=gold, Involved=orange
+- Dependencies: Feature #68 (Tonight's Plan shows effort tier)
+
+### What was implemented:
+Created test page at `/test-effort-tiers` to verify all three effort tier badge colors.
+
+**Implementation Details (TonightPlanCard.tsx lines 12-16):**
+```tsx
+const effortColors: Record<EffortTier, string> = {
+  "super-easy": "bg-lime-100 text-lime-800 dark:bg-lime-900/40 dark:text-lime-200",
+  "middle": "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/40 dark:text-yellow-200",
+  "more-prep": "bg-orange-100 text-orange-800 dark:bg-orange-900/40 dark:text-orange-200",
+};
+```
+
+### Verification Results:
+- Step 1: View Easy meal - PASSED
+  - Taco Night meal shows "Super Easy" badge
+  - Badge displays in GREEN/LIME color (bg-lime-100/text-lime-800)
+
+- Step 2: Verify green badge - PASSED
+  - Super Easy badge clearly shows lime green background with dark green text
+  - Matches expected design specification
+
+- Step 3: Check Medium and Involved meals too - PASSED
+  - Medium (Chicken Stir Fry): GOLD/YELLOW badge (bg-yellow-100/text-yellow-800)
+  - More Prep (Slow Cooker Pot Roast): ORANGE badge (bg-orange-100/text-orange-800)
+
+### Test Actions Performed:
+1. Created test page `/test-effort-tiers` with three TonightPlanCard components
+2. Each card displays a different effort tier (super-easy, middle, more-prep)
+3. Verified badge colors match specification visually
+4. Tested on existing pages (/test-this-works, /test-approve-plan)
+5. Checked console - zero errors
+
+### Screenshots:
+- feature-98-effort-tier-badges.png (test page showing all three tiers)
+- feature-98-all-effort-tiers-fullpage.png (full page with verification checklist)
+- feature-98-more-prep-badge.png (orange badge for More Prep)
+- feature-98-tonight-plan-medium-badge.png (gold badge in TonightPlanCard)
+- feature-98-day-cards-effort-tiers.png (DayCards showing effort indicators)
+
+### Status: Feature #98 marked as PASSING
+- Zero console errors
+- All three effort tier colors verified correct
+- Test page created for future regression testing
+
+### Current Progress: 151/200 features passing (75.5%)
+
+---
+
 ## Session: 2026-01-19 (Coding Agent - Feature #75)
 
 ### Feature:
@@ -5762,4 +5818,25 @@ Feature was ALREADY IMPLEMENTED. No code changes needed.
 
 ### Status: STILL PASSING - No regression found
 [Testing] Feature #111 verified - still passing
+
+
+## Session: 2026-01-19 (Regression Test - Feature #31)
+
+### Feature Tested:
+- Feature #31: User can edit item name
+- Category: functional
+- Description: Inline editing allows changing item name
+- Dependencies: Feature #25
+
+### Verification Results:
+- ✅ Step 1: Tap on item name or edit icon - Clicked 'Edit Grapes' button, inline textbox appeared
+- ✅ Step 2: Change the name - Changed 'Grapes' to 'Red Grapes' and pressed Enter
+- ✅ Step 3: Verify new name saves and displays - 'Red Grapes' now displays in the grocery list
+- ✅ Zero console errors
+
+### Screenshot:
+- regression-test-feature-31-edit-item-name.png
+
+### Status: STILL PASSING - No regression found
+[Testing] Feature #31 verified - still passing
 
