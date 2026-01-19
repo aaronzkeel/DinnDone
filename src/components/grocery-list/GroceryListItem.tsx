@@ -18,6 +18,10 @@ interface GroceryListItemProps {
   onDropBefore?: () => void
   isDropTarget?: boolean
   density?: 'comfortable' | 'compact'
+  /** Keyboard alternative for drag: move item up in the list */
+  onMoveUp?: () => void
+  /** Keyboard alternative for drag: move item down in the list */
+  onMoveDown?: () => void
 }
 
 export function GroceryListItem({
@@ -34,6 +38,8 @@ export function GroceryListItem({
   onDropBefore,
   isDropTarget,
   density = 'comfortable',
+  onMoveUp,
+  onMoveDown,
 }: GroceryListItemProps) {
   const [isEditingName, setIsEditingName] = useState(false)
   const [isEditingQuantity, setIsEditingQuantity] = useState(false)
@@ -131,9 +137,10 @@ export function GroceryListItem({
         ${isDropTarget ? 'bg-yellow-50 dark:bg-yellow-900/10' : ''}
       `}
     >
-      {/* Drag handle */}
+      {/* Drag handle with keyboard support */}
       {!item.isChecked && (
-        <div
+        <button
+          type="button"
           draggable={Boolean(enableDrag)}
           onDragStart={(e) => {
             if (!enableDrag) return
@@ -142,18 +149,31 @@ export function GroceryListItem({
             onDragStart?.(item.id)
           }}
           onDragEnd={() => onDragEnd?.()}
+          onKeyDown={(e) => {
+            if (e.key === 'ArrowUp' && onMoveUp) {
+              e.preventDefault()
+              onMoveUp()
+            } else if (e.key === 'ArrowDown' && onMoveDown) {
+              e.preventDefault()
+              onMoveDown()
+            }
+          }}
           className="
             flex-shrink-0 w-6 h-6
             flex items-center justify-center
             text-stone-300 dark:text-stone-600
             group-hover:text-stone-400 dark:group-hover:text-stone-500
+            hover:text-stone-500 dark:hover:text-stone-400
+            focus:text-yellow-600 dark:focus:text-yellow-400
+            focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:ring-offset-1
             cursor-grab active:cursor-grabbing
+            rounded
           "
-          aria-label="Drag to move to a different store"
-          title="Drag to move"
+          aria-label={`Reorder ${item.name}. Use arrow keys to move up or down, or drag to reorder`}
+          title="Drag or use arrow keys to reorder"
         >
           <GripVertical size={16} />
-        </div>
+        </button>
       )}
 
       {/* Checkbox - 44px touch target for accessibility */}

@@ -402,7 +402,7 @@ export function GroceryList({
                   </div>
 
                   <div className="space-y-0">
-                    {sorted.map((item) => {
+                    {sorted.map((item, index) => {
                       const itemDropKey = `${dropKey}::${item.id}`
                       const isDropTarget = activeDropTarget === itemDropKey
                       return (
@@ -429,6 +429,16 @@ export function GroceryList({
                             }}
                             isDropTarget={isDropTarget}
                             density={density}
+                            onMoveUp={index > 0 ? () => {
+                              // Move this item before the previous item
+                              const prevItem = sorted[index - 1]
+                              onMoveItem?.(item.id, { storeId: group.storeId, beforeId: prevItem.id })
+                            } : undefined}
+                            onMoveDown={index < sorted.length - 1 ? () => {
+                              // Move this item after the next item (before the item after next, or to end)
+                              const afterNextItem = sorted[index + 2]
+                              onMoveItem?.(item.id, { storeId: group.storeId, beforeId: afterNextItem?.id ?? null })
+                            } : undefined}
                           />
                         </div>
                       )
