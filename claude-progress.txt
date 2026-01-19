@@ -4987,3 +4987,97 @@ Created new test page `src/app/test-thaw-guardian/page.tsx` with:
 ### Status: Feature #179 marked as PASSING
 
 ### Current Progress: 122/200 features passing (61.0%)
+
+## Session: 2026-01-19 03:37 (Regression Test - Feature #28)
+
+### Feature Tested:
+- Feature #28: User can check off item
+- Category: functional
+- Description: Tapping checkbox marks item as checked
+
+
+## Session: 2026-01-19 03:37 (Coding Agent - Feature #50)
+
+### Feature:
+- Feature #50: Checkbox has proper aria label
+- Category: accessibility
+- Description: Screen readers announce item name with checkbox
+- Dependencies: Feature #28 (User can check off item)
+
+### What was verified:
+Feature was ALREADY IMPLEMENTED. No code changes needed.
+
+**Implementation Details (GroceryListItem.tsx line 165):**
+```tsx
+aria-label={item.isChecked ? \`Uncheck ${item.name}\` : \`Check ${item.name}\`}
+```
+
+### Verification Results:
+- ✅ Step 1: Inspect checkbox element
+  - Checkbox is a `<button>` element with proper aria-label attribute
+  - Touch target is 44px for accessibility (w-11 h-11 class)
+
+- ✅ Step 2: Verify aria-label includes item name
+  - All unchecked items show 'Check [item name]' (e.g., 'Check Eggs', 'Check Strawberries')
+  - All checked items show 'Uncheck [item name]' (e.g., 'Uncheck Grapes')
+  - Verified via Playwright accessibility tree snapshot
+
+- ✅ Step 3: Test with screen reader
+  - Accessibility tree confirms labels are properly announced
+  - Dynamic label changes based on checked state
+  - Items in Done section correctly use 'Uncheck' prefix
+
+### Test Actions Performed:
+1. Navigated to /test-grocery-list page
+2. Verified accessibility tree shows 'Check [item]' for all unchecked items
+3. Clicked 'Check Grapes' checkbox
+4. Verified item moved to Done section
+5. Expanded Done section
+6. Verified accessibility tree now shows 'Uncheck Grapes' for checked item
+
+### Screenshots:
+- feature-50-step1-checkbox-aria-labels.png (initial state with 'Check' labels)
+- feature-50-step2-uncheck-aria-label.png (after checking item)
+- feature-50-step3-done-section-uncheck.png (Done section expanded)
+- feature-50-verification-full-page.png (full page view)
+
+### Status: Feature #50 marked as PASSING
+- Zero console errors
+- Existing implementation verified working correctly
+
+### Current Progress: 127/200 features passing (63.5%)
+
+
+## Session: 2026-01-19 (Regression Test - Feature #89)
+
+### Feature Tested:
+- Feature #89: User can send chat message
+- Category: functional
+- Description: Typing and sending works
+
+### Verification Results:
+- ✅ Step 1: Type a message in chat input - Entered 'What can I make for dinner tonight?' in textbox
+- ✅ Step 2: Press send - Clicked Send button, message sent successfully
+- ✅ Step 3: Verify message appears in chat:
+  - User message displayed in green/gold bubble (right-aligned)
+  - 'Just now' timestamp shown
+  - Zylo AI responded with contextual answer about Chicken Stir Fry
+  - AI response displayed in cream bubble (left-aligned)
+  - Input re-enabled after response received
+- ✅ Zero console errors
+
+### Screenshot:
+- regression-test-feature-89-chat-verification.png
+
+### Status: STILL PASSING - No regression found
+[Testing] Feature #89 verified - still passing
+
+### Verification Results:
+- ✅ Step 1: Find an unchecked item - Found 'Grapes' in Meijer section with 'Check Grapes' button
+- ✅ Step 2: Tap the checkbox - Clicked 'Check Grapes', item moved to Done section
+- ✅ Step 3: Verify item shows checked state:
+  - Grapes appears in 'Done (1)' section
+  - 'Uncheck Grapes' button visible with checkmark icon
+  - Item name and quantity are disabled (strikethrough style)
+  - Meijer count changed from 3 to 2
+- ✅ Zero console errors
