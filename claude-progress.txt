@@ -52,12 +52,22 @@
 - Added getCurrentWeekDates() helper function
 - Refactored initialWeekPlan to createInitialWeekPlan() function
 
-**Verification:**
-- Today (Mon 19) shows with gold/primary colored text for day/date
-- Card has subtle gold tint background (rgba(226, 169, 59, 0.1))
-- Other days show muted gray text
+**Verification (Re-verified 2026-01-19):**
+- Step 1: View current week - Viewing Jan 19-25, 2026 ✓
+- Step 2: Find today's card - Mon 19 is today ✓
+- Step 3: Verify it has highlight or badge:
+  - Gold/amber date text color (vs gray on other days) ✓
+  - Gold/amber 2px border (vs 1px on other days) ✓
+  - Subtle yellow background tint ✓
+  - Works in both light and dark mode ✓
+  - Works on mobile and desktop viewports ✓
+- Zero console errors ✓
 
-**Screenshot:** feature-142-today-highlight.png
+**Screenshots:**
+- feature-142-today-highlight-initial.png (desktop light mode)
+- feature-142-today-highlight-dark-mode.png (desktop dark mode)
+- feature-142-today-highlight-mobile.png (mobile dark mode)
+- feature-142-today-highlight-mobile-light.png (mobile light mode)
 
 **Status:** PASSING
 
