@@ -171,18 +171,20 @@ function extractIngredientsFromMeals(meals: typeof initialWeekPlan.meals): Pantr
 // Get pantry items from the week's planned meals
 const initialPantryItems: PantryCheckItem[] = extractIngredientsFromMeals(initialWeekPlan.meals);
 
-const currentUser: HouseholdMember = {
-  id: "hm-001",
-  name: "Aaron",
-  isAdmin: true,
-};
-
 type ViewState = "week-plan" | "pantry-audit";
 
 export default function TestApprovePlanPage() {
   const [weekPlan, setWeekPlan] = useState<WeekPlan>(initialWeekPlan);
   const [view, setView] = useState<ViewState>("week-plan");
   const [pantryItems, setPantryItems] = useState<PantryCheckItem[]>(initialPantryItems);
+  const [isAdminMode, setIsAdminMode] = useState(true);
+
+  // Current user changes based on admin toggle
+  const currentUser: HouseholdMember = {
+    id: isAdminMode ? "hm-001" : "hm-003",
+    name: isAdminMode ? "Aaron" : "Tommy (kid)",
+    isAdmin: isAdminMode,
+  };
 
   const handleApprovePlan = () => {
     // Approve the plan
@@ -264,11 +266,45 @@ export default function TestApprovePlanPage() {
     <div style={{ backgroundColor: "var(--color-bg)", minHeight: "calc(100vh - 120px)" }}>
       <div className="p-4 border-b" style={{ borderColor: "var(--color-border)" }}>
         <h1 className="font-heading font-bold text-lg" style={{ color: "var(--color-text)" }}>
-          Test: Approve Plan (Feature #126 & #127)
+          Test: Approve Plan (Feature #126, #127, #137)
         </h1>
         <p className="text-sm" style={{ color: "var(--color-muted)" }}>
           Click &quot;Looks good&quot; to approve plan and trigger Pantry Audit
         </p>
+
+        {/* User type toggle - Feature #137 */}
+        <div
+          className="mt-2 p-2 rounded-lg text-sm flex items-center justify-between"
+          style={{
+            backgroundColor: "var(--color-card)",
+            border: "1px solid var(--color-border)",
+          }}
+        >
+          <div>
+            <strong>Current User:</strong>{" "}
+            <span style={{ color: "var(--color-text)" }}>{currentUser.name}</span>
+            <span
+              className="ml-2 px-2 py-0.5 rounded text-xs"
+              style={{
+                backgroundColor: isAdminMode ? "var(--color-secondary)" : "var(--color-muted)",
+                color: "white",
+              }}
+            >
+              {isAdminMode ? "Admin" : "Viewer"}
+            </span>
+          </div>
+          <button
+            onClick={() => setIsAdminMode(!isAdminMode)}
+            className="px-3 py-1 rounded text-sm font-medium"
+            style={{
+              backgroundColor: "var(--color-border)",
+              color: "var(--color-text)",
+            }}
+          >
+            Switch to {isAdminMode ? "Kid" : "Admin"}
+          </button>
+        </div>
+
         <div
           className="mt-2 p-2 rounded-lg text-sm"
           style={{
@@ -276,7 +312,7 @@ export default function TestApprovePlanPage() {
             border: "1px solid var(--color-border)",
           }}
         >
-          <strong>Current Status:</strong>{" "}
+          <strong>Plan Status:</strong>{" "}
           <span
             style={{
               color: weekPlan.status === "approved" ? "var(--color-secondary)" : "var(--color-primary)",
