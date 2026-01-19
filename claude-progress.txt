@@ -1,5 +1,39 @@
 # Dinner Bell - Claude Progress Notes
 
+## Session: 2026-01-18 (Coding Agent - Feature #27)
+
+### Feature:
+- Feature #27: User can add item with quantity
+- Category: functional
+- Description: Items can have optional quantity like "2 lbs" or "1 dozen"
+- Dependencies: Feature #25 (User can add grocery item)
+
+### What was implemented:
+1. Added `parseItemInput()` function in GroceryList.tsx that parses quantity from item names
+2. Supports multiple input formats:
+   - "Apples 2 lbs" → name: "Apples", quantity: "2 lbs"
+   - "Milk (1 gallon)" → name: "Milk", quantity: "1 gallon"
+   - "3 onions" → name: "onions", quantity: "3"
+   - "Eggs x12" → name: "Eggs", quantity: "12"
+3. Updated GroceryListProps.onAddItem to accept optional quantity parameter
+4. Updated test-grocery-convex page to pass quantity to Convex mutation
+
+### Verification Results:
+- ✅ Step 1: Added "Apples 2 lbs" - parsed to name: "Apples", quantity: "2 lbs"
+- ✅ Step 2: Quantity displays separately from name in UI
+- ✅ Step 3: Quantity persists after page refresh (data saved to Convex)
+- ✅ Tested multiple formats: parentheses, leading number, x-prefix
+- ✅ No console errors
+
+### Screenshots:
+- feature-27-item-with-quantity-added.png
+- feature-27-quantity-persists-after-refresh.png
+- feature-27-multiple-quantity-formats.png
+
+### Status: Feature #27 marked as PASSING
+
+---
+
 ## Session: 2026-01-18 22:34 (Coding Agent - Feature #161)
 
 ### Feature:
@@ -2996,3 +3030,52 @@ Updated sample data in test pages to include proper ingredient quantities:
 
 ### Status: STILL PASSING - No regression found
 [Testing] Feature #3 verified - still passing
+
+## Session: 2026-01-18 22:38 (Regression Test - Feature #156)
+
+### Feature Tested:
+- Feature #156: Notification history displays
+
+### Verification Results:
+- ✅ Step 1: Have some notifications in database - Tested via /test-crisis-mute with 3 sample notifications
+- ✅ Step 2: View Notifications page - NotificationsList component renders correctly
+- ✅ Step 3: Verify notification cards display:
+  - Type icons (sun for daily-brief, snowflake for thaw-guardian, chef hat for cook-reminder)
+  - Message content displays properly
+  - Timestamps (Just now, 2h ago, Yesterday)
+  - Action buttons for pending notifications (View Plan, Got it, Already done, Remind me later)
+  - Resolved status with checkmark for completed notifications
+  - Proper sections: 'Needs attention' and 'Earlier'
+- ✅ Interaction test: Clicked 'Got it' button - notification moved to 'Earlier' section with resolved state
+- ✅ No console errors
+- ✅ Screenshots: regression-test-feature-156-*.png
+
+### Status: STILL PASSING - No regression found
+[Testing] Feature #156 verified - still passing
+
+## Session: 2026-01-18 (Regression Test - Feature #14)
+
+### Feature Tested:
+- Feature #14: App uses correct button colors
+
+### Initial Finding:
+- First test showed 'This works' button with wrong color (gold instead of green)
+- Suspected regression, marked feature as failing
+
+### Investigation:
+- Checked git history - code already has correct color variables
+- MealHelperHome.tsx uses --color-secondary (Sage Green) for 'This works' button
+- After page refresh via HMR, colors displayed correctly
+- Initial issue was likely browser cache or HMR serving stale code
+
+### Verification Results:
+- ✅ Step 1: Found primary action buttons ('This works', 'Sign in with Google')
+- ✅ Step 2: 'This works' button uses Sage Green rgb(79, 110, 68) = #4F6E44
+- ✅ Step 3: 'New plan' button uses Gold rgb(226, 169, 59) = #E2A93B
+- ✅ 'I'm wiped' button uses Ghost style (transparent + muted border)
+- ✅ No console errors
+- ✅ Screenshots: regression-test-feature-14-*.png
+
+### Status: PASSING - No actual regression (false positive from cache/HMR)
+[Testing] Feature #14 verified - still passing (initial issue was browser cache)
+
