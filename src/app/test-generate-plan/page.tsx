@@ -15,7 +15,11 @@ interface GeneratedMeal {
   cleanupRating: "low" | "medium" | "high";
   ingredients: string[];
   isFlexMeal: boolean;
+  assignedCook?: string; // Added after generation
 }
+
+// Household cooks for rotation
+const HOUSEHOLD_COOKS = ["Aaron", "Katie"];
 
 // List of common familiar family meals (for 80/20 detection)
 const FAMILIAR_MEALS = [
@@ -69,7 +73,12 @@ export default function TestGeneratePlanPage() {
       });
 
       if (result.success && result.meals) {
-        setMeals(result.meals);
+        // Assign cooks using alternating rotation for fair split
+        const mealsWithCooks = result.meals.map((meal, index) => ({
+          ...meal,
+          assignedCook: HOUSEHOLD_COOKS[index % HOUSEHOLD_COOKS.length],
+        }));
+        setMeals(mealsWithCooks);
       } else {
         setError(result.error || "Unknown error");
       }
@@ -191,6 +200,43 @@ export default function TestGeneratePlanPage() {
               );
             })()}
 
+            {/* Cook Rotation Analysis - Feature #134 */}
+            {(() => {
+              const cookCounts: Record<string, number> = {};
+              meals.forEach(m => {
+                const cook = m.assignedCook || "Unassigned";
+                cookCounts[cook] = (cookCounts[cook] || 0) + 1;
+              });
+              const cooks = Object.entries(cookCounts);
+              const isEven = cooks.every(([_, count]) => count >= 3 && count <= 4);
+              return (
+                <div
+                  className={`p-4 mb-4 rounded-lg border ${isEven ? "bg-green-50 border-green-300" : "bg-yellow-50 border-yellow-300"}`}
+                >
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className={`font-semibold ${isEven ? "text-green-800" : "text-yellow-800"}`}>
+                      Cook Rotation (Feature #134)
+                    </span>
+                    {isEven ? (
+                      <Check className="text-green-600" size={16} />
+                    ) : (
+                      <span className="text-yellow-600">⚠️</span>
+                    )}
+                  </div>
+                  <div className={`text-sm ${isEven ? "text-green-700" : "text-yellow-700"}`}>
+                    {cooks.map(([cook, count]) => (
+                      <p key={cook}>{cook}: {count} meals ({Math.round(count/7*100)}%)</p>
+                    ))}
+                    <p className="mt-1 font-medium">
+                      {isEven
+                        ? "✓ Cooks are evenly split (3-4 meals each)"
+                        : "✗ Cook rotation is uneven"}
+                    </p>
+                  </div>
+                </div>
+              );
+            })()}
+
             <div className="space-y-3">
               {meals.map((meal, index) => {
                 const familiar = isFamiliarMeal(meal.mealName);
@@ -237,6 +283,12 @@ export default function TestGeneratePlanPage() {
                       {meal.prepTime + meal.cookTime}m total
                     </span>
                     <span>Cleanup: {meal.cleanupRating}</span>
+                    {meal.assignedCook && (
+                      <span className="flex items-center gap-1">
+                        <Users size={14} />
+                        {meal.assignedCook}
+                      </span>
+                    )}
                     {meal.isFlexMeal && (
                       <span className="px-2 py-0.5 rounded bg-blue-100 text-blue-800 text-xs">
                         Flex
