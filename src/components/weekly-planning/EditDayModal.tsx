@@ -1,5 +1,6 @@
 "use client";
 
+import { useRef, useEffect, useCallback } from "react";
 import { X, Clock, ChefHat, Users, Sparkles } from "lucide-react";
 import type {
   PlannedMeal,
@@ -53,6 +54,59 @@ export function EditDayModal({
 }: EditDayModalProps) {
   const cook = householdMembers.find((m) => m.id === currentMeal.assignedCookId);
   const totalTime = currentMeal.prepTime + currentMeal.cookTime;
+  const modalRef = useRef<HTMLDivElement>(null);
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
+
+  // Get all focusable elements within the modal
+  const getFocusableElements = useCallback(() => {
+    if (!modalRef.current) return [];
+    const focusableSelector =
+      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])';
+    return Array.from(
+      modalRef.current.querySelectorAll<HTMLElement>(focusableSelector)
+    ).filter((el) => !el.hasAttribute("disabled"));
+  }, []);
+
+  // Focus trap handler
+  const handleKeyDown = useCallback(
+    (e: KeyboardEvent) => {
+      if (e.key === "Tab") {
+        const focusableElements = getFocusableElements();
+        if (focusableElements.length === 0) return;
+
+        const firstElement = focusableElements[0];
+        const lastElement = focusableElements[focusableElements.length - 1];
+
+        if (e.shiftKey) {
+          // Shift+Tab: if on first element, wrap to last
+          if (document.activeElement === firstElement) {
+            e.preventDefault();
+            lastElement.focus();
+          }
+        } else {
+          // Tab: if on last element, wrap to first
+          if (document.activeElement === lastElement) {
+            e.preventDefault();
+            firstElement.focus();
+          }
+        }
+      }
+    },
+    [getFocusableElements]
+  );
+
+  // Set up focus trap and initial focus
+  useEffect(() => {
+    // Focus the close button when modal opens
+    closeButtonRef.current?.focus();
+
+    // Add keydown listener for focus trap
+    document.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [handleKeyDown]);
 
   return (
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
@@ -65,6 +119,10 @@ export function EditDayModal({
 
       {/* Modal */}
       <div
+        ref={modalRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="edit-day-modal-title"
         className="relative w-full sm:max-w-lg rounded-t-3xl sm:rounded-3xl max-h-[90vh] overflow-y-auto"
         style={{ backgroundColor: "var(--color-card)" }}
       >
@@ -77,12 +135,14 @@ export function EditDayModal({
           }}
         >
           <h2
+            id="edit-day-modal-title"
             className="text-lg font-bold font-heading"
             style={{ color: "var(--color-text)" }}
           >
             Edit Day
           </h2>
           <button
+            ref={closeButtonRef}
             onClick={onClose}
             className="p-1 rounded-lg hover:opacity-80 transition-colors"
             aria-label="Close modal"
