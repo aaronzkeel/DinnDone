@@ -111,8 +111,16 @@ export function MealOptionDetails({
             >
               <span className="inline-flex items-center gap-1.5">
                 <Clock size={14} />
-                {totalTime} min
+                {totalTime} min total
               </span>
+              <span style={{ color: "var(--color-border)" }} aria-hidden="true">
+                |
+              </span>
+              <span>{meal.prepTime} min prep</span>
+              <span style={{ color: "var(--color-border)" }} aria-hidden="true">
+                |
+              </span>
+              <span>{meal.cookTime} min cook</span>
               <span style={{ color: "var(--color-border)" }} aria-hidden="true">
                 |
               </span>
