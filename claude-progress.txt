@@ -4395,3 +4395,57 @@ Updated `src/app/test-generate-plan/page.tsx` with comprehensive dietary prefere
 
 ### Status: STILL PASSING - No regression found
 [Testing] Feature #135 verified - still passing
+
+## Session: 2026-01-19 08:20 (Coding Agent - Feature #143)
+
+### Feature:
+- Feature #143: Past days are dimmed
+- Category: style
+- Description: Completed days have muted styling
+- Dependencies: Feature #114 (Day cards display for week)
+
+### What was verified:
+The feature was ALREADY IMPLEMENTED. No code changes needed.
+
+**Implementation Details:**
+1. `DayCard.tsx` (line 10, 30, 58):
+   - Accepts `isPast?: boolean` prop
+   - Applies `opacity-50` class when `isPast` is true
+
+2. `WeekPlanView.tsx` (line 142):
+   - Passes `isPast={meal.date < today}` to each DayCard
+   - Correctly compares meal date to current date
+
+### Verification Results:
+- ✅ Step 1: View current week mid-week
+  - Viewed current week (Jan 19-25, 2026)
+  - Today is Monday Jan 19, so all 7 days are today or future
+  - All cards at full opacity (1.0) - correct behavior
+
+- ✅ Step 2: Check past days
+  - Switched to "Last Week" (Jan 12-18, 2026)
+  - All 7 days are in the past relative to today
+
+- ✅ Step 3: Verify dimmed or crossed-off appearance
+  - Used browser evaluation to check computed styles
+  - All 7 past day cards have:
+    - `opacity-50` CSS class: true
+    - Computed opacity: 0.5
+  - Visual difference clearly visible in screenshots
+
+### Technical Verification:
+| Week | Days | Opacity | `opacity-50` class |
+|------|------|---------|-------------------|
+| Last Week (Jan 12-18) | Mon-Sun | 0.5 | Yes (all 7 cards) |
+| This Week (Jan 19-25) | Mon-Sun | 1.0 | No (all 7 cards) |
+
+### Screenshots:
+- feature-143-past-week-dimmed.png (Last Week showing dimmed cards)
+- feature-143-current-week-no-dimming.png (This Week showing full opacity)
+- feature-143-past-days-dimmed-verified.png (Full page view of dimmed past week)
+
+### Status: Feature #143 marked as PASSING
+- Zero console errors
+- Existing implementation verified working correctly
+
+### Current Progress: 110/200 features passing (55.0%)
