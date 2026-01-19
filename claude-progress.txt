@@ -1,5 +1,60 @@
 # Dinner Bell - Claude Progress Notes
 
+## Session: 2026-01-19 (Coding Agent - Feature #131) - COMPLETED
+
+### Feature:
+- Feature #131: Generated grocery items linked to meals
+- Category: functional
+- Description: Items show which meal they are for
+- Dependencies: Feature #130
+
+### What was verified:
+The existing implementation already supports meal-linked grocery items. Verified through multiple test pages.
+
+### Verification Results:
+
+**Test 1: test-grocery-list page**
+- Chicken Thighs has "Meals (2)" indicator showing:
+  - Chicken Stir Fry (Sun, Jan 18)
+  - Grilled Chicken Salad (Tue, Jan 20)
+
+**Test 2: test-grocery-convex page (real Convex data)**
+- Chicken Breast (linked) - "Meals (2)"
+- Broccoli (linked) - "Meals (1)"
+- Soy Sauce (linked) - "Meals (3)" showing:
+  - Taco Night (Sun, Jan 18)
+  - Quick Pasta Marinara (Mon, Jan 19)
+  - Pasta Carbonara (Tue, Jan 20)
+
+**Test 3: Created dedicated test page (test-linked-grocery-items)**
+- 4 test items: 3 with meal linkages, 1 without (manually added)
+- Chicken Breast - "Meals (1)" - Chicken Stir Fry
+- Broccoli - "Meals (2)" - Chicken Stir Fry, Beef and Broccoli
+- Olive Oil - "Meals (3)" - Chicken Stir Fry, Pasta Primavera, Beef and Broccoli
+- Bananas - No indicator (correctly shows no meal linkage)
+
+### Implementation Details:
+- `GroceryListItem.tsx` renders "Meals (N)" button when `mealSources` array is present
+- Clicking button shows popover with meal names and dates
+- `listWithMealDetails` query in `convex/groceryItems.ts` fetches linked meal data
+- `mealSources` type includes `mealId`, `mealName`, and `date` fields
+
+### Screenshots:
+- feature-131-meal-linked-indicator.png (test-grocery-list with Chicken Thighs popover)
+- feature-131-convex-meal-linked-items.png (real Convex data with multiple linked items)
+- feature-131-test-page-initial.png (dedicated test page)
+- feature-131-test-page-grocery-items.png (grocery items with indicators visible)
+- feature-131-meal-association-verified.png (popover showing meal details)
+- feature-131-all-steps-passed.png (all 3 test steps passed)
+
+### Console Errors: None
+
+### Status: Feature #131 marked as PASSING ✅
+
+### Current Progress: 198/200 features passing (99.0%)
+
+---
+
 ## Session: 2026-01-19 (Single Feature Agent - Feature #87)
 
 ### Feature:
