@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { NotificationSettings } from "@/components/notifications";
 import type {
   NotificationPreferences,
@@ -10,6 +10,8 @@ import type {
 
 // Test page for verifying Feature #174: Fandom Voice selector available
 // This bypasses auth for testing purposes
+
+const STORAGE_KEY = "dinner-bell-notification-prefs";
 
 const defaultPreferences: NotificationPreferences = {
   userId: "test-user",
@@ -26,43 +28,89 @@ const defaultPreferences: NotificationPreferences = {
   pushEnabled: true,
 };
 
+function loadPreferences(): NotificationPreferences {
+  if (typeof window === "undefined") return defaultPreferences;
+  try {
+    const stored = localStorage.getItem(STORAGE_KEY);
+    if (stored) {
+      return { ...defaultPreferences, ...JSON.parse(stored) };
+    }
+  } catch {
+    // Ignore parse errors
+  }
+  return defaultPreferences;
+}
+
+function savePreferences(prefs: NotificationPreferences): void {
+  if (typeof window === "undefined") return;
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(prefs));
+  } catch {
+    // Ignore storage errors
+  }
+}
+
 export default function TestNotificationSettingsPage() {
   const [preferences, setPreferences] =
     useState<NotificationPreferences>(defaultPreferences);
+  const [mounted, setMounted] = useState(false);
+
+  // Load preferences from localStorage on mount
+  useEffect(() => {
+    setPreferences(loadPreferences());
+    setMounted(true);
+  }, []);
 
   const handleToggleType = (type: NotificationType) => {
-    setPreferences((prev) => ({
-      ...prev,
-      enabledTypes: prev.enabledTypes.includes(type)
-        ? prev.enabledTypes.filter((t) => t !== type)
-        : [...prev.enabledTypes, type],
-    }));
+    setPreferences((prev) => {
+      const updated = {
+        ...prev,
+        enabledTypes: prev.enabledTypes.includes(type)
+          ? prev.enabledTypes.filter((t) => t !== type)
+          : [...prev.enabledTypes, type],
+      };
+      savePreferences(updated);
+      return updated;
+    });
   };
 
   const handleUpdateQuietHours = (start: string, end: string) => {
-    setPreferences((prev) => ({
-      ...prev,
-      quietHoursStart: start,
-      quietHoursEnd: end,
-    }));
+    setPreferences((prev) => {
+      const updated = {
+        ...prev,
+        quietHoursStart: start,
+        quietHoursEnd: end,
+      };
+      savePreferences(updated);
+      return updated;
+    });
   };
 
   const handleChangeFandomVoice = (voice: FandomVoice) => {
-    setPreferences((prev) => ({
-      ...prev,
-      fandomVoice: voice,
-    }));
+    setPreferences((prev) => {
+      const updated = {
+        ...prev,
+        fandomVoice: voice,
+      };
+      savePreferences(updated);
+      return updated;
+    });
   };
 
   const handleTogglePush = () => {
-    setPreferences((prev) => ({
-      ...prev,
-      pushEnabled: !prev.pushEnabled,
-    }));
+    setPreferences((prev) => {
+      const updated = {
+        ...prev,
+        pushEnabled: !prev.pushEnabled,
+      };
+      savePreferences(updated);
+      return updated;
+    });
   };
 
   const handleResetDefaults = () => {
     setPreferences(defaultPreferences);
+    savePreferences(defaultPreferences);
   };
 
   const handleBack = () => {
