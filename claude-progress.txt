@@ -1,5 +1,55 @@
 # Dinner Bell - Claude Progress Notes
 
+## Session: 2026-01-19 (Coding Agent - Feature #52)
+
+### Feature:
+- Feature #52: Drag and drop has keyboard alternative
+- Category: accessibility
+- Description: Reordering works without mouse
+- Dependencies: Feature #35 (Drag and drop reorders items within store)
+
+### What was verified:
+Feature was ALREADY IMPLEMENTED. No code changes needed.
+
+**Implementation Details (GroceryListItem.tsx):**
+- Lines 21-24: Props `onMoveUp` and `onMoveDown` defined
+- Lines 152-159: `onKeyDown` handler on drag handle button
+  - ArrowUp calls `onMoveUp()` to move item up in list
+  - ArrowDown calls `onMoveDown()` to move item down in list
+- Line 172: aria-label includes "Use arrow keys to move up or down, or drag to reorder"
+- Line 173: title="Drag or use arrow keys to reorder"
+
+**GroceryList.tsx (lines 432-441):**
+- `onMoveUp` wired to move item before previous item
+- `onMoveDown` wired to move item after next item
+
+### Verification Results:
+- ✅ Step 1: Focus on an item
+  - Clicked "Reorder Eggs" button to focus drag handle
+  - Focus indicator visible (yellow ring)
+  - aria-label: "Reorder Eggs. Use arrow keys to move up or down, or drag to reorder"
+
+- ✅ Step 2: Use keyboard shortcut to move
+  - Pressed ArrowUp → Eggs moved from position 2 to position 1
+  - Pressed ArrowDown → Eggs moved from position 1 back to position 2
+  - Pressed ArrowDown → Eggs moved from position 2 to position 3 (last)
+
+- ✅ Step 3: Verify item reorders
+  - Order changes visible immediately in UI
+  - Meijer section order changed correctly
+  - Focus maintained on the moving item
+
+### Screenshots:
+- feature-52-keyboard-reorder-verified.png (after moving Eggs up)
+- feature-52-eggs-moved-to-last.png (after moving Eggs to last position)
+
+### Status: Feature #52 marked as PASSING
+- Zero console errors
+- Existing implementation verified working correctly
+- Proper accessibility with aria-labels and focus indicators
+
+### Current Progress: 144/200 features passing (72.0%)
+
 ## Session: 2026-01-19 (Regression Test - Feature #40)
 
 ### Feature Tested:
@@ -5605,3 +5655,32 @@ Feature was ALREADY IMPLEMENTED. No code changes needed.
 
 ### Status: STILL PASSING - No regression found
 [Testing] Feature #137 verified - still passing
+
+## Session: 2026-01-19 (Regression Test - Feature #114)
+
+### Feature Tested:
+- Feature #114: Day cards display for all 7 days
+- Category: functional
+- Description: Each day of week has a card
+- Dependencies: Feature #110
+
+### Verification Results:
+- ✅ Step 1: View week plan - Weekly plan displayed on /test-approve-plan page
+- ✅ Step 2: Count day cards - 7 day cards found
+- ✅ Step 3: Verify 7 cards from Monday-Sunday:
+  - MON 19: Sheet Pan Salmon & Asparagus (Super Easy)
+  - TUE 20: Taco Tuesday (Super Easy)
+  - WED 21: Pasta Primavera (Medium)
+  - THU 22: Chicken Stir Fry (Medium)
+  - FRI 23: Pizza Night (Super Easy)
+  - SAT 24: Grilled Burgers (Medium)
+  - SUN 25: Slow Cooker Pot Roast (More Prep)
+- ✅ Zero console errors
+
+### Screenshots:
+- regression-test-feature-114-7-day-cards.png (viewport showing first 3 days)
+- regression-test-feature-114-all-7-days-full.png (full page showing all 7 days)
+
+### Status: STILL PASSING - No regression found
+[Testing] Feature #114 verified - still passing
+
