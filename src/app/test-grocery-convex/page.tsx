@@ -25,6 +25,7 @@ export default function TestGroceryConvexPage() {
   const toggleItem = useMutation(api.groceryItems.toggleChecked);
   const updateItem = useMutation(api.groceryItems.update);
   const deleteItem = useMutation(api.groceryItems.remove);
+  const reorderItem = useMutation(api.groceryItems.reorder);
 
   const [isSeeding, setIsSeeding] = useState(false);
 
@@ -39,7 +40,7 @@ export default function TestGroceryConvexPage() {
     id: i._id,
     name: i.name,
     quantity: i.quantity || "1",
-    category: i.category,
+    category: (i.category || "Other") as GroceryItem["category"],
     isChecked: i.isChecked,
     organicRequired: i.isOrganic,
     storeId: i.storeId,
@@ -53,7 +54,7 @@ export default function TestGroceryConvexPage() {
     }
   }, [convexStores, seedStores, isSeeding]);
 
-  const handleAddItem = async (name: string, options?: { storeId?: string }) => {
+  const handleAddItem = async (name: string, options?: { storeId?: string; quantity?: string }) => {
     if (!stores.length) {
       console.error("No stores available. Please seed stores first.");
       return;
@@ -64,7 +65,7 @@ export default function TestGroceryConvexPage() {
 
     await addItem({
       name,
-      quantity: "1",
+      quantity: options?.quantity || "1",
       storeId: storeId as Id<"stores">,
       category: "Other",
       isOrganic: false,
@@ -94,12 +95,11 @@ export default function TestGroceryConvexPage() {
     id: string,
     options: { storeId?: string; beforeId?: string | null }
   ) => {
-    if (options.storeId) {
-      await updateItem({
-        id: id as Id<"groceryItems">,
-        storeId: options.storeId as Id<"stores">,
-      });
-    }
+    await reorderItem({
+      id: id as Id<"groceryItems">,
+      storeId: options.storeId ? (options.storeId as Id<"stores">) : undefined,
+      beforeId: options.beforeId ? (options.beforeId as Id<"groceryItems">) : null,
+    });
   };
 
   const handleAddStore = async (name: string) => {

@@ -49,6 +49,49 @@ function isStoreDropTarget(activeDropTarget: string | null, dropKey: string): bo
   return activeDropTarget === dropKey || activeDropTarget.startsWith(`${dropKey}::`)
 }
 
+/**
+ * Parse item input to extract name and optional quantity.
+ * Supports formats like:
+ * - "Apples 2 lbs" → name: "Apples", quantity: "2 lbs"
+ * - "Chicken breast 1.5 lb" → name: "Chicken breast", quantity: "1.5 lb"
+ * - "Milk (2 gallons)" → name: "Milk", quantity: "2 gallons"
+ * - "Eggs x12" → name: "Eggs", quantity: "12"
+ * - "3 onions" → name: "onions", quantity: "3"
+ * - "Just apples" → name: "Just apples", quantity: undefined
+ */
+function parseItemInput(input: string): { name: string; quantity?: string } {
+  const trimmed = input.trim()
+  if (!trimmed) return { name: '' }
+
+  // Pattern 1: Quantity in parentheses at end - "Milk (2 gallons)"
+  const parenMatch = trimmed.match(/^(.+?)\s*\(([^)]+)\)$/)
+  if (parenMatch) {
+    return { name: parenMatch[1].trim(), quantity: parenMatch[2].trim() }
+  }
+
+  // Pattern 2: "x" prefix for quantity - "Eggs x12" or "Eggs x 12"
+  const xMatch = trimmed.match(/^(.+?)\s*x\s*(\d+(?:\.\d+)?)\s*$/)
+  if (xMatch) {
+    return { name: xMatch[1].trim(), quantity: xMatch[2] }
+  }
+
+  // Pattern 3: Number + unit at end - "Apples 2 lbs", "Chicken breast 1.5 lb"
+  // This regex looks for a number (possibly decimal) followed by optional unit at end
+  const endQuantityMatch = trimmed.match(/^(.+?)\s+(\d+(?:\.\d+)?(?:\s*(?:lbs?|oz|g|kg|cups?|gallons?|liters?|pints?|quarts?|dozen|pack|bunch|bag|box|can|jar|bottle|ct|count|pcs?|pieces?|slices?|servings?)?)?)\s*$/i)
+  if (endQuantityMatch && endQuantityMatch[1].length > 0) {
+    return { name: endQuantityMatch[1].trim(), quantity: endQuantityMatch[2].trim() }
+  }
+
+  // Pattern 4: Leading number - "3 onions", "2 dozen eggs"
+  const leadingMatch = trimmed.match(/^(\d+(?:\.\d+)?(?:\s+(?:dozen|pack|bunch|bag|box|can|jar|bottle|ct|count))?)\s+(.+)$/i)
+  if (leadingMatch) {
+    return { name: leadingMatch[2].trim(), quantity: leadingMatch[1].trim() }
+  }
+
+  // No quantity detected
+  return { name: trimmed }
+}
+
 export function GroceryList({
   stores,
   items,
@@ -99,9 +142,9 @@ export function GroceryList({
   }, [checkedByStoreAll, activeStoreFilter])
 
   const handleInlineAdd = (storeId?: string) => {
-    const name = draftNewItemName.trim()
+    const { name, quantity } = parseItemInput(draftNewItemName)
     if (!name) return
-    onAddItem?.(name, { storeId })
+    onAddItem?.(name, { storeId, quantity })
     setDraftNewItemName('')
     setAddingToStoreKey(null)
   }
@@ -370,9 +413,9 @@ export function GroceryList({
                 className="flex gap-2 w-full max-w-xs"
                 onSubmit={(e) => {
                   e.preventDefault()
-                  const name = draftNewItemName.trim()
+                  const { name, quantity } = parseItemInput(draftNewItemName)
                   if (!name) return
-                  onAddItem?.(name, {})
+                  onAddItem?.(name, { quantity })
                   setDraftNewItemName('')
                   setAddingToStoreKey(null)
                 }}
