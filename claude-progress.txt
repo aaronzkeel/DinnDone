@@ -1,5 +1,47 @@
 # Dinner Bell - Claude Progress Notes
 
+## Session: 2026-01-19 (Single Feature Agent - Feature #131)
+
+### Feature:
+- Feature #131: Generated grocery items linked to meals
+- Category: functional
+- Description: Items show which meal they are for
+- Dependencies: Feature #130
+
+### What was verified:
+Verified existing implementation at `/test-linked-meals` test page:
+
+**Test Page Features:**
+- Grocery items with linked meals display "Meals (N)" buttons
+- Clicking button shows popover with meal names and dates
+- Items linked to meals show in status panel
+
+### Verification Results:
+- ✅ Step 1: View generated grocery items
+  - 8 items total displayed in grocery list
+  - 3 items with linked meals visible
+
+- ✅ Step 2: Verify linked meal indicator shows
+  - "Meals (2)" on Chicken Breast (linked)
+  - "Meals (1)" on Broccoli (linked)
+  - "Meals (3)" on Soy Sauce (linked)
+
+- ✅ Step 3: Verify correct meal association
+  - Clicked "Meals (3)" on Soy Sauce
+  - Popover shows "For 3 meals:" with:
+    - Quick Pasta Marinara (Sun, Jan 18)
+    - Taco Night (Mon, Jan 19)
+    - Pasta Carbonara (Tue, Jan 20)
+
+- ✅ Zero console errors (only metadata warnings unrelated to feature)
+
+### Files verified:
+- `src/app/test-linked-meals/page.tsx` - Test page for Feature #38
+- `convex/groceryItems.ts` - listWithMealDetails query
+- `src/components/grocery-list/GroceryItemRow.tsx` - Meals button component
+
+---
+
 ## Session: 2026-01-19 (Single Feature Agent - Feature #54)
 
 ### Feature:
@@ -6911,3 +6953,42 @@ the test page to use those existing props.
 ### Status: Feature #86 marked as PASSING
 
 ### Current Progress: 196/200 features passing (98.0%)
+
+
+## Session: 2026-01-19 (Regression Test - Feature #169)
+
+### Feature Tested:
+- Feature #169: Notification settings accessible
+- Category: functional
+- Description: Settings icon/button opens preferences
+- Dependencies: Feature #155
+
+### Test Page Created:
+- /test-notification-settings-access (bypasses auth for testing)
+
+### Verification Results:
+- ✅ Step 1: Find settings icon on Notifications page
+  - Navigated to /test-notification-settings-access
+  - NotificationsList component displayed with header
+  - "Notification settings" button visible (gear icon)
+
+- ✅ Step 2: Tap to open settings
+  - Clicked the settings button
+  - View transitioned from list to settings
+
+- ✅ Step 3: Verify NotificationSettings view opens
+  - NotificationSettings component displayed correctly
+  - "Notification Settings" heading visible
+  - Push Notifications toggle present and enabled
+  - Nudge Types section with 7 notification types
+  - Quiet Hours section (21:00 - 07:00)
+  - Fandom Voice selector (default selected)
+  - Back button returns to notifications list
+
+### Screenshots:
+- regression-test-feature-169-settings-view.png
+
+### Console Errors: None
+
+### Status: STILL PASSING - No regression found
+[Testing] Feature #169 verified - still passing

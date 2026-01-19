@@ -207,6 +207,56 @@ export const deleteWeekPlan = mutation({
   },
 });
 
+// Swap two meals (exchange their meal data, keep dates/days)
+export const swapMeals = mutation({
+  args: {
+    mealId1: v.id("plannedMeals"),
+    mealId2: v.id("plannedMeals"),
+  },
+  handler: async (ctx, args) => {
+    const meal1 = await ctx.db.get(args.mealId1);
+    const meal2 = await ctx.db.get(args.mealId2);
+
+    if (!meal1 || !meal2) {
+      throw new Error("One or both meals not found");
+    }
+
+    // Swap the meal content (name, effort, times, ingredients, etc.)
+    // but keep the date, dayOfWeek, weekPlanId, cookId, and eaterIds
+    await ctx.db.patch(args.mealId1, {
+      name: meal2.name,
+      effortTier: meal2.effortTier,
+      prepTime: meal2.prepTime,
+      cookTime: meal2.cookTime,
+      cleanupRating: meal2.cleanupRating,
+      ingredients: meal2.ingredients,
+      steps: meal2.steps,
+      isFlexMeal: meal2.isFlexMeal,
+      recipeId: meal2.recipeId,
+    });
+
+    await ctx.db.patch(args.mealId2, {
+      name: meal1.name,
+      effortTier: meal1.effortTier,
+      prepTime: meal1.prepTime,
+      cookTime: meal1.cookTime,
+      cleanupRating: meal1.cleanupRating,
+      ingredients: meal1.ingredients,
+      steps: meal1.steps,
+      isFlexMeal: meal1.isFlexMeal,
+      recipeId: meal1.recipeId,
+    });
+
+    return {
+      success: true,
+      swapped: {
+        meal1: { id: args.mealId1, originalName: meal1.name, newName: meal2.name },
+        meal2: { id: args.mealId2, originalName: meal2.name, newName: meal1.name },
+      },
+    };
+  },
+});
+
 // Seed a sample week plan with meals for testing
 export const seedSampleWeekPlan = mutation({
   args: {},
