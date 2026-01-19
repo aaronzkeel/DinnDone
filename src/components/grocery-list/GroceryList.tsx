@@ -109,6 +109,7 @@ export function GroceryList({
   onAddStore,
   onRenameStore,
   onDeleteStore,
+  onClearChecked,
 }: GroceryListProps) {
   const [activeStoreFilter, setActiveStoreFilter] = useState<string>('all')
   const [isManagingStores, setIsManagingStores] = useState(false)
@@ -687,26 +688,39 @@ export function GroceryList({
         {/* Checked items section */}
         {checkedByStore.length > 0 && (
           <div className="border-t border-stone-200 dark:border-stone-800">
-            <button
-              type="button"
-              onClick={() => setShowDone((prev) => !prev)}
-              className="w-full flex items-center justify-between px-4 py-3"
-            >
-              <span className="text-xs font-semibold uppercase tracking-wide text-stone-400 dark:text-stone-500">
-                Done ({checkedItems.length})
-              </span>
-              {showDone ? (
-                <span className="inline-flex items-center gap-1 text-xs font-semibold text-stone-500 dark:text-stone-400">
-                  Hide
-                  <ChevronUp size={14} />
+            <div className="flex items-center justify-between px-4 py-3">
+              <button
+                type="button"
+                onClick={() => setShowDone((prev) => !prev)}
+                className="flex items-center gap-2"
+              >
+                <span className="text-xs font-semibold uppercase tracking-wide text-stone-400 dark:text-stone-500">
+                  Done ({checkedItems.length})
                 </span>
-              ) : (
-                <span className="inline-flex items-center gap-1 text-xs font-semibold text-stone-500 dark:text-stone-400">
-                  Show
-                  <ChevronDown size={14} />
-                </span>
+                {showDone ? (
+                  <span className="inline-flex items-center gap-1 text-xs font-semibold text-stone-500 dark:text-stone-400">
+                    Hide
+                    <ChevronUp size={14} />
+                  </span>
+                ) : (
+                  <span className="inline-flex items-center gap-1 text-xs font-semibold text-stone-500 dark:text-stone-400">
+                    Show
+                    <ChevronDown size={14} />
+                  </span>
+                )}
+              </button>
+              {showDone && onClearChecked && (
+                <button
+                  type="button"
+                  onClick={onClearChecked}
+                  className="inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+                  aria-label="Clear all checked items"
+                >
+                  <Trash2 size={14} />
+                  Clear checked
+                </button>
               )}
-            </button>
+            </div>
 
             {showDone && (
               <div className="pb-3">

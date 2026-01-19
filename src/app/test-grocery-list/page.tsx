@@ -166,6 +166,10 @@ export default function TestGroceryListPage() {
     setItems((prev) => prev.map((item) => (item.storeId === id ? { ...item, storeId: undefined } : item)))
   }
 
+  const handleClearChecked = () => {
+    setItems((prev) => prev.filter((item) => !item.isChecked))
+  }
+
   const handleVoiceInput = () => {
     console.log('Voice input triggered (legacy)')
   }
@@ -192,6 +196,7 @@ export default function TestGroceryListPage() {
         onAddStore={handleAddStore}
         onRenameStore={handleRenameStore}
         onDeleteStore={handleDeleteStore}
+        onClearChecked={handleClearChecked}
       />
     </div>
   )

@@ -88,4 +88,7 @@ export interface GroceryListProps {
   onAddStore?: (name: string) => void
   onRenameStore?: (id: string, name: string) => void
   onDeleteStore?: (id: string) => void
+
+  /** Called when user clears all checked items */
+  onClearChecked?: () => void
 }
