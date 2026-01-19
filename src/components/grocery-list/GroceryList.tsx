@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo, useState, useEffect } from 'react'
+import { useMemo, useState, useEffect, useRef, useCallback } from 'react'
 import { Mic, MicOff, Cloud, CloudOff, Loader2, Store, Settings2, Plus, Trash2, ChevronDown, ChevronUp, AlignJustify, List, AlertTriangle, X } from 'lucide-react'
 import type { GroceryListProps, GroceryItem, GroceryStore, DuplicateItemInfo } from '@/types/grocery'
 import { GroceryListItem } from './GroceryListItem'
@@ -129,6 +129,96 @@ export function GroceryList({
 
   // Voice input state - shows toast when voice adds item
   const [voiceAddedItem, setVoiceAddedItem] = useState<string | null>(null)
+
+  // Focus trap for modals
+  const storeModalRef = useRef<HTMLDivElement>(null)
+  const duplicateModalRef = useRef<HTMLDivElement>(null)
+
+  // Focus trap handler
+  const handleFocusTrap = useCallback((e: KeyboardEvent, modalRef: React.RefObject<HTMLDivElement | null>) => {
+    if (e.key !== 'Tab' || !modalRef.current) return
+
+    const focusableElements = modalRef.current.querySelectorAll<HTMLElement>(
+      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+    )
+    const focusableArray = Array.from(focusableElements)
+    if (focusableArray.length === 0) return
+
+    const firstElement = focusableArray[0]
+    const lastElement = focusableArray[focusableArray.length - 1]
+
+    if (e.shiftKey) {
+      // Shift+Tab: if on first element, go to last
+      if (document.activeElement === firstElement) {
+        e.preventDefault()
+        lastElement.focus()
+      }
+    } else {
+      // Tab: if on last element, go to first
+      if (document.activeElement === lastElement) {
+        e.preventDefault()
+        firstElement.focus()
+      }
+    }
+  }, [])
+
+  // Set up focus trap for store management modal
+  useEffect(() => {
+    if (!isManagingStores) return
+
+    // Focus first element when modal opens
+    const timeoutId = setTimeout(() => {
+      if (storeModalRef.current) {
+        const firstFocusable = storeModalRef.current.querySelector<HTMLElement>(
+          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+        )
+        firstFocusable?.focus()
+      }
+    }, 0)
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setIsManagingStores(false)
+        return
+      }
+      handleFocusTrap(e, storeModalRef)
+    }
+
+    document.addEventListener('keydown', handleKeyDown)
+    return () => {
+      clearTimeout(timeoutId)
+      document.removeEventListener('keydown', handleKeyDown)
+    }
+  }, [isManagingStores, handleFocusTrap])
+
+  // Set up focus trap for duplicate warning modal
+  useEffect(() => {
+    if (!showDuplicateWarning) return
+
+    // Focus first element when modal opens
+    const timeoutId = setTimeout(() => {
+      if (duplicateModalRef.current) {
+        const firstFocusable = duplicateModalRef.current.querySelector<HTMLElement>(
+          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+        )
+        firstFocusable?.focus()
+      }
+    }, 0)
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        closeDuplicateModal()
+        return
+      }
+      handleFocusTrap(e, duplicateModalRef)
+    }
+
+    document.addEventListener('keydown', handleKeyDown)
+    return () => {
+      clearTimeout(timeoutId)
+      document.removeEventListener('keydown', handleKeyDown)
+    }
+  }, [showDuplicateWarning, handleFocusTrap])
 
   // Voice input hook - only use if onVoiceResult is provided (component handles voice)
   const voiceInput = useVoiceInput({
@@ -653,16 +743,16 @@ export function GroceryList({
 
       {/* Store manager */}
       {isManagingStores && (
-        <div className="fixed inset-0 z-50">
+        <div className="fixed inset-0 z-50" role="dialog" aria-modal="true" aria-labelledby="store-manager-title">
           <div
             className="absolute inset-0 bg-stone-900/40"
             onClick={() => setIsManagingStores(false)}
             aria-hidden="true"
           />
-          <div className="absolute inset-x-0 bottom-0 bg-white dark:bg-stone-900 rounded-t-3xl border-t border-stone-200 dark:border-stone-700 p-4 pb-[calc(1rem+env(safe-area-inset-bottom))]">
+          <div ref={storeModalRef} className="absolute inset-x-0 bottom-0 bg-white dark:bg-stone-900 rounded-t-3xl border-t border-stone-200 dark:border-stone-700 p-4 pb-[calc(1rem+env(safe-area-inset-bottom))]">
             <div className="flex items-center justify-between">
               <div>
-                <div className="text-sm font-semibold text-stone-900 dark:text-stone-100">Stores</div>
+                <div id="store-manager-title" className="text-sm font-semibold text-stone-900 dark:text-stone-100">Stores</div>
                 <div className="text-xs text-stone-500 dark:text-stone-400">Add, rename, or remove stores.</div>
               </div>
               <button
@@ -734,7 +824,7 @@ export function GroceryList({
             onClick={closeDuplicateModal}
             aria-hidden="true"
           />
-          <div className="absolute inset-x-4 top-1/2 -translate-y-1/2 max-w-sm mx-auto bg-white dark:bg-stone-900 rounded-2xl border border-stone-200 dark:border-stone-700 shadow-xl p-5">
+          <div ref={duplicateModalRef} className="absolute inset-x-4 top-1/2 -translate-y-1/2 max-w-sm mx-auto bg-white dark:bg-stone-900 rounded-2xl border border-stone-200 dark:border-stone-700 shadow-xl p-5">
             <div className="flex items-start gap-3 mb-4">
               <div className="flex-shrink-0 w-10 h-10 rounded-full bg-amber-100 dark:bg-amber-900/40 flex items-center justify-center">
                 <AlertTriangle size={20} className="text-amber-600 dark:text-amber-400" />
