@@ -81,8 +81,13 @@ export function NotificationsList({
       {/* Crisis Mute Banner */}
       <CrisisMuteBanner crisisDayMute={crisisDayMute} onDisable={onToggleCrisisMute} />
 
-      {/* Notifications list */}
-      <div className="flex-1 overflow-auto px-4 py-4">
+      {/* Notifications list - dimmed when Crisis Day Mute is active */}
+      <div
+        className={`flex-1 overflow-auto px-4 py-4 transition-opacity duration-300 ${
+          crisisDayMute.isActive ? "opacity-40 pointer-events-none" : ""
+        }`}
+        aria-hidden={crisisDayMute.isActive}
+      >
         {notifications.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full text-center px-4">
             <div
