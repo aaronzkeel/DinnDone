@@ -1,5 +1,49 @@
 # Dinner Bell - Claude Progress Notes
 
+## Session: 2026-01-19 (Coding Agent - Feature #117)
+
+### Feature:
+- Feature #117: Day card shows who is eating
+- Category: functional
+- Description: Eater avatars or names display
+- Dependencies: Feature #114 (Day cards display for all 7 days)
+
+### What was verified:
+The feature was already implemented in the DayCard component. The eater display logic:
+
+1. **DayCard Component** (src/components/weekly-planning/DayCard.tsx):
+   - Line 32: `const eaters = householdMembers.filter((m) => meal.eaterIds.includes(m.id));`
+   - Lines 142-154: Displays eaters with Users icon
+   - For ≤3 eaters: Shows all first names (e.g., "Aaron, Katie, Lizzie")
+   - For >3 eaters: Shows first 2 names + count (e.g., "Aaron, Katie +3")
+
+2. **Test Data Verification** (src/app/test-approve-plan/page.tsx):
+   - Different meals have different eater configurations to test the display logic
+   - Monday: 5 eaters → "Aaron, Katie +3"
+   - Tuesday: 4 eaters → "Aaron, Katie +2"
+   - Wednesday: 3 eaters → "Aaron, Katie, Lizzie"
+   - Thursday: 4 eaters (without Aaron) → "Katie, Lizzie +2"
+   - Saturday: 2 eaters → "Aaron, Katie"
+   - Sunday: 4 eaters (without Aaron) → "Katie, Lizzie +2"
+
+### Verification Results:
+- ✅ Step 1: View a day card - All 7 day cards displayed correctly
+- ✅ Step 2: Verify eater indicators show - Users icon with names visible on each card
+- ✅ Step 3: Verify matches planned eaters - Each card shows correct eaters based on eaterIds
+- ✅ Mobile responsive (375px viewport) - Eater names truncate appropriately
+- ✅ Zero console errors
+
+### Screenshots:
+- feature-117-day-cards-with-eaters.png (desktop view showing all cards)
+- feature-117-day-card-sunday-eaters.png (scrolled to show Sunday card)
+- feature-117-mobile-eaters-display.png (mobile viewport)
+
+### Status: Feature #117 marked as PASSING
+
+### Current Progress: 104/200 features passing (52.0%)
+
+---
+
 ## Session: 2026-01-19 (Coding Agent - Feature #113)
 
 ### Feature:
