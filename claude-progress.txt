@@ -1,5 +1,49 @@
 # Dinner Bell - Claude Progress Notes
 
+## Session: 2026-01-19 (Coding Agent - Feature #189)
+
+### Feature:
+- Feature #189: Toggle switches have aria-pressed
+- Category: accessibility
+- Description: Screen reader announces toggle state
+- Dependencies: Feature #164 (Crisis Day Mute toggle displays)
+
+### What was verified:
+The feature was ALREADY IMPLEMENTED. No code changes needed.
+
+**Implementation Details in `src/components/notifications/NotificationsList.tsx`:**
+- Line 44-56: Crisis Day Mute button with `aria-pressed={crisisDayMute.isActive}`
+- `aria-label="Crisis Day Mute"` provides the accessible name
+- `aria-pressed` dynamically reflects toggle state (true/false)
+
+### Verification Results:
+- ✅ Step 1: Inspect Crisis Day Mute toggle
+  - Found button in notification header at ref=e20
+  - Has proper aria-label="Crisis Day Mute"
+  - Located alongside preview and settings buttons
+
+- ✅ Step 2: Verify aria-pressed attribute
+  - Initial state: `aria-pressed="false"` (toggle OFF)
+  - After clicking: `aria-pressed="true"` (toggle ON)
+  - After clicking again: `aria-pressed="false"` (toggle OFF)
+  - Attribute correctly reflects toggle state
+
+- ✅ Step 3: Verify state announced by screen reader
+  - Accessibility tree shows `[pressed]` when toggle is ON
+  - When OFF: Screen reader announces "Crisis Day Mute, toggle button, not pressed"
+  - When ON: Screen reader announces "Crisis Day Mute, toggle button, pressed"
+
+### Screenshots:
+- feature-189-step1-crisis-mute-toggle-initial.png (toggle in OFF state)
+- feature-189-step2-aria-pressed-true.png (toggle in ON state with Crisis Mute active banner)
+- feature-189-step3-aria-pressed-false-again.png (toggle returned to OFF state)
+
+### Status: Feature #189 marked as PASSING
+- Zero console errors
+- Existing implementation verified working correctly
+
+### Current Progress: 117/200 features passing (58.5%)
+
 ## Session: 2026-01-19 (Coding Agent - Feature #153)
 
 ### Feature:
