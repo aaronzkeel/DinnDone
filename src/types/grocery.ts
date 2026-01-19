@@ -70,8 +70,8 @@ export interface GroceryListProps {
   /** Called when user deletes an item */
   onDeleteItem?: (id: string) => void
 
-  /** Called when user edits an item (name/quantity) */
-  onUpdateItem?: (id: string, updates: { name?: string; quantity?: string }) => void
+  /** Called when user edits an item (name/quantity/organic) */
+  onUpdateItem?: (id: string, updates: { name?: string; quantity?: string; organicRequired?: boolean }) => void
 
   /** Called when user changes the store for an item */
   onChangeItemStore?: (id: string, storeId?: string) => void

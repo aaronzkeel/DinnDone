@@ -125,7 +125,7 @@ export default function TestGroceryListPage() {
     setItems((prev) => prev.filter((item) => item.id !== id))
   }
 
-  const handleUpdateItem = (id: string, updates: { name?: string; quantity?: string }) => {
+  const handleUpdateItem = (id: string, updates: { name?: string; quantity?: string; organicRequired?: boolean }) => {
     setItems((prev) => prev.map((item) => (item.id === id ? { ...item, ...updates } : item)))
   }
 

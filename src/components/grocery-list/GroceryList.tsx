@@ -413,6 +413,7 @@ export function GroceryList({
                             onDelete={() => onDeleteItem?.(item.id)}
                             onUpdateName={(name) => onUpdateItem?.(item.id, { name })}
                             onUpdateQuantity={(quantity) => onUpdateItem?.(item.id, { quantity })}
+                            onToggleOrganic={() => onUpdateItem?.(item.id, { organicRequired: !item.organicRequired })}
                             enableDrag={true}
                             onDragStart={(itemId) => setDraggingItemId(itemId)}
                             onDragEnd={() => {
@@ -626,6 +627,7 @@ export function GroceryList({
                           onDelete={() => onDeleteItem?.(item.id)}
                           onUpdateName={(name) => onUpdateItem?.(item.id, { name })}
                           onUpdateQuantity={(quantity) => onUpdateItem?.(item.id, { quantity })}
+                          onToggleOrganic={() => onUpdateItem?.(item.id, { organicRequired: !item.organicRequired })}
                           density={density}
                         />
                       ))}

@@ -9,6 +9,7 @@ interface GroceryListItemProps {
   onToggle?: () => void
   onUpdateName?: (name: string) => void
   onUpdateQuantity?: (quantity: string) => void
+  onToggleOrganic?: () => void
   onDelete?: () => void
   enableDrag?: boolean
   onDragStart?: (itemId: string) => void
@@ -24,6 +25,7 @@ export function GroceryListItem({
   onToggle,
   onUpdateName,
   onUpdateQuantity,
+  onToggleOrganic,
   onDelete,
   enableDrag,
   onDragStart,
@@ -259,12 +261,22 @@ export function GroceryListItem({
             </button>
           )}
 
-          {/* Organic badge */}
-          {item.organicRequired && !item.isChecked && (
-            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-lime-100 dark:bg-lime-900/40 text-lime-700 dark:text-lime-400 flex-shrink-0">
+          {/* Organic badge - clickable to toggle */}
+          {!item.isChecked && (
+            <button
+              type="button"
+              onClick={onToggleOrganic}
+              className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full flex-shrink-0 transition-colors ${
+                item.organicRequired
+                  ? 'bg-lime-100 dark:bg-lime-900/40 text-lime-700 dark:text-lime-400 hover:bg-lime-200 dark:hover:bg-lime-900/60'
+                  : 'bg-stone-100 dark:bg-stone-800 text-stone-400 dark:text-stone-500 hover:bg-lime-50 dark:hover:bg-lime-900/20 hover:text-lime-600 dark:hover:text-lime-400 opacity-0 group-hover:opacity-100 focus:opacity-100'
+              }`}
+              aria-label={item.organicRequired ? `Remove organic from ${item.name}` : `Mark ${item.name} as organic`}
+              title={item.organicRequired ? 'Click to remove organic' : 'Click to mark as organic'}
+            >
               <Leaf size={12} strokeWidth={2.5} />
               <span className="text-xs font-semibold">Organic</span>
-            </span>
+            </button>
           )}
         </div>
 
