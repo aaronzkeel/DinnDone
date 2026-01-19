@@ -44,6 +44,7 @@ export interface PlannedMealSummary {
   ingredients: string[];
   briefInstructions?: string;
   isFlexMeal: boolean;
+  isKidFriendly?: boolean;
   assignedCookId?: string;
   eaterIds?: string[];
 }

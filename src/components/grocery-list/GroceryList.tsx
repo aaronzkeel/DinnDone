@@ -1,8 +1,8 @@
 'use client'
 
 import { useMemo, useState } from 'react'
-import { Mic, Cloud, CloudOff, Loader2, Store, Settings2, Plus, Trash2, ChevronDown, ChevronUp, AlignJustify, List } from 'lucide-react'
-import type { GroceryListProps, GroceryItem, GroceryStore } from '@/types/grocery'
+import { Mic, Cloud, CloudOff, Loader2, Store, Settings2, Plus, Trash2, ChevronDown, ChevronUp, AlignJustify, List, AlertTriangle } from 'lucide-react'
+import type { GroceryListProps, GroceryItem, GroceryStore, DuplicateItemInfo } from '@/types/grocery'
 import { GroceryListItem } from './GroceryListItem'
 
 // (We keep category on items for future use, but ordering is manual via drag-and-drop.)
@@ -97,6 +97,8 @@ export function GroceryList({
   items,
   syncStatus = 'synced',
   onAddItem,
+  onCheckDuplicate,
+  onMergeQuantity,
   onVoiceInput,
   onToggleChecked,
   onDeleteItem,
@@ -117,6 +119,11 @@ export function GroceryList({
 
   const [showDone, setShowDone] = useState(false)
   const [density, setDensity] = useState<'comfortable' | 'compact'>('comfortable')
+
+  // Duplicate warning modal state
+  const [showDuplicateWarning, setShowDuplicateWarning] = useState(false)
+  const [duplicateItem, setDuplicateItem] = useState<DuplicateItemInfo | null>(null)
+  const [pendingAdd, setPendingAdd] = useState<{ name: string; quantity?: string; storeId?: string } | null>(null)
 
   // Separate active and checked items
   const activeItems = items.filter((item) => !item.isChecked)
@@ -141,10 +148,46 @@ export function GroceryList({
     return checkedByStoreAll.filter((g) => g.storeId === activeStoreFilter)
   }, [checkedByStoreAll, activeStoreFilter])
 
-  const handleInlineAdd = (storeId?: string) => {
+  const handleInlineAdd = async (storeId?: string) => {
     const { name, quantity } = parseItemInput(draftNewItemName)
     if (!name) return
+
+    // Check for duplicates if the handler is provided
+    if (onCheckDuplicate) {
+      const result = await onCheckDuplicate(name)
+      if (result.exists && result.item) {
+        // Show duplicate warning modal
+        setDuplicateItem(result.item)
+        setPendingAdd({ name, quantity, storeId })
+        setShowDuplicateWarning(true)
+        return
+      }
+    }
+
+    // No duplicate found, add the item
     onAddItem?.(name, { storeId, quantity })
+    setDraftNewItemName('')
+    setAddingToStoreKey(null)
+  }
+
+  const handleDuplicateMerge = () => {
+    if (duplicateItem && pendingAdd && onMergeQuantity) {
+      onMergeQuantity(duplicateItem.id, pendingAdd.quantity || '1')
+    }
+    closeDuplicateModal()
+  }
+
+  const handleDuplicateAddAnyway = () => {
+    if (pendingAdd) {
+      onAddItem?.(pendingAdd.name, { storeId: pendingAdd.storeId, quantity: pendingAdd.quantity })
+    }
+    closeDuplicateModal()
+  }
+
+  const closeDuplicateModal = () => {
+    setShowDuplicateWarning(false)
+    setDuplicateItem(null)
+    setPendingAdd(null)
     setDraftNewItemName('')
     setAddingToStoreKey(null)
   }
@@ -577,6 +620,62 @@ export function GroceryList({
                 Add
               </button>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Duplicate item warning modal */}
+      {showDuplicateWarning && duplicateItem && (
+        <div className="fixed inset-0 z-50" role="dialog" aria-modal="true" aria-labelledby="duplicate-warning-title">
+          <div
+            className="absolute inset-0 bg-stone-900/50"
+            onClick={closeDuplicateModal}
+            aria-hidden="true"
+          />
+          <div className="absolute inset-x-4 top-1/2 -translate-y-1/2 max-w-sm mx-auto bg-white dark:bg-stone-900 rounded-2xl border border-stone-200 dark:border-stone-700 shadow-xl p-5">
+            <div className="flex items-start gap-3 mb-4">
+              <div className="flex-shrink-0 w-10 h-10 rounded-full bg-amber-100 dark:bg-amber-900/40 flex items-center justify-center">
+                <AlertTriangle size={20} className="text-amber-600 dark:text-amber-400" />
+              </div>
+              <div>
+                <h3 id="duplicate-warning-title" className="text-base font-semibold text-stone-900 dark:text-stone-100">
+                  Item already on list
+                </h3>
+                <p className="text-sm text-stone-500 dark:text-stone-400 mt-1">
+                  <span className="font-medium text-stone-700 dark:text-stone-200">{duplicateItem.name}</span>
+                  {duplicateItem.quantity && duplicateItem.quantity !== '1' && (
+                    <span> ({duplicateItem.quantity})</span>
+                  )}
+                  {' '}is already on your list.
+                </p>
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              {onMergeQuantity && (
+                <button
+                  type="button"
+                  onClick={handleDuplicateMerge}
+                  className="w-full py-2.5 px-4 rounded-xl bg-green-600 dark:bg-green-700 text-white font-semibold text-sm hover:bg-green-700 dark:hover:bg-green-600 transition-colors"
+                >
+                  Combine quantities
+                </button>
+              )}
+              <button
+                type="button"
+                onClick={handleDuplicateAddAnyway}
+                className="w-full py-2.5 px-4 rounded-xl bg-stone-100 dark:bg-stone-800 text-stone-700 dark:text-stone-200 font-semibold text-sm hover:bg-stone-200 dark:hover:bg-stone-700 transition-colors"
+              >
+                Add anyway
+              </button>
+              <button
+                type="button"
+                onClick={closeDuplicateModal}
+                className="w-full py-2.5 px-4 rounded-xl text-stone-500 dark:text-stone-400 font-semibold text-sm hover:bg-stone-50 dark:hover:bg-stone-800 transition-colors"
+              >
+                Cancel
+              </button>
+            </div>
           </div>
         </div>
       )}

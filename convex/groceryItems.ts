@@ -1,6 +1,63 @@
 import { v } from "convex/values";
 import { query, mutation } from "./_generated/server";
 
+// Check if an item with the same name already exists (case-insensitive)
+export const findDuplicate = query({
+  args: { name: v.string() },
+  handler: async (ctx, args) => {
+    const normalizedName = args.name.toLowerCase().trim();
+    const items = await ctx.db.query("groceryItems").collect();
+
+    // Find active (unchecked) items with matching name
+    const duplicate = items.find(
+      (item) => item.name.toLowerCase().trim() === normalizedName && !item.isChecked
+    );
+
+    if (duplicate) {
+      return {
+        exists: true,
+        item: {
+          id: duplicate._id,
+          name: duplicate.name,
+          quantity: duplicate.quantity,
+          storeId: duplicate.storeId,
+        },
+      };
+    }
+
+    return { exists: false, item: null };
+  },
+});
+
+// Merge quantity with existing item (for duplicate handling)
+export const mergeQuantity = mutation({
+  args: {
+    id: v.id("groceryItems"),
+    additionalQuantity: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const item = await ctx.db.get(args.id);
+    if (!item) throw new Error("Item not found");
+
+    // Simple merge: append the additional quantity info
+    const currentQty = item.quantity || "";
+    const newQty = args.additionalQuantity || "";
+
+    // If both have quantities, combine them
+    let mergedQuantity = currentQty;
+    if (newQty && newQty !== "1") {
+      if (currentQty && currentQty !== "1") {
+        mergedQuantity = `${currentQty} + ${newQty}`;
+      } else {
+        mergedQuantity = newQty;
+      }
+    }
+
+    await ctx.db.patch(args.id, { quantity: mergedQuantity });
+    return await ctx.db.get(args.id);
+  },
+});
+
 // List all grocery items, ordered by sortOrder within each store
 export const list = query({
   args: {},

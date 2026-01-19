@@ -24,8 +24,11 @@ const mockCurrentMeal: PlannedMeal = {
   effortTier: "middle",
   prepTime: 15,
   cookTime: 20,
+  cleanupRating: "medium",
+  servings: 4,
   ingredients: ["Chicken", "Broccoli", "Soy sauce", "Garlic"],
   isFlexMeal: false,
+  isUnplanned: false,
   assignedCookId: "member-2",
   eaterIds: ["member-1", "member-2", "member-3"],
 };
@@ -38,6 +41,8 @@ const mockAlternatives: MealAlternative[] = [
     effortTier: "super-easy",
     prepTime: 5,
     cookTime: 15,
+    cleanupRating: "low",
+    isFlexMeal: true,
   },
   {
     id: "alt-2",
@@ -46,6 +51,8 @@ const mockAlternatives: MealAlternative[] = [
     effortTier: "super-easy",
     prepTime: 5,
     cookTime: 10,
+    cleanupRating: "low",
+    isFlexMeal: true,
   },
   {
     id: "alt-3",
@@ -54,6 +61,8 @@ const mockAlternatives: MealAlternative[] = [
     effortTier: "middle",
     prepTime: 15,
     cookTime: 25,
+    cleanupRating: "medium",
+    isFlexMeal: false,
   },
 ];
 

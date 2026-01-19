@@ -37,6 +37,7 @@ const sampleTonightMeal: PlannedMealSummary = {
     "2 cups jasmine rice",
   ],
   isFlexMeal: true,
+  isKidFriendly: true,
   assignedCookId: "2",
   briefInstructions:
     "Slice the chicken and veggies. Stir fry the chicken first until golden, then add veggies. Season with soy sauce, garlic, and ginger. Serve over rice.",

@@ -1,6 +1,6 @@
 "use client";
 
-import { Clock, Sparkles, ChefHat } from "lucide-react";
+import { Clock, Sparkles, ChefHat, Baby } from "lucide-react";
 import type { TonightPlanCardProps, EffortTier, CleanupRating } from "@/types/meal-helper";
 
 const effortLabels: Record<EffortTier, string> = {
@@ -62,6 +62,12 @@ export function TonightPlanCard({ meal, householdMembers }: TonightPlanCardProps
             <span className="inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-full bg-lime-100 text-lime-800 dark:bg-lime-900/40 dark:text-lime-200">
               <Sparkles size={12} />
               Flex
+            </span>
+          )}
+          {meal.isKidFriendly && (
+            <span className="inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-full bg-sky-100 text-sky-800 dark:bg-sky-900/40 dark:text-sky-200">
+              <Baby size={12} />
+              Kid-friendly
             </span>
           )}
         </div>

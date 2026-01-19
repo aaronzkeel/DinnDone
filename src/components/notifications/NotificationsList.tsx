@@ -48,7 +48,8 @@ export function NotificationsList({
               backgroundColor: crisisDayMute.isActive ? "var(--color-border)" : "transparent",
               color: crisisDayMute.isActive ? "var(--color-text)" : "var(--color-muted)",
             }}
-            aria-label={crisisDayMute.isActive ? "Disable Crisis Day Mute" : "Enable Crisis Day Mute"}
+            aria-label="Crisis Day Mute"
+            aria-pressed={crisisDayMute.isActive}
             title="Crisis Day Mute"
           >
             <VolumeX size={20} />

@@ -1,16 +1,20 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useQuery, useMutation } from "convex/react";
+import { useConvex } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import type { Id } from "../../../convex/_generated/dataModel";
 import { GroceryList } from "@/components/grocery-list";
-import type { GroceryItem, GroceryStore } from "@/types/grocery";
+import type { GroceryItem, GroceryStore, DuplicateItemInfo } from "@/types/grocery";
 
 // Test page for verifying Feature #26: Added item saves to Convex
 // This bypasses auth for testing purposes
 
 export default function TestGroceryConvexPage() {
+  // Convex client for imperative queries
+  const convex = useConvex();
+
   // Convex queries
   const convexStores = useQuery(api.stores.list);
   const convexItems = useQuery(api.groceryItems.listWithMealDetails);
@@ -26,6 +30,7 @@ export default function TestGroceryConvexPage() {
   const updateItem = useMutation(api.groceryItems.update);
   const deleteItem = useMutation(api.groceryItems.remove);
   const reorderItem = useMutation(api.groceryItems.reorder);
+  const mergeQuantity = useMutation(api.groceryItems.mergeQuantity);
 
   const [isSeeding, setIsSeeding] = useState(false);
 
@@ -119,6 +124,31 @@ export default function TestGroceryConvexPage() {
     console.log("Voice input triggered");
   };
 
+  // Check for duplicate items
+  const handleCheckDuplicate = useCallback(async (name: string): Promise<{ exists: boolean; item: DuplicateItemInfo | null }> => {
+    const result = await convex.query(api.groceryItems.findDuplicate, { name });
+    if (result.exists && result.item) {
+      return {
+        exists: true,
+        item: {
+          id: result.item.id,
+          name: result.item.name,
+          quantity: result.item.quantity || undefined,
+          storeId: result.item.storeId,
+        },
+      };
+    }
+    return { exists: false, item: null };
+  }, [convex]);
+
+  // Merge quantity with existing item
+  const handleMergeQuantity = async (existingItemId: string, additionalQuantity: string) => {
+    await mergeQuantity({
+      id: existingItemId as Id<"groceryItems">,
+      additionalQuantity,
+    });
+  };
+
   // Loading state
   if (convexStores === undefined || convexItems === undefined) {
     return (
@@ -151,6 +181,8 @@ export default function TestGroceryConvexPage() {
         items={items}
         syncStatus="synced"
         onAddItem={handleAddItem}
+        onCheckDuplicate={handleCheckDuplicate}
+        onMergeQuantity={handleMergeQuantity}
         onVoiceInput={handleVoiceInput}
         onToggleChecked={handleToggleChecked}
         onDeleteItem={handleDeleteItem}

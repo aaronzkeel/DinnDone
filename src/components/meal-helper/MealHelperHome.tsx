@@ -1,12 +1,36 @@
 "use client";
 
+import { useMemo } from "react";
 import Link from "next/link";
-import { Calendar } from "lucide-react";
+import { Calendar, Sparkles } from "lucide-react";
 import type { MealHelperHomeProps } from "@/types/meal-helper";
 import { ChatMessage } from "./ChatMessage";
 import { ChatInput } from "./ChatInput";
 import { MealSuggestionCard } from "./MealSuggestionCard";
 import { TonightPlanCard } from "./TonightPlanCard";
+
+// Zylo's motivational quotes - encouraging messages for caregivers
+const MOTIVATIONAL_QUOTES = [
+  "You're not behind, you're human.",
+  "Dinner doesn't have to be perfect to be nourishing.",
+  "You're doing better than you think.",
+  "Fed is best. Everything else is bonus.",
+  "Some days are cereal nights. That's okay.",
+  "Progress over perfection, always.",
+  "You've got this. One meal at a time.",
+  "Taking care of yourself is taking care of your family.",
+  "Good enough is good enough.",
+  "Tomorrow is a fresh start.",
+];
+
+// Get a quote that rotates based on date (so it changes daily but is consistent within a day)
+function getMotivationalQuote(): string {
+  const today = new Date();
+  const dayOfYear = Math.floor(
+    (today.getTime() - new Date(today.getFullYear(), 0, 0).getTime()) / (1000 * 60 * 60 * 24)
+  );
+  return MOTIVATIONAL_QUOTES[dayOfYear % MOTIVATIONAL_QUOTES.length];
+}
 
 export function MealHelperHome({
   currentUser,
@@ -26,6 +50,9 @@ export function MealHelperHome({
   onVoiceInput,
   isLoading = false,
 }: MealHelperHomeProps) {
+  // Get today's motivational quote (memoized to be stable during render)
+  const motivationalQuote = useMemo(() => getMotivationalQuote(), []);
+
   // Empty state when no plan exists
   if (!tonightMeal) {
     return (
@@ -97,6 +124,30 @@ export function MealHelperHome({
               <p className="text-sm mt-1" style={{ color: "var(--color-muted)" }}>
                 Need help deciding what to eat?
               </p>
+              {/* Zylo's motivational quote */}
+              <div
+                className="mt-6 mx-auto max-w-xs p-4 rounded-xl"
+                style={{
+                  backgroundColor: "var(--color-card)",
+                  border: "1px solid var(--color-border)",
+                }}
+              >
+                <div className="flex items-center gap-2 justify-center mb-2">
+                  <Sparkles size={14} style={{ color: "var(--color-primary)" }} />
+                  <span
+                    className="text-xs font-semibold uppercase tracking-wide"
+                    style={{ color: "var(--color-primary)" }}
+                  >
+                    Zylo says
+                  </span>
+                </div>
+                <p
+                  className="text-sm italic font-medium"
+                  style={{ color: "var(--color-text)" }}
+                >
+                  &ldquo;{motivationalQuote}&rdquo;
+                </p>
+              </div>
             </div>
           ) : (
             <div className="space-y-1 pt-2">
@@ -205,6 +256,30 @@ export function MealHelperHome({
             <p className="text-sm mt-1" style={{ color: "var(--color-muted)" }}>
               Want to stick with tonight&apos;s plan or adjust it?
             </p>
+            {/* Zylo's motivational quote */}
+            <div
+              className="mt-6 mx-auto max-w-xs p-4 rounded-xl"
+              style={{
+                backgroundColor: "var(--color-card)",
+                border: "1px solid var(--color-border)",
+              }}
+            >
+              <div className="flex items-center gap-2 justify-center mb-2">
+                <Sparkles size={14} style={{ color: "var(--color-primary)" }} />
+                <span
+                  className="text-xs font-semibold uppercase tracking-wide"
+                  style={{ color: "var(--color-primary)" }}
+                >
+                  Zylo says
+                </span>
+              </div>
+              <p
+                className="text-sm italic font-medium"
+                style={{ color: "var(--color-text)" }}
+              >
+                &ldquo;{motivationalQuote}&rdquo;
+              </p>
+            </div>
           </div>
         ) : (
           <div className="space-y-1 pt-2">

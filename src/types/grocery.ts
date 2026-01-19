@@ -40,6 +40,14 @@ export interface GroceryItem {
 // Component Props
 // =============================================================================
 
+/** Info about a duplicate item */
+export interface DuplicateItemInfo {
+  id: string
+  name: string
+  quantity?: string
+  storeId?: string
+}
+
 export interface GroceryListProps {
   /** Stores the household typically shops at */
   stores: GroceryStore[]
@@ -49,6 +57,10 @@ export interface GroceryListProps {
   syncStatus?: 'synced' | 'syncing' | 'offline'
   /** Called when user adds a new item via text input */
   onAddItem?: (name: string, options?: { storeId?: string; quantity?: string }) => void
+  /** Called to check if an item name already exists */
+  onCheckDuplicate?: (name: string) => Promise<{ exists: boolean; item: DuplicateItemInfo | null }>
+  /** Called when user chooses to merge quantities with existing item */
+  onMergeQuantity?: (existingItemId: string, additionalQuantity: string) => void
   /** Called when user taps the mic button to add via voice */
   onVoiceInput?: () => void
   /** Called when user checks or unchecks an item */
