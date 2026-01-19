@@ -5462,3 +5462,80 @@ aria-label={item.isChecked ? \`Uncheck ${item.name}\` : \`Check ${item.name}\`}
 ### Status: STILL PASSING - No regression found
 [Testing] Feature #122 verified - still passing
 
+
+## Session: 2026-01-19 (Regression Test - Feature #19)
+
+### Feature Tested:
+- Feature #19: OpenRouter API connection works
+- Category: functional
+- Description: Backend can call OpenRouter with configured API key
+
+### Verification Results:
+- ✅ Step 1: Test Convex action calls OpenRouter - testConnection action invoked successfully
+- ✅ Step 2: OPENROUTER_API_KEY verified - API responded (wouldn't work without valid key)
+- ✅ Step 3: Response from Gemini model - Got 'Hi there\! Zylo here...' from google/gemini-2.0-flash-001
+- ✅ Zero console errors
+
+### Screenshot:
+- regression-test-feature-19-openrouter-verified.png
+
+### Status: STILL PASSING - No regression found
+[Testing] Feature #19 verified - still passing
+
+## Session: 2026-01-19 (Coding Agent - Feature #37)
+
+### Feature:
+- Feature #37: User can toggle organic flag
+- Category: functional
+- Description: Organic status can be set when adding or editing
+- Dependencies: Feature #36 (Organic badge displays on organic items)
+
+### What was verified:
+Feature was ALREADY IMPLEMENTED. No code changes needed.
+
+**Implementation Details:**
+- `GroceryListItem.tsx` has clickable organic button (lines 265-280)
+- Button shows green "Organic" badge when `organicRequired: true`
+- Button appears muted/hidden when `organicRequired: false` (shows on hover)
+- `GroceryList.tsx` wires up `onToggleOrganic` handler (lines 416, 630)
+- `GroceryListProps` includes `organicRequired` in `onUpdateItem` type
+
+### Verification Results:
+- ✅ Step 1: Add or edit an item
+  - Added new item "Organic Spinach" to Costco section
+  - Edited existing item "Greek Yogurt"
+
+- ✅ Step 2: Toggle organic flag on
+  - Clicked muted "Organic" button on Greek Yogurt
+  - Button changed from "Mark Greek Yogurt as organic" to "Remove organic from Greek Yogurt"
+  - Green organic badge appeared
+  - Clicked "Mark Organic Spinach as organic" button
+  - Green organic badge appeared
+
+- ✅ Step 3: Verify organic badge appears
+  - Green "Organic" badge with leaf icon shows when toggled ON
+  - Badge is lime-green color (bg-lime-100 text-lime-700)
+  - Badge hides when toggled OFF (only shows on hover for non-organic items)
+
+### Test Actions Performed:
+1. Navigated to /test-grocery-list page
+2. Verified initial state - some items organic, some not
+3. Hovered over Greek Yogurt to see muted "Organic" button
+4. Clicked to toggle organic ON - badge appeared
+5. Clicked to toggle organic OFF - badge hidden
+6. Added new item "Organic Spinach"
+7. Toggled organic ON for new item - badge appeared
+
+### Screenshots:
+- feature-37-step1-initial-state.png (initial grocery list)
+- feature-37-step2-hover-greek-yogurt.png (organic button visible on hover)
+- feature-37-step2-organic-toggled-on.png (Greek Yogurt with organic badge)
+- feature-37-step3-organic-off-deselected.png (Greek Yogurt without badge)
+- feature-37-verification-complete.png (final state with Organic Spinach added)
+
+### Status: Feature #37 marked as PASSING
+- Zero console errors
+- Existing implementation verified working correctly
+
+### Current Progress: 140/200 features passing (70.0%)
+
