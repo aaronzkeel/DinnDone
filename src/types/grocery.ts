@@ -63,6 +63,8 @@ export interface GroceryListProps {
   onMergeQuantity?: (existingItemId: string, additionalQuantity: string) => void
   /** Called when user taps the mic button to add via voice */
   onVoiceInput?: () => void
+  /** Called when voice input captures a transcript - if provided, component handles voice internally */
+  onVoiceResult?: (transcript: string) => void
   /** Called when user checks or unchecks an item */
   onToggleChecked?: (id: string) => void
   /** Called when user deletes an item */
