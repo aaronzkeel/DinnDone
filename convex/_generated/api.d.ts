@@ -10,10 +10,12 @@
 
 import type * as ai from "../ai.js";
 import type * as auth from "../auth.js";
+import type * as groceryItems from "../groceryItems.js";
 import type * as householdMembers from "../householdMembers.js";
 import type * as http from "../http.js";
 import type * as notifications from "../notifications.js";
 import type * as pushSubscriptions from "../pushSubscriptions.js";
+import type * as stores from "../stores.js";
 import type * as weekPlans from "../weekPlans.js";
 
 import type {
@@ -25,10 +27,12 @@ import type {
 declare const fullApi: ApiFromModules<{
   ai: typeof ai;
   auth: typeof auth;
+  groceryItems: typeof groceryItems;
   householdMembers: typeof householdMembers;
   http: typeof http;
   notifications: typeof notifications;
   pushSubscriptions: typeof pushSubscriptions;
+  stores: typeof stores;
   weekPlans: typeof weekPlans;
 }>;
 
