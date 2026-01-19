@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useAction, useQuery, useMutation } from "convex/react";
 import { api } from "../../../convex/_generated/api";
-import { Sparkles, Loader2, Check, Clock, Users, AlertTriangle, Edit2, X, Plus } from "lucide-react";
+import { Sparkles, Loader2, Check, Clock, Users, AlertTriangle, Edit2, X, Plus, RefreshCw, Zap, ZapOff } from "lucide-react";
 import type { Id } from "../../../convex/_generated/dataModel";
 
 interface GeneratedMeal {
@@ -144,6 +144,8 @@ export default function TestGeneratePlanPage() {
   const [error, setError] = useState<string | null>(null);
   const [editingMemberId, setEditingMemberId] = useState<Id<"householdMembers"> | null>(null);
   const [newPreference, setNewPreference] = useState("");
+  // Feature #154: Simulate API failure mode
+  const [simulateFailure, setSimulateFailure] = useState(false);
 
   // Query household members from Convex
   const householdMembers = useQuery(api.householdMembers.list);
@@ -198,6 +200,15 @@ export default function TestGeneratePlanPage() {
     setError(null);
     setMeals(null);
 
+    // Feature #154: If simulating failure, show error without calling API
+    if (simulateFailure) {
+      // Simulate network delay
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      setError("Unable to connect to the AI service. This might be a temporary issue with our servers. Please try again in a moment.");
+      setIsGenerating(false);
+      return;
+    }
+
     // Build dietary preferences string from all household members
     const dietaryString = allDietaryPreferences.length > 0
       ? allDietaryPreferences.join(", ")
@@ -218,13 +229,47 @@ export default function TestGeneratePlanPage() {
         }));
         setMeals(mealsWithCooks);
       } else {
-        setError(result.error || "Unknown error");
+        // Feature #154: Convert technical errors to friendly messages
+        const friendlyError = getFriendlyErrorMessage(result.error || "Unknown error");
+        setError(friendlyError);
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to generate plan");
+      // Feature #154: Convert technical errors to friendly messages
+      const rawError = err instanceof Error ? err.message : "Failed to generate plan";
+      setError(getFriendlyErrorMessage(rawError));
     } finally {
       setIsGenerating(false);
     }
+  };
+
+  // Feature #154: Convert technical error messages to user-friendly ones
+  const getFriendlyErrorMessage = (error: string): string => {
+    // Network errors
+    if (error.includes("fetch") || error.includes("network") || error.includes("connect")) {
+      return "We couldn't reach the AI service. Please check your internet connection and try again.";
+    }
+    // API key issues
+    if (error.includes("API key") || error.includes("401") || error.includes("403")) {
+      return "There's an issue with our AI service configuration. Please try again later or contact support.";
+    }
+    // Rate limiting
+    if (error.includes("429") || error.includes("rate limit")) {
+      return "We're experiencing high demand right now. Please wait a moment and try again.";
+    }
+    // Server errors
+    if (error.includes("500") || error.includes("502") || error.includes("503")) {
+      return "Our AI service is temporarily unavailable. Please try again in a few minutes.";
+    }
+    // Timeout
+    if (error.includes("timeout") || error.includes("timed out")) {
+      return "The request took too long. Please try again - it might work on the next attempt.";
+    }
+    // JSON parsing errors
+    if (error.includes("parse") || error.includes("JSON")) {
+      return "We received an unexpected response from the AI. Please try again.";
+    }
+    // Default fallback
+    return "Something went wrong while generating your meal plan. Please try again.";
   };
 
   const getEffortBadgeColor = (tier: string) => {
@@ -266,7 +311,7 @@ export default function TestGeneratePlanPage() {
           Test: AI Meal Plan Generation
         </h1>
         <p className="mb-6" style={{ color: "var(--color-muted)" }}>
-          This page tests Feature #132, #133, #134, and <strong>#135: Dietary Preferences</strong>
+          This page tests Features #132, #133, #134, #135, and <strong>#154: AI Generation Error Handling</strong>
         </p>
 
         {/* Step 1: Dietary Preferences Section - Feature #135 */}
@@ -470,9 +515,89 @@ export default function TestGeneratePlanPage() {
           )}
         </button>
 
+        {/* Feature #154: Simulate API Failure Toggle */}
+        <div
+          className="p-4 mb-6 rounded-lg border"
+          style={{
+            backgroundColor: simulateFailure ? "rgba(239, 68, 68, 0.1)" : "var(--color-card)",
+            borderColor: simulateFailure ? "#EF4444" : "var(--color-border)",
+          }}
+        >
+          <h3
+            className="text-sm font-semibold mb-2 flex items-center gap-2"
+            style={{ color: simulateFailure ? "#DC2626" : "var(--color-text)" }}
+          >
+            <span className="px-2 py-0.5 rounded text-xs bg-orange-100 text-orange-800">Feature #154</span>
+            Test Error Handling
+          </h3>
+          <div className="flex items-center justify-between">
+            <div className="flex-1">
+              <p className="text-sm" style={{ color: "var(--color-muted)" }}>
+                Toggle this ON to simulate an API failure and test error handling behavior.
+              </p>
+            </div>
+            <button
+              onClick={() => setSimulateFailure(!simulateFailure)}
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all ${
+                simulateFailure
+                  ? "bg-red-500 text-white"
+                  : "bg-gray-200 text-gray-700"
+              }`}
+            >
+              {simulateFailure ? (
+                <>
+                  <ZapOff size={16} />
+                  Failure Mode ON
+                </>
+              ) : (
+                <>
+                  <Zap size={16} />
+                  Failure Mode OFF
+                </>
+              )}
+            </button>
+          </div>
+          {simulateFailure && (
+            <p className="text-xs mt-2 text-red-600 font-medium">
+              ⚠️ The next &quot;Generate Plan&quot; attempt will fail with a simulated error.
+            </p>
+          )}
+        </div>
+
+        {/* Feature #154: Enhanced Error Display with Retry Button */}
         {error && (
-          <div className="p-4 mb-6 rounded-lg bg-red-100 border border-red-300 text-red-800">
-            <strong>Error:</strong> {error}
+          <div className="p-4 mb-6 rounded-lg bg-red-50 border border-red-200">
+            <div className="flex items-start gap-3">
+              <AlertTriangle className="text-red-500 flex-shrink-0 mt-0.5" size={24} />
+              <div className="flex-1">
+                <h3 className="font-semibold text-red-800 mb-1">Unable to Generate Plan</h3>
+                <p className="text-red-700 text-sm mb-4">{error}</p>
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => {
+                      setError(null);
+                      handleGenerate();
+                    }}
+                    disabled={isGenerating}
+                    className="flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all text-white disabled:opacity-50"
+                    style={{ backgroundColor: "var(--color-primary)" }}
+                  >
+                    <RefreshCw size={16} className={isGenerating ? "animate-spin" : ""} />
+                    Try Again
+                  </button>
+                  <button
+                    onClick={() => setError(null)}
+                    className="px-4 py-2 rounded-lg font-medium transition-all border"
+                    style={{
+                      borderColor: "var(--color-border)",
+                      color: "var(--color-text)",
+                    }}
+                  >
+                    Dismiss
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
         )}
 
