@@ -144,17 +144,29 @@ const initialWeekPlan: WeekPlan = {
   ],
 };
 
-// Common pantry staples to check
-const initialPantryItems: PantryCheckItem[] = [
-  { id: "p1", name: "Olive oil", alreadyHave: false },
-  { id: "p2", name: "Salt & pepper", alreadyHave: false },
-  { id: "p3", name: "Garlic", alreadyHave: false },
-  { id: "p4", name: "Soy sauce", alreadyHave: false },
-  { id: "p5", name: "Rice", alreadyHave: false },
-  { id: "p6", name: "Pasta", alreadyHave: false },
-  { id: "p7", name: "Chicken broth", alreadyHave: false },
-  { id: "p8", name: "Onions", alreadyHave: false },
-];
+// Extract all unique ingredients from the week's meals
+function extractIngredientsFromMeals(meals: typeof initialWeekPlan.meals): PantryCheckItem[] {
+  const ingredientSet = new Set<string>();
+
+  meals.forEach(meal => {
+    meal.ingredients.forEach(ingredient => {
+      // Skip special entries like "Order from Luigi's"
+      if (!ingredient.toLowerCase().includes("order from")) {
+        ingredientSet.add(ingredient);
+      }
+    });
+  });
+
+  // Convert to PantryCheckItem array with unique IDs
+  return Array.from(ingredientSet).map((name, index) => ({
+    id: `ingredient-${index}`,
+    name,
+    alreadyHave: false,
+  }));
+}
+
+// Get pantry items from the week's planned meals
+const initialPantryItems: PantryCheckItem[] = extractIngredientsFromMeals(initialWeekPlan.meals);
 
 const currentUser: HouseholdMember = {
   id: "hm-001",
