@@ -3,6 +3,20 @@
 import { NotificationCard } from "@/components/notifications/NotificationCard";
 import type { Notification } from "@/types/notifications";
 
+// Long message test notification (Feature #196)
+const longMessageNotification: Notification = {
+  id: "long-1",
+  type: "daily-brief",
+  message:
+    "Good morning! Today is going to be a big day. Your meal plan includes Chicken Stir Fry for dinner tonight, Katie is cooking, and don't forget to thaw the salmon for tomorrow. Also, we noticed you're running low on eggs, milk, and bread - consider adding those to your grocery list before heading to the store. The weather looks great for grilling this weekend!",
+  timestamp: new Date().toISOString(),
+  status: "pending",
+  actions: [
+    { id: "view", label: "View Plan", isPrimary: true },
+    { id: "got-it", label: "Got it", isPrimary: false },
+  ],
+};
+
 // Sample notifications for ALL 7 types to verify icons
 const allNotificationTypes: Notification[] = [
   {
@@ -122,6 +136,23 @@ export default function TestNotificationTypesPage() {
             </div>
           ))}
         </div>
+      </div>
+
+      {/* Long Message Test (Feature #196) */}
+      <div className="p-4 border-b" style={{ borderColor: "var(--color-border)" }}>
+        <h2 className="font-semibold text-sm mb-3" style={{ color: "var(--color-text)" }}>
+          Long Message Truncation (Feature #196):
+        </h2>
+        <div className="text-xs mb-1 font-mono" style={{ color: "var(--color-muted)" }}>
+          Message length: {longMessageNotification.message.length} chars (truncates at 120)
+        </div>
+        <NotificationCard
+          notification={longMessageNotification}
+          onAction={(actionId) => console.log(`Action: ${actionId} on long message`)}
+        />
+        <p className="text-xs mt-2" style={{ color: "var(--color-muted)" }}>
+          Click &ldquo;Show more&rdquo; to expand, &ldquo;Show less&rdquo; to collapse
+        </p>
       </div>
 
       {/* All 7 Notification Types */}

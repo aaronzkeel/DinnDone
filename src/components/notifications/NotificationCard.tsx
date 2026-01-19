@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import {
   Sun,
   Clock,
@@ -59,7 +60,11 @@ function formatTime(timestamp: string): string {
   return `${diffDays}d ago`;
 }
 
+// Threshold for truncation (characters)
+const MESSAGE_TRUNCATE_LENGTH = 120;
+
 export function NotificationCard({ notification, onAction }: NotificationCardProps) {
+  const [isExpanded, setIsExpanded] = useState(false);
   const Icon = typeIcons[notification.type];
   const colorClass = typeColors[notification.type];
   const typeLabel = typeLabels[notification.type];
@@ -67,6 +72,13 @@ export function NotificationCard({ notification, onAction }: NotificationCardPro
 
   const isPending = notification.status === "pending";
   const isDone = notification.status === "done";
+
+  // Check if message needs truncation
+  const messageNeedsTruncation = notification.message.length > MESSAGE_TRUNCATE_LENGTH;
+  const displayMessage =
+    messageNeedsTruncation && !isExpanded
+      ? `${notification.message.slice(0, MESSAGE_TRUNCATE_LENGTH).trim()}...`
+      : notification.message;
 
   // Build accessible label for screen readers
   const ariaLabel = `${typeLabel}: ${notification.message}. ${timeText}${
@@ -100,16 +112,30 @@ export function NotificationCard({ notification, onAction }: NotificationCardPro
         {/* Content */}
         <div className="flex-1 min-w-0">
           <div className="flex items-start justify-between gap-2">
-            <p
-              className={`text-sm leading-relaxed ${
-                isPending
-                  ? "text-stone-800 dark:text-stone-100"
-                  : "text-stone-500 dark:text-stone-400"
-              }`}
-              style={isPending ? { color: "var(--color-text)" } : { color: "var(--color-muted)" }}
-            >
-              {notification.message}
-            </p>
+            <div>
+              <p
+                className={`text-sm leading-relaxed ${
+                  isPending
+                    ? "text-stone-800 dark:text-stone-100"
+                    : "text-stone-500 dark:text-stone-400"
+                }`}
+                style={isPending ? { color: "var(--color-text)" } : { color: "var(--color-muted)" }}
+              >
+                {displayMessage}
+              </p>
+              {messageNeedsTruncation && (
+                <button
+                  type="button"
+                  onClick={() => setIsExpanded(!isExpanded)}
+                  className="text-xs font-medium mt-1 hover:underline"
+                  style={{ color: "var(--color-primary)" }}
+                  aria-expanded={isExpanded}
+                  aria-label={isExpanded ? "Show less" : "Show more"}
+                >
+                  {isExpanded ? "Show less" : "Show more"}
+                </button>
+              )}
+            </div>
           </div>
 
           <div className="flex items-center gap-2 mt-2">
