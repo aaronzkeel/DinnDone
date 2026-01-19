@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { useTheme } from "./ThemeProvider";
 
 /**
@@ -11,6 +12,11 @@ import { useTheme } from "./ThemeProvider";
  */
 export function DarkModeToggle() {
   const { theme, setTheme, resolvedTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const cycleTheme = () => {
     // Cycle: light -> dark -> system -> light
@@ -94,6 +100,7 @@ export function DarkModeToggle() {
   const getLabel = () => {
     if (theme === "light") return "Light mode";
     if (theme === "dark") return "Dark mode";
+    if (!mounted) return "System";
     return `System (${resolvedTheme})`;
   };
 

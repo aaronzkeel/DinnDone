@@ -11,7 +11,7 @@
 -- ============================================================================
 
 INSERT INTO features (id, priority, category, name, description, steps, passes, in_progress, dependencies) VALUES
-(0, 0, 'foundation', 'Next.js project initializes without errors', 'Project scaffolding with Next.js App Router, TypeScript, and Tailwind CSS', '["Step 1: Run npm install", "Step 2: Run npm run dev", "Step 3: Verify app loads at localhost:3000 without console errors"]', 0, 0, '[]'),
+(0, 0, 'foundation', 'Next.js project initializes without errors', 'Project scaffolding with Next.js App Router, TypeScript, and Tailwind CSS', '["Step 1: Run npm install", "Step 2: Run npm run dev", "Step 3: Verify app loads at localhost:3002 without console errors"]', 0, 0, '[]'),
 
 (1, 1, 'foundation', 'Tailwind configured with Harvest Hug + Brick palette', 'Custom color tokens from DESIGN-TOKENS.md are available in Tailwind', '["Step 1: Check tailwind.config.js has custom colors", "Step 2: Verify primary (#E2A93B), secondary (#4F6E44), danger (#B94A34) are defined", "Step 3: Test colors render correctly in a component"]', 0, 0, '[0]'),
 
