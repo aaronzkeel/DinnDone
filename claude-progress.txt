@@ -1,5 +1,45 @@
 # Dinner Bell - Claude Progress Notes
 
+## Session: 2026-01-19 (Coding Agent - Features #39, #174, #29)
+
+### Features Completed This Session:
+
+#### Feature #39: User can add new store
+- ✅ Step 1: Open store management - Clicked "Edit" button, modal opened
+- ✅ Step 2: Add a new store name - Added "Whole Foods" via input form + Enter
+- ✅ Step 3: Verify new store appears in filters and sections - Confirmed in both filter pills and store management list
+- Screenshots: feature-39-*.png
+- Status: PASSING
+
+#### Feature #174: Fandom Voice selector available
+- ✅ Step 1: Open notification settings - Test page shows NotificationSettings
+- ✅ Step 2: Find Fandom Voice selector - Found in "FANDOM VOICE (OPTIONAL)" section
+- ✅ Step 3: Verify options like Default, Samwise, Nacho Libre - All 6 options work
+- Screenshots: feature-174-*.png
+- Status: PASSING
+
+#### Feature #29: Checked items move to bottom
+- ✅ Step 1: Check off an item - Checked "Grapes" successfully
+- ✅ Step 2: Verify item moves to Checked section at bottom - "Done (1)" section appeared
+- ✅ Step 3: Verify item has strikethrough or dimmed styling - Confirmed:
+  - opacity-60 for entire item
+  - line-through for item name
+  - Muted text colors
+  - Edit buttons disabled
+- Screenshots: feature-29-*.png
+- Status: PASSING
+
+### Files Created:
+- src/app/test-notification-settings/page.tsx (test page for notification settings)
+
+### Current Progress: 65/200 features passing (32.5%)
+
+### Next Steps:
+- Continue with next available feature
+- Run regression tests periodically
+
+---
+
 ## Session: 2026-01-18 (Coding Agent - Feature #191)
 
 ### Feature:
