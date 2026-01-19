@@ -3500,3 +3500,66 @@ Updated `src/app/test-approve-plan/page.tsx` to extract ingredients from the wee
 
 ### Status: STILL PASSING - No regression found
 [Testing] Feature #4 verified - still passing
+
+## Session: 2026-01-18 22:56 (Regression Test - Feature #139)
+
+### Feature Tested:
+- Feature #139: Empty state when no plan exists
+- Category: error-handling
+- Description: Helpful prompt to generate plan
+
+### Verification Results:
+- ✅ Step 1: View week with no plan - Page shows 'Feb 5 - Feb 11' week selector with Draft status
+- ✅ Step 2: Verify empty state message - Shows 'No meals planned yet' heading with descriptive text
+- ✅ Step 3: Verify Generate plan button is prominent - Large amber 'Generate plan' button with sparkle icon
+- ✅ No console errors
+- ✅ Screenshot: regression-test-feature-139-empty-state.png
+
+### Status: STILL PASSING - No regression found
+[Testing] Feature #139 verified - still passing
+
+## Session: 2026-01-18 (Coding Agent - Feature #62)
+
+### Feature:
+- Feature #62: Filter pills scroll horizontally if needed
+- Category: style
+- Description: Many stores don't break layout
+- Dependencies: Feature #21 (Store filter pills display)
+
+### What was implemented:
+Updated `src/components/grocery-list/GroceryList.tsx` filter pills container:
+
+1. **Container changes**:
+   - Changed `flex flex-wrap gap-2` to `flex gap-2 overflow-x-auto scrollbar-hide pb-1 -mx-4 px-4`
+   - Added inline styles for cross-browser scrollbar hiding: `scrollbarWidth: 'none', msOverflowStyle: 'none'`
+   - Extended container beyond padding with `-mx-4 px-4` for edge-to-edge scrolling
+
+2. **Button changes**:
+   - Added `whitespace-nowrap` to prevent text wrapping
+   - Added `flex-shrink-0` to prevent pills from shrinking
+
+### Verification Results:
+- ✅ Step 1: Add 6+ stores - Added 7 stores (Meijer, Costco, Aldi, Trader Joe's, Kroger, Whole Foods, Target)
+- ✅ Step 2: Verify filter pills scroll horizontally:
+  - Container scrollWidth: 801px, clientWidth: 375px (on mobile)
+  - isScrollable: true
+  - Can scroll to reveal hidden stores (Kroger, Whole Foods, Target, Unassigned)
+- ✅ Step 3: Verify no layout break:
+  - hasHorizontalOverflow: false on body
+  - Pills stay on single row within scrollable container
+  - Page itself does not have horizontal scroll
+  - Tapping buttons works correctly after scrolling
+- ✅ No console errors
+- ✅ Data persists after refresh
+
+### Screenshots:
+- feature-62-before-change.png (original layout with 4 stores)
+- feature-62-with-7-stores.png (desktop view with 7 stores)
+- feature-62-mobile-7-stores.png (mobile view showing horizontal scroll)
+- feature-62-mobile-scrolled-right.png (scrolled to show hidden stores)
+- feature-62-target-filter-selected.png (Target filter selected and working)
+- feature-62-after-refresh.png (layout persists after refresh)
+
+### Status: Feature #62 marked as PASSING
+
+### Current Progress: 91/200 features passing (45.5%)
