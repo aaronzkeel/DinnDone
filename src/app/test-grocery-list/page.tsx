@@ -12,6 +12,9 @@ const testStores: GroceryStore[] = [
   { id: 'store-costco', name: 'Costco' },
   { id: 'store-aldi', name: 'Aldi' },
   { id: 'store-trader-joes', name: "Trader Joe's" },
+  { id: 'store-target', name: 'Target' },
+  { id: 'store-whole-foods', name: 'Whole Foods Market' },
+  { id: 'store-kroger', name: 'Kroger' },
 ]
 
 const testItems: GroceryItem[] = [
@@ -42,6 +45,10 @@ const testItems: GroceryItem[] = [
     isChecked: false,
     organicRequired: true,
     storeId: 'store-meijer',
+    mealSources: [
+      { mealId: 'meal-1', mealName: 'Chicken Stir Fry', date: '2026-01-19' },
+      { mealId: 'meal-2', mealName: 'Grilled Chicken Salad', date: '2026-01-21' },
+    ],
   },
   // Costco items
   {
@@ -97,12 +104,12 @@ export default function TestGroceryListPage() {
   const [stores, setStores] = useState<GroceryStore[]>(testStores)
   const [items, setItems] = useState<GroceryItem[]>(testItems)
 
-  const handleAddItem = (name: string, options?: { storeId?: string }) => {
+  const handleAddItem = (name: string, options?: { storeId?: string; quantity?: string }) => {
     const newItem: GroceryItem = {
       id: `gi-${Date.now()}`,
       name,
       category: 'Other',
-      quantity: '1',
+      quantity: options?.quantity || '1',
       isChecked: false,
       organicRequired: false,
       storeId: options?.storeId,
