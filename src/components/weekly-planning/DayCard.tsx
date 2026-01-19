@@ -44,9 +44,15 @@ export function DayCard({
 
   const { day, num } = formatDate(meal.date);
 
+  // Build aria-label for screen readers
+  const ariaLabel = meal.isUnplanned
+    ? `${meal.dayOfWeek}, no meal planned`
+    : `${meal.dayOfWeek}, ${meal.mealName}${isToday ? ", today" : ""}${isPast ? ", completed" : ""}`;
+
   return (
     <button
       onClick={onTap}
+      aria-label={ariaLabel}
       className={`
         w-full text-left p-4 md:p-5 rounded-xl transition-colors
         ${
