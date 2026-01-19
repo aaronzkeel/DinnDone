@@ -1,5 +1,52 @@
 # Dinner Bell - Claude Progress Notes
 
+## Session: 2026-01-19 (Coding Agent - Feature #187)
+
+### Feature:
+- Feature #187: Active Crisis Day Mute dims notifications
+- Category: style
+- Description: Visual indicator mute is active
+- Dependencies: Feature #165 (Crisis Day Mute can be enabled)
+
+### What was implemented:
+Updated `src/components/notifications/NotificationsList.tsx` to add dimming effect when Crisis Day Mute is active:
+
+1. **Dimming Effect:**
+   - Added conditional `opacity-40` class when `crisisDayMute.isActive` is true
+   - Notifications list visually dims to 40% opacity
+   - Added `pointer-events-none` to disable interaction during mute
+
+2. **Accessibility:**
+   - Added `aria-hidden={crisisDayMute.isActive}` for screen readers
+   - Smooth transition animation (300ms) for visual polish
+
+3. **Visual Indicators of Mute Status:**
+   - Crisis Day Mute banner shows "Crisis Day Mute active" with time remaining
+   - Mute toggle button shows active/pressed state
+   - Dimmed notifications serve as additional visual indicator
+
+### Verification Results:
+- ✅ Step 1: Enable Crisis Day Mute - Clicked mute button, banner appeared
+- ✅ Step 2: Verify notifications list appears dimmed - List has 40% opacity, clearly faded
+- ✅ Step 3: Verify clear indicator mute is on - Banner, button state, and dimming all indicate active
+- ✅ Disable mute restores full opacity correctly
+- ✅ Mobile responsive (tested at 375x812 viewport)
+- ✅ Zero console errors
+
+### Screenshots:
+- feature-187-step1-initial-state.png (mute OFF, full opacity)
+- feature-187-step1-mute-active-current.png (before fix - no dimming)
+- feature-187-step2-notifications-dimmed.png (after fix - dimmed notifications)
+- feature-187-step3-mute-disabled.png (mute OFF again, full opacity restored)
+- feature-187-mobile-viewport.png (mobile responsive)
+- feature-187-final-verification.png (final state)
+
+### Status: Feature #187 marked as PASSING
+
+### Current Progress: 161/200 features passing (80.5%)
+
+---
+
 ## Session: 2026-01-19 (Coding Agent - Feature #144)
 
 ### Feature:
@@ -5927,3 +5974,41 @@ Feature was ALREADY IMPLEMENTED. No code changes needed.
 ### Status: STILL PASSING - No regression found
 [Testing] Feature #35 verified - still passing
 
+
+
+## Session: 2026-01-19 (Regression Test - Feature #18)
+
+### Feature Tested:
+- Feature #18: Service worker registered
+- Category: functional
+- Description: Basic service worker for PWA functionality
+- Dependencies: Feature #17
+
+### Verification Results:
+- ✅ Step 1: Load app in production mode
+  - Loaded app at http://localhost:3000
+  - Console shows: "[PWA] Service Worker registered successfully: http://localhost:3000/"
+
+- ✅ Step 2: Check DevTools > Application > Service Workers
+  - Used browser evaluation to query navigator.serviceWorker.getRegistrations()
+  - Result confirmed service worker is registered
+
+- ✅ Step 3: Verify service worker is registered
+  - registered: true
+  - scope: http://localhost:3000/
+  - state: activated (fully operational)
+  - No waiting or installing workers (clean state)
+
+- ✅ Zero console errors
+
+### Implementation Details Verified:
+- /public/sw.js - Service worker file with caching, offline support, push notifications
+- /public/manifest.json - PWA manifest with app name, icons, colors
+- /src/components/ServiceWorkerRegistration.tsx - Client component that registers SW
+- ServiceWorkerRegistration included in /src/app/layout.tsx (app shell)
+
+### Screenshot:
+- regression-test-feature-18-service-worker.png
+
+### Status: STILL PASSING - No regression found
+[Testing] Feature #18 verified - still passing
