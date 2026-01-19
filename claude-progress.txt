@@ -165,7 +165,33 @@ Updated `src/components/weekly-planning/WeekPlanView.tsx`:
 
 ---
 
-### Current Progress: 109/200 features passing (54.5%)
+### Current Progress: 112/200 features passing (56.0%)
+
+---
+
+## Session: 2026-01-19 (Coding Agent - Features #143, #145, #152)
+
+### Features Verified:
+
+#### Feature #143: Past days are dimmed
+- Added `isPast` prop to DayCard with `opacity-50` styling
+- Updated WeekPlanView to pass `isPast={meal.date < today}`
+- Added previous week data to test page for verification
+- All past day cards have 50% opacity
+- **Status:** PASSING
+
+#### Feature #145: Day cards have proper ARIA
+- Added aria-label to DayCard button: "{day}, {meal name}{, today|, completed}"
+- Unplanned meals: "{day}, no meal planned"
+- Screen readers can announce full context
+- **Status:** PASSING
+
+#### Feature #152: Effort tier shows on day card (already implemented)
+- "Super Easy" = 1 filled dot (●○○)
+- "Medium" = 2 filled dots (●●○)
+- "More Prep" = 3 filled dots (●●●)
+- Gold/primary color for filled, gray for empty
+- **Status:** PASSING
 
 ---
 
