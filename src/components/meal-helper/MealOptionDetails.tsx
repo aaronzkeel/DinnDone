@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowLeft, Clock, ChefHat, Sparkles } from "lucide-react";
+import { ArrowLeft, Clock, ChefHat, Sparkles, Droplets } from "lucide-react";
 import type { PlannedMealSummary, HouseholdMember } from "@/types/meal-helper";
 
 export interface MealOptionDetailsProps {
@@ -124,7 +124,10 @@ export function MealOptionDetails({
               <span style={{ color: "var(--color-border)" }} aria-hidden="true">
                 |
               </span>
-              <span>{cleanupLabels[meal.cleanupRating]}</span>
+              <span className="inline-flex items-center gap-1.5">
+                <Droplets size={14} />
+                {cleanupLabels[meal.cleanupRating]}
+              </span>
               {cook && (
                 <>
                   <span
