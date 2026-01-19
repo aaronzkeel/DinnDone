@@ -27,6 +27,8 @@ export interface EditDayModalProps {
   alternatives: MealAlternative[];
   /** All household members */
   householdMembers: HouseholdMember[];
+  /** Whether the current user can change the cook (admin only) */
+  canChangeCook?: boolean;
   /** Called when user changes the cook */
   onChangeCook?: (newCookId: string) => void;
   /** Called when user toggles an eater */
@@ -45,6 +47,7 @@ export function EditDayModal({
   currentMeal,
   alternatives,
   householdMembers,
+  canChangeCook = true,
   onChangeCook,
   onToggleEater,
   onSelectAlternative,
@@ -218,13 +221,17 @@ export function EditDayModal({
               style={{ color: "var(--color-muted)" }}
             >
               Change Cook
+              {!canChangeCook && (
+                <span className="ml-2 text-xs font-normal">(Admin only)</span>
+              )}
             </h3>
             <div className="flex flex-wrap gap-2">
               {householdMembers.map((member) => (
                 <button
                   key={member.id}
-                  onClick={() => onChangeCook?.(member.id)}
-                  className="px-4 py-2 rounded-xl text-sm font-medium transition-colors"
+                  onClick={() => canChangeCook && onChangeCook?.(member.id)}
+                  disabled={!canChangeCook}
+                  className="px-4 py-2 rounded-xl text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   style={{
                     backgroundColor:
                       member.id === currentMeal.assignedCookId
