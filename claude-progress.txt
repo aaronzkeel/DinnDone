@@ -1,5 +1,48 @@
 # Dinner Bell - Claude Progress Notes
 
+## Session: 2026-01-18 (Coding Agent - Feature #174)
+
+### Feature:
+- Feature #174: Fandom Voice selector available
+- Category: functional
+- Description: Can choose notification personality
+- Dependencies: Feature #169 (Notification settings accessible)
+
+### Verification Results:
+- ✅ Step 1: Open notification settings - Navigated to /test-notification-settings
+- ✅ Step 2: Find Fandom Voice selector - Found section with:
+  - Header: "FANDOM VOICE (OPTIONAL)"
+  - Label: "Notification Voice"
+  - Description: "Add personality to your nudges"
+  - Sparkles icon decoration
+- ✅ Step 3: Verify options like Default, Samwise, Nacho Libre - All 6 options available:
+  - Default
+  - Samwise (LOTR)
+  - Nacho Libre
+  - Harry Potter
+  - Star Wars
+  - The Office
+- ✅ Selection changes correctly (tested Default → Samwise → Nacho Libre)
+- ✅ No console errors
+- ✅ UI matches Harvest Hug design palette
+
+### Implementation Details:
+The feature was already fully implemented in:
+- `src/components/notifications/NotificationSettings.tsx` (lines 52-59 for voice options, lines 282-333 for UI)
+- `src/types/notifications.ts` (FandomVoice type definition)
+- `src/app/notifications/page.tsx` (handleChangeFandomVoice handler)
+
+### Screenshots:
+- feature-174-fandom-voice-selector.png (full page showing section)
+- feature-174-fandom-voice-dropdown-open.png (dropdown focused)
+- feature-174-samwise-selected.png (Samwise selection)
+- feature-174-nacho-libre-selected.png (Nacho Libre selection)
+
+### Status: Feature #174 marked as PASSING
+- Current progress: 63/200 features passing (31.5%)
+
+---
+
 ## Session: 2026-01-18 22:30 (Re-verification - Feature #149)
 
 ### Feature:
@@ -2668,3 +2711,42 @@ The file was further enhanced with a 2-column grid layout for meal cards:
 - feature-149-tablet-2col-grid.png (2-column grid layout on tablet)
 
 ### Progress: 61/200 features passing (30.5%)
+
+## Session: 2026-01-18 22:25 (Regression Test - Feature #110)
+
+### Feature Tested:
+- Feature #110: Weekly Planning page renders
+
+### Verification Results:
+- ✅ Step 1: Navigate to Plan tab - Tested via /test-plan-status which renders the WeeklyPlanningView component
+- ✅ Step 2: Verify page loads without errors - No console errors
+- ✅ Step 3: Verify WeeklyPlanningView component renders:
+  - WeekSelector with multiple weeks (Last Week, This Week, Next Week, Week After Next)
+  - Status badge showing plan status (In Progress, Approved, etc.)
+  - DayCards for all 7 days with meal details
+  - Each card shows: day, date, meal name, difficulty badge, cook time, assigned cook, servings
+  - Pantry Audit button
+  - Bottom navigation bar
+  - 2-column responsive grid layout on tablet
+- ✅ Week switching works - clicking Next Week updates selected week and status badge
+- ✅ Screenshots: regression-test-feature-110-*.png
+
+### Status: STILL PASSING - No regression found
+[Testing] Feature #110 verified - still passing
+
+
+## Session: 2026-01-18 22:31 (Regression Test - Feature #69)
+
+### Feature Tested:
+- Feature #69: This works button confirms meal
+
+### Verification Results:
+- ✅ Step 1: View Tonight's Plan card - Card displays with Chicken Stir Fry
+- ✅ Step 2: Tap This works (green button) - Button clicked successfully
+- ✅ Step 3: Verify MealOptionDetails screen opens - All elements present
+- ✅ No console errors
+- ✅ Back navigation works correctly
+- ✅ Screenshots: regression-test-feature-69-*.png
+
+### Status: STILL PASSING - No regression found
+[Testing] Feature #69 verified - still passing
