@@ -7277,3 +7277,82 @@ the test page to use those existing props.
 ### Status: STILL PASSING - No regression found
 
 [Testing] Feature #152 verified - still passing
+
+## Session: 2026-01-19 (Regression Test - Feature #85)
+
+### Feature Tested:
+- Feature #85: User can mark ingredients as available
+- Category: functional
+- Description: Checkboxes for each ingredient
+- Dependencies: Feature #84
+
+### Verification Results:
+
+**Step 1: View ingredient check panel** ✅
+- Navigated to /test-ingredients-check
+- IngredientsCheckPanel component displayed correctly
+- Shows 7 ingredients for 'Chicken Stir Fry'
+- Initial state: 0/7 checked, '7 missing' badge
+
+**Step 2: Check off ingredients you have** ✅
+- Clicked each ingredient checkbox
+- Checkboxes toggle to checked state (green check icon)
+- Checked ingredients show strikethrough styling
+- Counter updates live: 1/7, 2/7, ... up to 7/7
+- 'missing' badge decreases as items are checked
+- 'Yes, all checked' button enables when all checked
+
+**Step 3: Verify checked state saves** ✅
+- Toggled soy sauce back to unchecked
+- Item reverts to red styling with 'needed' label
+- Counter updates to 6/7 checked, '1 missing'
+- 'Yes, all checked' button disables when not all checked
+- State management works correctly (React useState)
+
+### Screenshots:
+- regression-test-feature-85-all-checked.png (all 7 ingredients checked)
+- regression-test-feature-85-toggle-unchecked.png (one item toggled back to missing)
+
+### Console Errors: None
+
+### Status: STILL PASSING - No regression found
+[Testing] Feature #85 verified - still passing
+
+
+## Session: 2026-01-19 (Regression Testing - Agent B)
+
+### Context:
+- Current Progress: 199/200 features passing (99.5%)
+- 1 feature currently in-progress by another agent
+- Performed regression testing on passing features
+
+### Features Regression Tested:
+
+#### Feature #77: User can select meal to swap
+- **Test Page:** /test-week-swap-persist
+- **Verification:** WeekSwapList displayed, clicked Tuesday meal, swap executed
+- **Screenshot:** regression-test-feature-77-swap-selection.png
+- **Status:** STILL PASSING
+
+#### Feature #151: Viewer can toggle their own eating status
+- **Test Page:** /test-viewer-permissions
+- **Verification:** Sam (You) enabled, others disabled, count toggles 3↔2
+- **Screenshot:** regression-test-feature-151-viewer-eating-toggle.png
+- **Status:** STILL PASSING
+
+#### Feature #150: Can create plan multiple weeks ahead
+- **Test Page:** /test-week-selector
+- **Verification:** Selected Feb 9-15, status shows draft, future weeks accessible
+- **Screenshot:** regression-test-feature-150-future-weeks.png
+- **Status:** STILL PASSING
+
+#### Feature #28: User can check off item
+- **Test Page:** /test-grocery-list
+- **Verification:** Checked Grapes, moved to Done section, Uncheck button available
+- **Screenshots:** regression-test-feature-28-checked-item.png, regression-test-feature-28-done-section.png
+- **Status:** STILL PASSING
+
+### Summary:
+4 regression tests passed. No regressions detected.
+Project at 199/200 features (99.5% complete).
+
