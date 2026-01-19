@@ -110,6 +110,8 @@ export function GroceryList({
   onRenameStore,
   onDeleteStore,
   onClearChecked,
+  recentItems,
+  onReAddItem,
 }: GroceryListProps) {
   const [activeStoreFilter, setActiveStoreFilter] = useState<string>('all')
   const [isManagingStores, setIsManagingStores] = useState(false)
@@ -750,6 +752,33 @@ export function GroceryList({
                 })}
               </div>
             )}
+          </div>
+        )}
+
+        {/* Recent Items - Feature #63 */}
+        {recentItems && recentItems.length > 0 && (
+          <div className="pt-3 pb-4 px-4 border-t" style={{ borderColor: 'var(--color-border)' }}>
+            <div className="text-xs font-semibold uppercase tracking-wide mb-2" style={{ color: 'var(--color-muted)' }}>
+              Recently Cleared
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {recentItems.slice(0, 8).map((item, index) => (
+                <button
+                  key={`${item.name}-${index}`}
+                  type="button"
+                  onClick={() => onReAddItem?.(item.name)}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium transition-colors"
+                  style={{
+                    backgroundColor: 'var(--color-bg)',
+                    color: 'var(--color-text)',
+                    border: '1px solid var(--color-border)',
+                  }}
+                >
+                  <Plus size={14} />
+                  {item.name}
+                </button>
+              ))}
+            </div>
           </div>
         )}
       </div>

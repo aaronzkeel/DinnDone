@@ -91,4 +91,9 @@ export interface GroceryListProps {
 
   /** Called when user clears all checked items */
   onClearChecked?: () => void
+
+  /** Recently cleared items for quick re-add (Feature #63) */
+  recentItems?: Array<{ name: string; clearedAt: string }>
+  /** Called when user re-adds a recent item */
+  onReAddItem?: (name: string) => void
 }

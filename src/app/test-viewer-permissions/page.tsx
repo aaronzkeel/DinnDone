@@ -166,6 +166,8 @@ export default function TestViewerPermissionsPage() {
           currentMeal={currentMeal}
           alternatives={mockAlternatives}
           householdMembers={mockHouseholdMembers}
+          currentUserId={currentUser.id}
+          isAdmin={isAdmin}
           canChangeCook={isAdmin}
           onChangeCook={handleChangeCook}
           onToggleEater={handleToggleEater}

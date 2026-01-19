@@ -6520,3 +6520,71 @@ The recipe library includes meals categorized by main ingredient:
 ### Status: STILL PASSING - No regression found
 [Testing] Feature #171 verified - still passing
 
+
+## Session: 2026-01-19 (Regression Test - Feature #53)
+
+### Feature Tested:
+- Feature #53: Grocery list works offline
+- Category: functional
+- Description: PWA caches list for offline viewing
+- Dependencies: Feature #18, #20
+
+### Verification Results:
+- Step 1: Load grocery list while online - PASSED
+  - Navigated to /test-grocery-list
+  - 8 items displayed (Meijer: 3, Costco: 2, Aldi: 2, Trader Joes: 1)
+  - Service worker registered successfully
+  - Status: Synced
+
+- Step 2: Go offline - PASSED
+  - Simulated offline mode via navigator.onLine = false
+  - Verified cache contains grocery list pages and JS chunks
+
+- Step 3: Verify list still displays - PASSED
+  - All 8 items remain visible after offline simulation
+  - Store groupings intact
+  - All UI controls accessible
+
+### Screenshots:
+- regression-test-feature-53-online-state.png
+- regression-test-feature-53-simulated-offline.png
+
+### Console Errors: None
+
+### Status: STILL PASSING - No regression found
+[Testing] Feature #53 verified - still passing
+
+## Session: 2026-01-19 (Regression Test - Feature #129)
+
+### Feature Tested:
+- Feature #129: User can confirm items on hand
+- Category: functional
+- Description: Checking items marks them as available
+- Dependencies: Feature #128
+
+### Verification Results:
+- ✅ Step 1: View pantry audit
+  - Navigated to /test-approve-plan and clicked 'Pantry Audit' button
+  - Pantry Audit view opened with 24 items to check
+  - Progress indicator showing '0 of 24'
+
+- ✅ Step 2: Check off items you have
+  - Clicked 'Olive oil' - checked with checkmark, progress: 1 of 24
+  - Clicked 'Cheese' - checked with checkmark, progress: 2 of 24
+  - Clicked 'Rice' - checked with checkmark, progress: 3 of 24
+
+- ✅ Step 3: Verify checked state
+  - Checked items display with green/sage background and checkmark icon
+  - Unchecked items display with white background and empty checkbox
+  - Progress bar visually updates
+
+- ✅ Toggle works both ways (uncheck Cheese: 3 → 2 of 24)
+- ✅ Zero console errors
+
+### Screenshots:
+- regression-test-feature-129-pantry-audit.png
+- regression-test-feature-129-checked-items.png
+
+### Status: STILL PASSING - No regression found
+[Testing] Feature #129 verified - still passing
+

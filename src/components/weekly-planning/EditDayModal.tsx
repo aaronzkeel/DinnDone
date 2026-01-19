@@ -27,6 +27,10 @@ export interface EditDayModalProps {
   alternatives: MealAlternative[];
   /** All household members */
   householdMembers: HouseholdMember[];
+  /** Current user's ID (for determining what they can toggle) */
+  currentUserId?: string;
+  /** Whether the current user is an admin (can toggle anyone's eating status) */
+  isAdmin?: boolean;
   /** Whether the current user can change the cook (admin only) */
   canChangeCook?: boolean;
   /** Called when user changes the cook */
@@ -47,6 +51,8 @@ export function EditDayModal({
   currentMeal,
   alternatives,
   householdMembers,
+  currentUserId,
+  isAdmin = true,
   canChangeCook = true,
   onChangeCook,
   onToggleEater,
@@ -256,15 +262,21 @@ export function EditDayModal({
               style={{ color: "var(--color-muted)" }}
             >
               Who&apos;s Eating
+              {!isAdmin && (
+                <span className="ml-2 text-xs font-normal">(You can only change your own)</span>
+              )}
             </h3>
             <div className="flex flex-wrap gap-2">
               {householdMembers.map((member) => {
                 const isEating = currentMeal.eaterIds.includes(member.id);
+                // Viewers (non-admins) can only toggle their own eating status
+                const canToggle = isAdmin || member.id === currentUserId;
                 return (
                   <button
                     key={member.id}
-                    onClick={() => onToggleEater?.(member.id)}
-                    className="px-4 py-2 rounded-xl text-sm font-medium transition-colors"
+                    onClick={() => canToggle && onToggleEater?.(member.id)}
+                    disabled={!canToggle}
+                    className="px-4 py-2 rounded-xl text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     style={{
                       backgroundColor: isEating
                         ? "var(--color-secondary)"
@@ -273,6 +285,7 @@ export function EditDayModal({
                     }}
                   >
                     {member.name}
+                    {!isAdmin && member.id === currentUserId && " (You)"}
                   </button>
                 );
               })}
