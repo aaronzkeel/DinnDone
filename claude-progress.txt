@@ -1,5 +1,45 @@
 # Dinner Bell - Claude Progress Notes
 
+## Session: 2026-01-19 (Coding Agent - Feature #153)
+
+### Feature:
+- Feature #153: Plan generation shows loading state
+- Category: functional
+- Description: Indicator while AI is generating
+- Dependencies: Feature #132 (AI generates draft week plan)
+
+### What was verified:
+The feature was ALREADY IMPLEMENTED. No code changes needed.
+
+**Implementation Details in `src/app/test-generate-plan/page.tsx`:**
+1. Line 142: `const [isGenerating, setIsGenerating] = useState(false);` - state variable
+2. Line 197: `setIsGenerating(true);` - sets loading state when generation starts
+3. Lines 460-464: Loading UI with Loader2 spinner + "Generating plan..." text when `isGenerating` is true
+4. Line 226: `setIsGenerating(false);` - clears loading state when done
+5. Line 456-457: Button is disabled during generation
+
+### Verification Results:
+- ✅ Step 1: Click Generate plan - Clicked "Generate 7-Day Plan" button
+- ✅ Step 2: Verify loading spinner or skeleton shows:
+  - Loader2 icon (animated spinner) displayed
+  - Button text changed to "Generating plan..."
+  - Button becomes disabled (cannot be double-clicked)
+- ✅ Step 3: Verify completes when plan ready:
+  - Button returns to normal state with sparkles icon
+  - "Generated 7 meals!" success message appears
+  - Full meal plan displayed below
+
+### Screenshots:
+- feature-153-before-generate.png (initial state with enabled button)
+- feature-153-loading-state-verified.png (spinner + "Generating plan..." text)
+- feature-153-generation-complete.png (after successful generation)
+
+### Status: Feature #153 marked as PASSING
+- Zero console errors
+- Existing implementation verified working correctly
+
+### Current Progress: 113/200 features passing (56.5%)
+
 ## Session: 2026-01-19 03:25 (Regression Test - Feature #145)
 
 ### Feature Tested:
@@ -4528,3 +4568,58 @@ The feature was ALREADY IMPLEMENTED. No code changes needed.
 
 ### Status: STILL PASSING - No regression found
 [Testing] Feature #69 verified - still passing
+
+## Session: 2026-01-19 03:23 (Regression Test - Feature #159)
+
+### Feature Tested:
+- Feature #159: NotificationCard shows type icon
+- Category: functional
+- Description: Each notification type has distinct icon
+
+### Verification Results:
+- ✅ Step 1: View different notification types - All 7 types visible on test-notification-types page
+- ✅ Step 2: Verify each has unique icon - Each type renders distinct Lucide icon
+- ✅ Step 3: Verify icons match spec:
+  - daily-brief → Sun icon (yellow background)
+  - strategic-pivot → Clock icon (blue background)
+  - thaw-guardian → Snowflake icon (cyan background)
+  - weekly-plan-ready → Calendar icon (purple background)
+  - inventory-sos → AlertCircle icon (orange background)
+  - leftover-check → UtensilsCrossed icon (lime background)
+  - cook-reminder → ChefHat icon (amber background)
+
+### Note:
+- Hydration warning exists for timestamp formatting (unrelated to this feature)
+- This is expected behavior with dynamic timestamps in SSR
+
+### Screenshots:
+- regression-test-feature-159-notification-types-top.png
+- regression-test-feature-159-notification-types-bottom.png
+- regression-test-feature-159-full-page.png
+
+### Status: STILL PASSING - No regression found
+
+[Testing] Feature #159 verified - still passing
+
+## Session: 2026-01-19 (Regression Test - Feature #13)
+
+### Feature Tested:
+- Feature #13: Active tab shows highlight state
+- Category: style
+- Description: Current tab is visually distinguished from others
+
+### Verification Results:
+- ✅ Step 1: Navigate to Grocery List - Navigated to /grocery-list successfully
+- ✅ Step 2: Verify List tab has active styling - Active tab (List) shows green/teal icon and text
+- ✅ Step 3: Other tabs show inactive styling - Home, Plan, Alerts show muted gray styling
+- ✅ Verified styling switches correctly when navigating to Plan and Home tabs
+- ✅ Zero console errors
+- ✅ Accessibility tree correctly marks active links with [active] attribute
+
+### Screenshots:
+- regression-test-feature-13-list-tab-active.png (List tab highlighted)
+- regression-test-feature-13-plan-tab-active.png (Plan tab highlighted)
+- regression-test-feature-13-home-tab-active.png (Home tab highlighted)
+
+### Status: STILL PASSING - No regression found
+[Testing] Feature #13 verified - still passing
