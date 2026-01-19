@@ -162,7 +162,7 @@ export function GroceryListItem({
           flex items-center justify-center
           transition-all duration-150
         `}
-        aria-label={item.isChecked ? 'Uncheck item' : 'Check item'}
+        aria-label={item.isChecked ? `Uncheck ${item.name}` : `Check ${item.name}`}
       >
         <span className={`
           w-6 h-6 rounded-full border-2

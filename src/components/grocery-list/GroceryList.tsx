@@ -477,6 +477,58 @@ export function GroceryList({
           </div>
         )}
 
+        {/* Empty state for filtered store */}
+        {activeStoreFilter !== 'all' && activeByStore.length === 0 && checkedByStore.length === 0 && (
+          <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
+            <div className="w-16 h-16 rounded-full bg-stone-100 dark:bg-stone-800 flex items-center justify-center mb-4">
+              <Store size={32} className="text-stone-400 dark:text-stone-500" />
+            </div>
+            <p className="text-stone-500 dark:text-stone-400 font-medium">No items at this store</p>
+            <p className="text-stone-400 dark:text-stone-500 text-sm mt-1 mb-4">
+              Add items to {activeStoreFilter === 'unassigned' ? 'unassigned' : stores.find(s => s.id === activeStoreFilter)?.name || 'this store'}
+            </p>
+            {addingToStoreKey === 'filtered-empty' ? (
+              <form
+                className="flex gap-2 w-full max-w-xs"
+                onSubmit={(e) => {
+                  e.preventDefault()
+                  const { name, quantity } = parseItemInput(draftNewItemName)
+                  if (!name) return
+                  onAddItem?.(name, { storeId: activeStoreFilter === 'unassigned' ? undefined : activeStoreFilter, quantity })
+                  setDraftNewItemName('')
+                  setAddingToStoreKey(null)
+                }}
+              >
+                <input
+                  autoFocus
+                  value={draftNewItemName}
+                  onChange={(e) => setDraftNewItemName(e.target.value)}
+                  placeholder="Item name..."
+                  className="flex-1 h-11 px-4 rounded-xl bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 text-sm text-stone-800 dark:text-stone-100 placeholder:text-stone-400 dark:placeholder:text-stone-500 focus:outline-none focus:ring-2 focus:ring-yellow-400 dark:focus:ring-yellow-500"
+                />
+                <button
+                  type="submit"
+                  className="h-11 px-5 rounded-xl bg-yellow-500 dark:bg-yellow-600 text-white font-semibold hover:bg-yellow-600 dark:hover:bg-yellow-500 transition-colors"
+                >
+                  Add
+                </button>
+              </form>
+            ) : (
+              <button
+                type="button"
+                onClick={() => {
+                  setAddingToStoreKey('filtered-empty')
+                  setDraftNewItemName('')
+                }}
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-yellow-500 dark:bg-yellow-600 text-white font-semibold hover:bg-yellow-600 dark:hover:bg-yellow-500 transition-colors"
+              >
+                <Plus size={18} />
+                Add item
+              </button>
+            )}
+          </div>
+        )}
+
         {/* Empty state */}
         {activeItems.length === 0 && checkedItems.length === 0 && (
           <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
