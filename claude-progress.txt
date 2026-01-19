@@ -1,5 +1,53 @@
 # Dinner Bell - Claude Progress Notes
 
+## Session: 2026-01-19 (Coding Agent - Feature #75)
+
+### Feature:
+- Feature #75: Meal details shows cleanup rating
+- Category: functional
+- Description: Cleanup difficulty indicator (1-3)
+- Dependencies: Feature #69 (This works button confirms meal)
+
+### What was verified:
+Feature was ALREADY IMPLEMENTED. No code changes needed.
+
+**Implementation Details (MealOptionDetails.tsx):**
+- Lines 20-24: cleanupLabels mapping: low to Low cleanup, medium to Medium cleanup, high to High cleanup
+- Lines 127-130: Displays cleanup rating with Droplets icon visual indicator
+- CleanupRating type defined in types/meal-helper.ts: low, medium, or high
+
+### Verification Results:
+- Step 1: Open meal details - PASSED
+  - Navigated to /test-meal-details page
+  - MealOptionDetails component displays for Chicken Stir Fry
+
+- Step 2: Verify cleanup rating displays - PASSED
+  - Medium cleanup text clearly visible in the info row
+  - Cleanup rating shows alongside time estimates
+
+- Step 3: Verify visual indicator (dishes icon or similar) - PASSED
+  - Droplets icon displayed next to cleanup text
+  - Icon imported from lucide-react library
+  - Consistent styling with other info indicators (clock, chef hat)
+
+### Test Actions Performed:
+1. Navigated to /test-meal-details page
+2. Verified cleanup rating Medium cleanup displays in info row
+3. Verified Droplets icon appears as visual indicator
+4. Tested mobile viewport (375px) - cleanup rating still visible
+5. Checked console - zero errors
+
+### Screenshots:
+- feature-75-step1-meal-details-cleanup-rating.png (desktop with cleanup rating visible)
+- feature-75-mobile-cleanup-rating.png (mobile viewport at 375px)
+
+### Status: Feature #75 marked as PASSING
+- Zero console errors
+- Existing implementation verified working correctly
+- All three cleanup rating values (low/medium/high) properly mapped
+
+### Current Progress: 146/200 features passing (73.0%)
+
 ## Session: 2026-01-19 (Coding Agent - Feature #52)
 
 ### Feature:
@@ -5683,4 +5731,35 @@ Feature was ALREADY IMPLEMENTED. No code changes needed.
 
 ### Status: STILL PASSING - No regression found
 [Testing] Feature #114 verified - still passing
+
+
+## Session: 2026-01-19 (Regression Test - Feature #111)
+
+### Feature Tested:
+- Feature #111: Week selector displays current week
+- Category: functional
+- Description: WeekSelector shows current week dates
+- Dependencies: Feature #110
+
+### Verification Results:
+- ✅ Step 1: View Weekly Planning - Test page /test-approve-plan displayed week plan view
+- ✅ Step 2: Verify week selector shows date range:
+  - "Last Week" button (Mon 12-Sun 18)
+  - "This Week" button (Mon 19-Sun 25, highlighted/active by default)
+  - Navigation arrows for previous/next week
+  - "Add another week" button
+- ✅ Step 3: Verify current week is selected by default:
+  - "This Week" button shows [active] state on page load
+  - Day cards show Mon 19 through Sun 25
+  - Monday 19 marked as "today"
+  - Clicking "Last Week" switches to previous week (Mon 12-18)
+  - Clicking "This Week" returns to current week with active state
+- ✅ Zero console errors
+
+### Screenshots:
+- regression-test-feature-111-week-selector.png (initial state)
+- regression-test-feature-111-this-week-selected.png (after navigation test)
+
+### Status: STILL PASSING - No regression found
+[Testing] Feature #111 verified - still passing
 
