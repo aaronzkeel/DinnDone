@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { WeekPlanView, PantryAudit } from "@/components/weekly-planning";
 import type {
   HouseholdMember,
@@ -8,6 +8,28 @@ import type {
   WeekPlan,
   PantryCheckItem,
 } from "@/types/weekly-planning";
+
+// Helper to get current week dates (Monday to Sunday)
+function getCurrentWeekDates(): { weekStartDate: string; dates: string[] } {
+  const today = new Date();
+  const dayOfWeek = today.getDay();
+  // Adjust to get Monday (0 = Sunday, so Monday is 1)
+  const daysToMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
+  const monday = new Date(today);
+  monday.setDate(today.getDate() - daysToMonday);
+
+  const dates: string[] = [];
+  for (let i = 0; i < 7; i++) {
+    const date = new Date(monday);
+    date.setDate(monday.getDate() + i);
+    dates.push(date.toISOString().split("T")[0]);
+  }
+
+  return {
+    weekStartDate: dates[0],
+    dates,
+  };
+}
 
 // Sample data - full family for testing eater display
 const householdMembers: HouseholdMember[] = [
@@ -18,137 +40,134 @@ const householdMembers: HouseholdMember[] = [
   { id: "hm-005", name: "Elijah", isAdmin: false },
 ];
 
-const availableWeeks: WeekSummary[] = [
-  {
-    id: "wp-001",
-    weekStartDate: "2024-01-15",
-    label: "This Week",
-    status: "draft",
-  },
-];
+// Generate week plan with current week dates
+function createInitialWeekPlan(): WeekPlan {
+  const { weekStartDate, dates } = getCurrentWeekDates();
+  const dayNames = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
 
-const initialWeekPlan: WeekPlan = {
-  id: "wp-001",
-  weekStartDate: "2024-01-15",
-  status: "draft",
-  meals: [
-    {
-      id: "pm-001",
-      date: "2024-01-15",
-      dayOfWeek: "Monday",
-      mealName: "Sheet Pan Salmon & Asparagus",
-      effortTier: "super-easy",
-      prepTime: 10,
-      cookTime: 20,
-      cleanupRating: "low",
-      assignedCookId: "hm-001",
-      eaterIds: ["hm-001", "hm-002", "hm-003", "hm-004", "hm-005"],
-      servings: 5,
-      ingredients: ["Salmon fillets", "Asparagus", "Lemon", "Olive oil"],
-      isFlexMeal: false,
-      isUnplanned: false,
-    },
-    {
-      id: "pm-002",
-      date: "2024-01-16",
-      dayOfWeek: "Tuesday",
-      mealName: "Taco Tuesday",
-      effortTier: "super-easy",
-      prepTime: 10,
-      cookTime: 15,
-      cleanupRating: "medium",
-      assignedCookId: "hm-002",
-      eaterIds: ["hm-001", "hm-002", "hm-003", "hm-004"],
-      servings: 4,
-      ingredients: ["Ground turkey", "Taco seasoning", "Tortillas", "Cheese"],
-      isFlexMeal: true,
-      isUnplanned: false,
-    },
-    {
-      id: "pm-003",
-      date: "2024-01-17",
-      dayOfWeek: "Wednesday",
-      mealName: "Pasta Primavera",
-      effortTier: "middle",
-      prepTime: 15,
-      cookTime: 20,
-      cleanupRating: "medium",
-      assignedCookId: "hm-001",
-      eaterIds: ["hm-001", "hm-002", "hm-003"],
-      servings: 3,
-      ingredients: ["Pasta", "Vegetables", "Olive oil", "Parmesan"],
-      isFlexMeal: false,
-      isUnplanned: false,
-    },
-    {
-      id: "pm-004",
-      date: "2024-01-18",
-      dayOfWeek: "Thursday",
-      mealName: "Chicken Stir Fry",
-      effortTier: "middle",
-      prepTime: 20,
-      cookTime: 15,
-      cleanupRating: "medium",
-      assignedCookId: "hm-002",
-      eaterIds: ["hm-002", "hm-003", "hm-004", "hm-005"],
-      servings: 4,
-      ingredients: ["Chicken breast", "Broccoli", "Soy sauce", "Rice"],
-      isFlexMeal: true,
-      isUnplanned: false,
-    },
-    {
-      id: "pm-005",
-      date: "2024-01-19",
-      dayOfWeek: "Friday",
-      mealName: "Pizza Night",
-      effortTier: "super-easy",
-      prepTime: 5,
-      cookTime: 0,
-      cleanupRating: "low",
-      assignedCookId: "hm-001",
-      eaterIds: ["hm-001", "hm-002", "hm-003", "hm-004", "hm-005"],
-      servings: 5,
-      ingredients: ["Order from Luigi's"],
-      isFlexMeal: false,
-      isUnplanned: false,
-    },
-    {
-      id: "pm-006",
-      date: "2024-01-20",
-      dayOfWeek: "Saturday",
-      mealName: "Grilled Burgers",
-      effortTier: "middle",
-      prepTime: 15,
-      cookTime: 10,
-      cleanupRating: "medium",
-      assignedCookId: "hm-001",
-      eaterIds: ["hm-001", "hm-002"],
-      servings: 2,
-      ingredients: ["Ground beef", "Buns", "Cheese", "Lettuce", "Tomato"],
-      isFlexMeal: false,
-      isUnplanned: false,
-    },
-    {
-      id: "pm-007",
-      date: "2024-01-21",
-      dayOfWeek: "Sunday",
-      mealName: "Slow Cooker Pot Roast",
-      effortTier: "more-prep",
-      prepTime: 25,
-      cookTime: 480,
-      cleanupRating: "medium",
-      assignedCookId: "hm-002",
-      eaterIds: ["hm-002", "hm-003", "hm-004", "hm-005"],
-      servings: 4,
-      ingredients: ["Beef roast", "Potatoes", "Carrots", "Onion", "Broth"],
-      isFlexMeal: false,
-      isUnplanned: false,
-    },
-  ],
-};
+  return {
+    id: "wp-001",
+    weekStartDate,
+    status: "draft",
+    meals: [
+      {
+        id: "pm-001",
+        date: dates[0],
+        dayOfWeek: dayNames[0],
+        mealName: "Sheet Pan Salmon & Asparagus",
+        effortTier: "super-easy",
+        prepTime: 10,
+        cookTime: 20,
+        cleanupRating: "low",
+        assignedCookId: "hm-001",
+        eaterIds: ["hm-001", "hm-002", "hm-003", "hm-004", "hm-005"],
+        servings: 5,
+        ingredients: ["Salmon fillets", "Asparagus", "Lemon", "Olive oil"],
+        isFlexMeal: false,
+        isUnplanned: false,
+      },
+      {
+        id: "pm-002",
+        date: dates[1],
+        dayOfWeek: dayNames[1],
+        mealName: "Taco Tuesday",
+        effortTier: "super-easy",
+        prepTime: 10,
+        cookTime: 15,
+        cleanupRating: "medium",
+        assignedCookId: "hm-002",
+        eaterIds: ["hm-001", "hm-002", "hm-003", "hm-004"],
+        servings: 4,
+        ingredients: ["Ground turkey", "Taco seasoning", "Tortillas", "Cheese"],
+        isFlexMeal: true,
+        isUnplanned: false,
+      },
+      {
+        id: "pm-003",
+        date: dates[2],
+        dayOfWeek: dayNames[2],
+        mealName: "Pasta Primavera",
+        effortTier: "middle",
+        prepTime: 15,
+        cookTime: 20,
+        cleanupRating: "medium",
+        assignedCookId: "hm-001",
+        eaterIds: ["hm-001", "hm-002", "hm-003"],
+        servings: 3,
+        ingredients: ["Pasta", "Vegetables", "Olive oil", "Parmesan"],
+        isFlexMeal: false,
+        isUnplanned: false,
+      },
+      {
+        id: "pm-004",
+        date: dates[3],
+        dayOfWeek: dayNames[3],
+        mealName: "Chicken Stir Fry",
+        effortTier: "middle",
+        prepTime: 20,
+        cookTime: 15,
+        cleanupRating: "medium",
+        assignedCookId: "hm-002",
+        eaterIds: ["hm-002", "hm-003", "hm-004", "hm-005"],
+        servings: 4,
+        ingredients: ["Chicken breast", "Broccoli", "Soy sauce", "Rice"],
+        isFlexMeal: true,
+        isUnplanned: false,
+      },
+      {
+        id: "pm-005",
+        date: dates[4],
+        dayOfWeek: dayNames[4],
+        mealName: "Pizza Night",
+        effortTier: "super-easy",
+        prepTime: 5,
+        cookTime: 0,
+        cleanupRating: "low",
+        assignedCookId: "hm-001",
+        eaterIds: ["hm-001", "hm-002", "hm-003", "hm-004", "hm-005"],
+        servings: 5,
+        ingredients: ["Order from Luigi's"],
+        isFlexMeal: false,
+        isUnplanned: false,
+      },
+      {
+        id: "pm-006",
+        date: dates[5],
+        dayOfWeek: dayNames[5],
+        mealName: "Grilled Burgers",
+        effortTier: "middle",
+        prepTime: 15,
+        cookTime: 10,
+        cleanupRating: "medium",
+        assignedCookId: "hm-001",
+        eaterIds: ["hm-001", "hm-002"],
+        servings: 2,
+        ingredients: ["Ground beef", "Buns", "Cheese", "Lettuce", "Tomato"],
+        isFlexMeal: false,
+        isUnplanned: false,
+      },
+      {
+        id: "pm-007",
+        date: dates[6],
+        dayOfWeek: dayNames[6],
+        mealName: "Slow Cooker Pot Roast",
+        effortTier: "more-prep",
+        prepTime: 25,
+        cookTime: 480,
+        cleanupRating: "medium",
+        assignedCookId: "hm-002",
+        eaterIds: ["hm-002", "hm-003", "hm-004", "hm-005"],
+        servings: 4,
+        ingredients: ["Beef roast", "Potatoes", "Carrots", "Onion", "Broth"],
+        isFlexMeal: false,
+        isUnplanned: false,
+      },
+    ],
+  };
+}
 
 // Extract all unique ingredients from the week's meals
-function extractIngredientsFromMeals(meals: typeof initialWeekPlan.meals): PantryCheckItem[] {
+function extractIngredientsFromMeals(meals: WeekPlan["meals"]): PantryCheckItem[] {
   const ingredientSet = new Set<string>();
 
   meals.forEach(meal => {
@@ -168,12 +187,21 @@ function extractIngredientsFromMeals(meals: typeof initialWeekPlan.meals): Pantr
   }));
 }
 
-// Get pantry items from the week's planned meals
-const initialPantryItems: PantryCheckItem[] = extractIngredientsFromMeals(initialWeekPlan.meals);
-
 type ViewState = "week-plan" | "pantry-audit";
 
 export default function TestApprovePlanPage() {
+  // Use useMemo to create the week plan once (with current dates)
+  const initialWeekPlan = useMemo(() => createInitialWeekPlan(), []);
+  const initialPantryItems = useMemo(() => extractIngredientsFromMeals(initialWeekPlan.meals), [initialWeekPlan.meals]);
+
+  // Dynamic availableWeeks based on current dates
+  const availableWeeks: WeekSummary[] = useMemo(() => [{
+    id: "wp-001",
+    weekStartDate: initialWeekPlan.weekStartDate,
+    label: "This Week",
+    status: "draft" as const,
+  }], [initialWeekPlan.weekStartDate]);
+
   const [weekPlan, setWeekPlan] = useState<WeekPlan>(initialWeekPlan);
   const [view, setView] = useState<ViewState>("week-plan");
   const [pantryItems, setPantryItems] = useState<PantryCheckItem[]>(initialPantryItems);

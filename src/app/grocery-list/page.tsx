@@ -161,12 +161,12 @@ export default function GroceryListPage() {
   const [stores, setStores] = useState<GroceryStore[]>(initialStores)
   const [items, setItems] = useState<GroceryItem[]>(initialItems)
 
-  const handleAddItem = (name: string, options?: { storeId?: string }) => {
+  const handleAddItem = (name: string, options?: { storeId?: string; quantity?: string }) => {
     const newItem: GroceryItem = {
       id: `gi-${Date.now()}`,
       name,
       category: 'Other',
-      quantity: '1',
+      quantity: options?.quantity || '1',
       isChecked: false,
       organicRequired: false,
       storeId: options?.storeId,
