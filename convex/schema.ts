@@ -186,6 +186,19 @@ const schema = defineSchema({
       })
     ),
   }).index("by_user", ["userId"]),
+
+  // PushSubscription - stores browser push notification subscriptions
+  pushSubscriptions: defineTable({
+    userId: v.id("users"),
+    endpoint: v.string(),
+    keys: v.object({
+      p256dh: v.string(),
+      auth: v.string(),
+    }),
+    createdAt: v.string(), // ISO timestamp
+  })
+    .index("by_user", ["userId"])
+    .index("by_endpoint", ["endpoint"]),
 });
 
 export default schema;

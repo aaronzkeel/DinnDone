@@ -13,6 +13,7 @@ import type * as auth from "../auth.js";
 import type * as householdMembers from "../householdMembers.js";
 import type * as http from "../http.js";
 import type * as notifications from "../notifications.js";
+import type * as pushSubscriptions from "../pushSubscriptions.js";
 import type * as weekPlans from "../weekPlans.js";
 
 import type {
@@ -27,6 +28,7 @@ declare const fullApi: ApiFromModules<{
   householdMembers: typeof householdMembers;
   http: typeof http;
   notifications: typeof notifications;
+  pushSubscriptions: typeof pushSubscriptions;
   weekPlans: typeof weekPlans;
 }>;
 
