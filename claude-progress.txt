@@ -1,5 +1,56 @@
 # Dinner Bell - Claude Progress Notes
 
+## Session: 2026-01-19 (Verification - Feature #59)
+
+### Feature:
+- Feature #59: Clear all checked items
+- Category: functional
+- Description: Bulk action to remove all checked items
+- Dependencies: Feature #29 (User can check off items)
+
+### What was verified:
+Feature was ALREADY IMPLEMENTED. No code changes needed.
+
+**Implementation Details:**
+- `GroceryList.tsx` lines 712-722: "Clear checked" button in Done section header
+- Button only visible when `showDone && onClearChecked` is truthy
+- `onClearChecked` prop defined in `GroceryListProps` (grocery.ts line 93)
+- Test page `test-grocery-list/page.tsx` already has `handleClearChecked` handler (line 169-171)
+
+### Verification Results:
+- ✅ Step 1: Check off multiple items
+  - Checked Grapes (Meijer)
+  - Checked Eggs (Meijer)
+  - Checked Strawberries (Costco)
+  - Done section appeared showing "Done (3)"
+
+- ✅ Step 2: Find Clear checked button
+  - Expanded Done section by clicking toggle
+  - "Clear checked" button visible with trash icon
+  - Button has proper aria-label: "Clear all checked items"
+
+- ✅ Step 3: Verify all checked items are removed
+  - Clicked "Clear checked" button
+  - Item count changed from 8 to 5 items
+  - Grapes, Eggs, Strawberries all removed
+  - Done section disappeared (no checked items remain)
+  - 5 unchecked items remain: Chicken Thighs, Greek Yogurt, Spinach, Bananas, Avocados
+
+### Screenshots:
+- feature-59-step1-checked-items.png (initial state after checking 3 items)
+- feature-59-full-page-with-done-section.png (Done section expanded showing checked items)
+- feature-59-step3-after-clear-checked.png (after clearing - 5 items remain)
+
+### Console Errors: None
+
+### Status: Feature #59 marked as PASSING
+- Zero console errors
+- Existing implementation verified working correctly
+
+### Current Progress: 168/200 features passing (84.0%)
+
+---
+
 ## Session: 2026-01-19 (Verification - Feature #196)
 
 ### Feature:
@@ -6077,3 +6128,41 @@ Feature was ALREADY IMPLEMENTED. No code changes needed.
 
 ### Status: STILL PASSING - No regression found
 [Testing] Feature #111 verified - still passing
+
+## Session: 2026-01-19 (Regression Test - Feature #154)
+
+### Feature Tested:
+- Feature #154: Handles AI generation failure
+- Category: error-handling
+- Description: Error message if plan generation fails
+- Dependencies: Feature #132
+
+### Verification Results:
+- ✅ Step 1: Simulate API failure
+  - Clicked "Failure Mode OFF" toggle to enable it
+  - Button changed to "Failure Mode ON" (red/active state)
+  - Warning message appeared: "The next Generate Plan attempt will fail with a simulated error"
+
+- ✅ Step 2: Try to generate plan
+  - Clicked "Generate 7-Day Plan" button
+  - Button showed "Generating plan..." with spinner
+  - After 1.5s simulated delay, error was displayed
+
+- ✅ Step 3: Verify friendly error message and retry option
+  - Error heading: "Unable to Generate Plan"
+  - Friendly message: "Unable to connect to the AI service. This might be a temporary issue with our servers. Please try again in a moment."
+  - "Try Again" button present with refresh icon
+  - "Dismiss" button also available
+  - Verified "Try Again" button works (turned off failure mode, clicked retry, successfully generated 7 meals)
+
+- ✅ Zero console errors
+
+### Screenshots:
+- regression-test-feature-154-failure-mode-on.png (toggle enabled)
+- regression-test-feature-154-error-message.png (error displayed)
+- regression-test-feature-154-error-full.png (full page with error)
+- regression-test-feature-154-retry-working.png (successful retry)
+
+### Status: STILL PASSING - No regression found
+[Testing] Feature #154 verified - still passing
+
