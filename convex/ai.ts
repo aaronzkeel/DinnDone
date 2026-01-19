@@ -340,6 +340,7 @@ Rules:
 - prepTime and cookTime are in minutes
 - Mix effort levels: more easy meals during weekdays, allow more prep on weekends
 - Mark 2-3 meals as isFlexMeal: true (easy to swap or make quick adjustments)
+- IMPORTANT: Follow 80/20 rule - 5-6 meals should be familiar family favorites (tacos, spaghetti, grilled chicken, stir fry, etc.), only 1-2 should be new or adventurous ideas
 - Make meals family-friendly and varied throughout the week`;
 
     const userPrompt = `Generate a 7-day dinner plan for ${householdSize} people.

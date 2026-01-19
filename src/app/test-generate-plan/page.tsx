@@ -17,6 +17,29 @@ interface GeneratedMeal {
   isFlexMeal: boolean;
 }
 
+// List of common familiar family meals (for 80/20 detection)
+const FAMILIAR_MEALS = [
+  "taco", "tacos", "burrito", "enchilada", "quesadilla", "fajita",
+  "spaghetti", "pasta", "lasagna", "mac and cheese", "macaroni",
+  "pizza", "grilled cheese",
+  "chicken", "grilled chicken", "baked chicken", "fried chicken", "chicken stir fry", "chicken stir-fry",
+  "stir fry", "stir-fry", "fried rice",
+  "burger", "hamburger", "cheeseburger", "meatloaf",
+  "salmon", "fish", "shrimp", "fish sticks",
+  "steak", "beef", "pot roast", "roast",
+  "pork chop", "pork",
+  "soup", "chili", "stew",
+  "rice", "beans",
+  "sandwich", "hot dog", "sloppy joe",
+  "casserole", "noodle",
+];
+
+// Check if a meal name is familiar
+function isFamiliarMeal(mealName: string): boolean {
+  const lowerName = mealName.toLowerCase();
+  return FAMILIAR_MEALS.some(familiar => lowerName.includes(familiar));
+}
+
 export default function TestGeneratePlanPage() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [meals, setMeals] = useState<GeneratedMeal[] | null>(null);
@@ -136,8 +159,42 @@ export default function TestGeneratePlanPage() {
               </span>
             </div>
 
+            {/* 80/20 Familiar/New Analysis - Feature #133 */}
+            {(() => {
+              const familiarCount = meals.filter(m => isFamiliarMeal(m.mealName)).length;
+              const newCount = meals.length - familiarCount;
+              const meets8020 = familiarCount >= 5 && newCount <= 2;
+              return (
+                <div
+                  className={`p-4 mb-4 rounded-lg border ${meets8020 ? "bg-green-50 border-green-300" : "bg-yellow-50 border-yellow-300"}`}
+                >
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className={`font-semibold ${meets8020 ? "text-green-800" : "text-yellow-800"}`}>
+                      80/20 Analysis (Feature #133)
+                    </span>
+                    {meets8020 ? (
+                      <Check className="text-green-600" size={16} />
+                    ) : (
+                      <span className="text-yellow-600">⚠️</span>
+                    )}
+                  </div>
+                  <div className={`text-sm ${meets8020 ? "text-green-700" : "text-yellow-700"}`}>
+                    <p>Familiar meals: {familiarCount}/7 ({Math.round(familiarCount/7*100)}%)</p>
+                    <p>New/adventurous meals: {newCount}/7 ({Math.round(newCount/7*100)}%)</p>
+                    <p className="mt-1 font-medium">
+                      {meets8020
+                        ? "✓ Meets 80/20 requirement (5-6 familiar, 1-2 new)"
+                        : "✗ Does not meet 80/20 requirement"}
+                    </p>
+                  </div>
+                </div>
+              );
+            })()}
+
             <div className="space-y-3">
-              {meals.map((meal, index) => (
+              {meals.map((meal, index) => {
+                const familiar = isFamiliarMeal(meal.mealName);
+                return (
                 <div
                   key={index}
                   className="p-4 rounded-lg border"
@@ -155,10 +212,13 @@ export default function TestGeneratePlanPage() {
                         {meal.dayOfWeek} • {meal.date}
                       </div>
                       <div
-                        className="text-lg font-semibold"
+                        className="text-lg font-semibold flex items-center gap-2"
                         style={{ color: "var(--color-text)" }}
                       >
                         {meal.mealName}
+                        <span className={`text-xs px-2 py-0.5 rounded ${familiar ? "bg-green-100 text-green-800" : "bg-purple-100 text-purple-800"}`}>
+                          {familiar ? "Familiar" : "New"}
+                        </span>
                       </div>
                     </div>
                     <span
@@ -191,7 +251,7 @@ export default function TestGeneratePlanPage() {
                     <strong>Ingredients:</strong> {meal.ingredients.join(", ")}
                   </div>
                 </div>
-              ))}
+              )})}
             </div>
           </div>
         )}
