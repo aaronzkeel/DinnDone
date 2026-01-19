@@ -1,5 +1,63 @@
 # Dinner Bell - Claude Progress Notes
 
+## Session: 2026-01-18 (Coding Agent - Feature #38)
+
+### Feature:
+- Feature #38: Linked meals show on item
+- Category: functional
+- Description: Items linked to planned meals show meal indicator
+- Dependencies: Feature #25 (User can add grocery item)
+
+### What was implemented:
+
+1. **convex/groceryItems.ts**:
+   - Added `listWithMealDetails` query that enhances items with meal source details
+   - Fetches linked meal names and dates from plannedMeals table
+   - Returns `mealSources: [{mealId, mealName, date}]` for each item
+   - Added `linkMeals` mutation to link meals to grocery items
+   - Added `seedLinkedMealItems` mutation for creating test data
+
+2. **convex/weekPlans.ts**:
+   - Added `seedSampleWeekPlan` mutation to create test meals for linking
+
+3. **src/app/test-grocery-convex/page.tsx**:
+   - Updated to use `listWithMealDetails` query
+   - Passes `mealSources` to GroceryList component
+
+4. **src/app/test-linked-meals/page.tsx** (new):
+   - Test page for Feature #38 verification
+   - Shows stats: total items, items with meal links, week plans
+   - "Create Test Items with Linked Meals" button seeds test data
+   - Displays green panel when linked items found
+
+### Verification Results:
+- ✅ Step 1: View item that came from a weekly plan
+  - Created test items: "Chicken Breast (linked)", "Broccoli (linked)", "Soy Sauce (linked)"
+  - All linked to planned meals from seeded week plan
+- ✅ Step 2: Verify linked meal name displays
+  - "Meals (N)" button shows on each linked item
+  - Status panel shows meal names for each item
+- ✅ Step 3: Tapping shows which meals need this item
+  - Clicking "Meals (2)" button for Chicken Breast shows popover:
+    - "For 2 meals: Chicken Stir Fry (Sun, Jan 18), Taco Night (Mon, Jan 19)"
+  - Clicking "Meals (3)" button for Soy Sauce shows popover:
+    - "For 3 meals: Chicken Stir Fry, Taco Night, Pasta Carbonara"
+- ✅ No console errors
+- ✅ Organic badge displays correctly on Broccoli (linked)
+
+### Screenshots:
+- feature-38-initial-state.png (before creating test items)
+- feature-38-items-with-linked-meals.png (items with meals summary)
+- feature-38-meals-buttons-visible.png (meals buttons on items)
+- feature-38-meals-popover-details.png (popover showing meal details)
+- feature-38-soy-sauce-3-meals.png (3-meal item view)
+
+### Status: Feature #38 marked as PASSING
+
+### Current Progress: 83/200 features passing (41.5%)
+
+---
+
 ## Session: 2026-01-18 (Coding Agent - Feature #45)
 
 ### Feature:
@@ -3417,3 +3475,28 @@ Updated `src/app/test-approve-plan/page.tsx` to extract ingredients from the wee
 
 ### Status: STILL PASSING - No regression found
 [Testing] Feature #31 verified - still passing
+
+## Session: 2026-01-18 22:54 (Regression Test - Feature #4)
+
+### Feature Tested:
+- Feature #4: Convex schema defines all core entities
+- Category: foundation
+- Description: Database schema includes HouseholdMember, WeekPlan, PlannedMeal, GroceryItem, Store, Notification, NotificationPreferences
+
+### Verification Results:
+- ✅ Step 1: Check convex/schema.ts exists - File exists (207 lines)
+- ✅ Step 2: Verify all 7 entity tables are defined:
+  1. householdMembers (line 67)
+  2. weekPlans (line 82)
+  3. plannedMeals (line 88)
+  4. groceryItems (line 132)
+  5. stores (line 76)
+  6. notifications (line 156)
+  7. notificationPreferences (line 177)
+- ✅ Step 3: npx convex dev syncs successfully (1.17s)
+- ✅ App loads with Convex connection active
+- ✅ Zero console errors
+- ✅ Screenshot: regression-test-feature-4-convex-schema.png
+
+### Status: STILL PASSING - No regression found
+[Testing] Feature #4 verified - still passing
