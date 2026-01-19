@@ -1,5 +1,36 @@
 # Dinner Bell - Claude Progress Notes
 
+## Session: 2026-01-19 03:25 (Regression Test - Feature #145)
+
+### Feature Tested:
+- Feature #145: Day cards have proper ARIA
+- Category: accessibility
+- Description: Screen reader announces day and meal
+
+### Verification Results:
+- ✅ Step 1: Inspect day card - DayCard component in src/components/weekly-planning/DayCard.tsx
+- ✅ Step 2: Verify aria-label includes day and meal name:
+  - Button has `aria-label={ariaLabel}` attribute (line 55)
+  - ariaLabel builds from `${meal.dayOfWeek}, ${meal.mealName}` (lines 47-50)
+  - Includes ", today" suffix for current day
+  - Includes ", completed" suffix for past days
+  - Unplanned meals show "no meal planned" text
+- ✅ Step 3: Test with screen reader - Browser snapshot confirms accessible names:
+  - "Monday, Sheet Pan Salmon & Asparagus, today"
+  - "Tuesday, Taco Tuesday"
+  - "Wednesday, Pasta Primavera"
+  - "Thursday, Chicken Stir Fry"
+  - "Friday, Pizza Night"
+  - "Saturday, Grilled Burgers"
+  - "Sunday, Slow Cooker Pot Roast"
+- ✅ Zero console errors
+- ✅ Screenshot: regression-test-feature-145-aria-labels.png
+
+### Status: ALREADY PASSING - Regression test confirms implementation is correct
+[Testing] Feature #145 verified - still passing
+
+### Current Progress: 111/200 features passing (55.5%)
+
 ## Session: 2026-01-19 03:20 (Coding Agent - Feature #141)
 
 ### Feature Implemented:
@@ -4449,3 +4480,25 @@ The feature was ALREADY IMPLEMENTED. No code changes needed.
 - Existing implementation verified working correctly
 
 ### Current Progress: 110/200 features passing (55.0%)
+
+## Session: 2026-01-19 03:22 (Regression Test - Feature #69)
+
+### Feature Tested:
+- Feature #69: This works button confirms meal
+- Category: functional
+- Description: Tapping This works opens meal details
+
+### Verification Results:
+- ✅ Step 1: View Tonight's Plan card - Card shows 'Chicken Stir Fry' with all metadata
+- ✅ Step 2: Tap This works (green button) - Button clicked successfully
+- ✅ Step 3: Verify MealOptionDetails screen opens - View changed from MealHelperHome to MealOptionDetails
+  - Back button displayed
+  - Full ingredients list (7 items)
+  - 'Do you have the ingredients?' prompt with Yes/Not sure/No buttons
+  - Cooking plan/instructions shown
+  - 'Cook this' button available
+- ✅ Zero console errors
+- ✅ Screenshots: regression-test-feature-69-*.png
+
+### Status: STILL PASSING - No regression found
+[Testing] Feature #69 verified - still passing
