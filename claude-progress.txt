@@ -1,5 +1,58 @@
 # Dinner Bell - Claude Progress Notes
 
+## Session: 2026-01-18 (Coding Agent - Feature #136)
+
+### Feature:
+- Feature #136: Plan status shows correctly
+- Category: functional
+- Description: Draft/Approved/In-Progress/Completed states
+
+### What was verified:
+The plan status feature was already implemented and just needed verification. The implementation includes:
+
+1. **src/types/weekly-planning.ts** - PlanStatus type definition:
+   - Defines `PlanStatus = "draft" | "approved" | "in-progress" | "completed"`
+
+2. **src/components/weekly-planning/WeekPlanView.tsx** - Status badge display:
+   - Shows status badge below week selector (lines 41-57)
+   - Draft: muted gray background, muted text
+   - Approved/In-Progress/Completed: green background, green text
+   - "Looks good" button only appears for draft plans when user is admin
+
+3. **src/components/weekly-planning/WeekSelector.tsx** - Status icons in week tabs:
+   - Draft: empty circle (muted color)
+   - Approved: checkmark (green)
+   - In-Progress: filled circle (primary color)
+   - Completed: checkmark (muted)
+
+4. **src/app/test-plan-status/page.tsx** - Test page with 4 different status weeks:
+   - Last Week = Completed
+   - This Week = In Progress
+   - Next Week = Approved
+   - Week After Next = Draft
+
+### Verification Results:
+- ✅ Step 1: View different week plans - Navigated through 4 weeks with different statuses
+- ✅ Step 2: Verify correct status badge shows:
+  - Last Week shows "Completed" badge
+  - This Week shows "In Progress" badge
+  - Next Week shows "Approved" badge
+  - Week After Next shows "Draft" badge
+- ✅ Step 3: Verify status changes as week progresses - Status badges update when switching weeks
+- ✅ Bonus: Draft weeks show "Looks good" button for admins
+- ✅ No console errors (only themeColor metadata warnings unrelated to feature)
+
+### Screenshots:
+- feature-136-initial-in-progress.png (In Progress status)
+- feature-136-completed-status.png (Completed status)
+- feature-136-approved-status.png (Approved status)
+- feature-136-draft-status.png (Draft status with Looks good button)
+
+### Status: Feature #136 marked as PASSING
+- Current progress: 54/200 features passing (27.0%)
+
+---
+
 ## Session: 2026-01-18 (Coding Agent - Feature #95)
 
 ### Feature:
