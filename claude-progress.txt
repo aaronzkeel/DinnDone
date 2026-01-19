@@ -1,5 +1,46 @@
 # Dinner Bell - Claude Progress Notes
 
+## Session: 2026-01-18 22:34 (Coding Agent - Feature #161)
+
+### Feature:
+- Feature #161: Tapping action resolves notification
+- Category: functional
+- Description: Action button marks notification done
+- Dependencies: Feature #160 (Pending notification shows action buttons)
+
+### What was implemented:
+1. Created test page at `/test-notification-action` to verify the feature
+2. The existing implementation in `src/app/notifications/page.tsx` was already complete:
+   - `handleAction` function calls Convex `markDone` mutation
+   - Updates notification status from "pending" to "done"
+   - Records which action was taken (resolvedAction field)
+3. The `NotificationCard` component properly shows/hides action buttons based on status
+
+### Verification Results:
+- ✅ Step 1: View pending notification - Shows action buttons ("Looks good", "Adjust")
+- ✅ Step 2: Tap primary action - Clicked "Looks good", action callback fired
+- ✅ Step 3: Verify resolved state:
+  - Status changed to "DONE"
+  - Shows which action was taken with checkmark icon
+  - Action buttons hidden after resolving
+- ✅ Bonus: Secondary action "Adjust" also works correctly
+- ✅ No console errors
+- ✅ TypeScript compiles without errors (in new test file)
+
+### Files Created:
+- `src/app/test-notification-action/page.tsx` - Dedicated test page for Feature #161
+
+### Screenshots:
+- feature-161-step1-pending-notification.png
+- feature-161-step2-resolved-notification.png
+- feature-161-step3-verification-complete.png
+- feature-161-step4-secondary-action-adjust.png
+
+### Status: Feature #161 marked as PASSING
+- Current progress: 66/200 features passing (33.0%)
+
+---
+
 ## Session: 2026-01-19 (Coding Agent - Feature #26 Check)
 
 ### Assignment:
