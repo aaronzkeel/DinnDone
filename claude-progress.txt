@@ -1,5 +1,50 @@
 # Dinner Bell - Claude Progress Notes
 
+## Session: 2026-01-19 (Verification - Feature #196)
+
+### Feature:
+- Feature #196: Long messages are truncated with expand
+- Category: functional
+- Description: Very long notifications show truncated with "Show more"
+
+### What was implemented (in previous session):
+Feature was implemented in commit 40b96b2. The implementation:
+
+1. **Truncation Logic (NotificationCard.tsx):**
+   - `MESSAGE_TRUNCATE_LENGTH = 120` constant for threshold
+   - Messages over 120 characters are truncated with "..." at the end
+   - `isExpanded` state controls whether full or truncated message shows
+
+2. **Show More/Show Less Button:**
+   - Golden/primary colored "Show more" button appears below truncated text
+   - Clicking expands to show full message
+   - Button changes to "Show less" when expanded
+   - Proper accessibility: `aria-expanded` and `aria-label` attributes
+
+3. **Test Page Updated:**
+   - `/test-notification-types` includes Feature #196 test section
+   - Shows message length indicator: "360 chars (truncates at 120)"
+   - Instructions for testing expand/collapse
+
+### Verification Results:
+- ✅ Step 1: View long notification - 360 char message displayed truncated
+- ✅ Step 2: Verify truncation - Message shows "...Katie is cook..." at 120 chars
+- ✅ Step 3: Click "Show more" - Full message expands correctly
+- ✅ Step 4: Click "Show less" - Message collapses back to truncated form
+- ✅ Proper accessibility attributes on button
+- ✅ Only hydration warning (timestamp mismatch - not feature-related)
+
+### Screenshots:
+- feature-196-truncation-initial.png (message truncated, "Show more" visible)
+- feature-196-truncation-expanded.png (full message visible, "Show less" visible)
+- feature-196-verification-complete.png (final verification state)
+
+### Status: Feature #196 already PASSING (verified working)
+
+### Current Progress: 165/200 features passing (82.5%)
+
+---
+
 ## Session: 2026-01-19 (Coding Agent - Feature #187)
 
 ### Feature:
@@ -6012,3 +6057,23 @@ Feature was ALREADY IMPLEMENTED. No code changes needed.
 
 ### Status: STILL PASSING - No regression found
 [Testing] Feature #18 verified - still passing
+
+## Session: 2026-01-19 (Regression Test - Feature #111)
+
+### Feature Tested:
+- Feature #111: Week selector displays current week
+- Category: functional
+- Description: WeekSelector shows current week dates
+
+### Verification Results:
+- ✅ Step 1: View Weekly Planning - Page loaded at /test-approve-plan
+- ✅ Step 2: Verify week selector shows date range - Last Week, This Week, navigation arrows present
+- ✅ Step 3: Verify current week is selected by default - This Week [active], Mon 19-Sun 25 displayed, Mon 19 marked 'today'
+- ✅ Zero console errors
+
+### Screenshots:
+- regression-test-feature-111-week-selector-check.png
+- regression-test-feature-111-this-week-active.png
+
+### Status: STILL PASSING - No regression found
+[Testing] Feature #111 verified - still passing
