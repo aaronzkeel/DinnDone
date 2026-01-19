@@ -73,8 +73,8 @@ export interface EmergencyExitProps {
 export interface MealHelperHomeProps {
   /** Current user */
   currentUser: HouseholdMember;
-  /** Tonight's planned meal (pulled from weekly plan in the real app) */
-  tonightMeal: PlannedMealSummary;
+  /** Tonight's planned meal (pulled from weekly plan in the real app) - null/undefined if no plan exists */
+  tonightMeal?: PlannedMealSummary | null;
   /** Household members (used to display assigned cook / eaters) */
   householdMembers: HouseholdMember[];
   /** Chat message history */
