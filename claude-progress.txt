@@ -4136,3 +4136,61 @@ Updated `src/components/weekly-planning/DayCard.tsx` to show eater names instead
 - Verified: Admin sees approve button, kid does not
 
 ### Current Progress: 106/200 features passing (53.0%)
+
+## Session: 2026-01-19 (Coding Agent - Feature #135)
+
+### Feature:
+- Feature #135: Generated plan considers dietary needs
+- Category: functional
+- Description: Plan accounts for family preferences
+- Dependencies: Feature #132 (AI generates draft week plan), Feature #9 (Convex schema)
+
+### What was implemented:
+Updated `src/app/test-generate-plan/page.tsx` with comprehensive dietary preferences functionality:
+
+1. **Dietary Preferences UI (Step 1)**:
+   - Added section showing all household members with their dietary preferences
+   - Edit mode reveals quick-add buttons for common preferences (Vegetarian, Vegan, Gluten-free, Dairy-free, Nut-free, No shellfish, No pork, No beef, Low-sodium, No spicy food)
+   - Custom preference input field for additional restrictions
+   - Preferences saved to Convex via `householdMembers.update` mutation
+   - Combined preferences shown at bottom (sent to AI)
+
+2. **Plan Generation Integration (Step 2)**:
+   - Collect all unique dietary preferences from household members
+   - Pass preferences string to `generateWeekPlan` action
+   - Button shows count of active restrictions
+
+3. **Dietary Compliance Verification (Step 3)**:
+   - Added `mealRespectsPreferences()` function to check meal names and ingredients
+   - Checks for: meat (vegetarian/vegan), dairy, gluten, nuts, shellfish, pork, beef
+   - Summary card shows pass/fail with green checkmark or red warning
+   - Individual meal cards show "Diet OK" or "Diet Issue" badges
+   - Violations are listed with specific reasons (e.g., "Contains chicken (violates Vegetarian)")
+
+### Test Steps Verified:
+- Step 1: Set dietary preferences - Added "Vegetarian" to Lizzie via edit mode
+- Step 2: Generate a plan - Plan generated with "Vegetarian" preference sent to AI
+- Step 3: Verify meals respect preferences - All 7/7 meals were vegetarian-friendly:
+  - Monday: Black Bean Burgers with Sweet Potato Fries
+  - Tuesday: Pasta with Tomato and Basil Sauce
+  - Wednesday: Vegetarian Chili
+  - Thursday: Quesadillas with Guacamole
+  - Friday: Pizza with roasted vegetables
+  - Saturday: Vegetable Curry with Rice
+  - Sunday: Lentil Shepherd's Pie
+
+### Technical Notes:
+- Preferences persist in Convex database (verified after page refresh)
+- AI correctly generates vegetarian meals when preference is set
+- No console errors
+- Mobile-responsive UI with flex-wrap for badges
+
+### Screenshots:
+- feature-135-step1-initial-state.png (household members before preferences)
+- feature-135-step1-dietary-preference-set.png (Lizzie with Vegetarian preference)
+- feature-135-step3-generated-plan-all-vegetarian.png (full page showing verification)
+- feature-135-data-persisted-after-refresh.png (preference persisted after refresh)
+
+### Status: Feature #135 marked as PASSING
+
+### Current Progress: 105/200 features passing (52.5%)
