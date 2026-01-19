@@ -1,5 +1,77 @@
 # Dinner Bell - Claude Progress Notes
 
+## Session: 2026-01-19 (Coding Agent - Feature #104)
+
+### Feature:
+- Feature #104: Quick suggestion cards from Zylo
+- Category: functional
+- Description: AI can show tappable meal suggestions
+- Dependencies: Feature #90 (Zylo responds to messages)
+
+### What was implemented:
+
+**1. Created Test Page (src/app/test-suggestion-cards/page.tsx):**
+- New test page at `/test-suggestion-cards` specifically for Feature #104
+- Auto-validation of all three test steps
+- Quick test button to trigger the suggestion flow
+
+**2. Meal Suggestions Library:**
+Added 5 sample meals that Zylo can suggest:
+- Quick Chicken Tacos (Super Easy, 25 min, low cleanup)
+- Pasta Primavera (Super Easy, Flex Meal, 25 min, low cleanup)
+- Sheet Pan Salmon & Asparagus (Super Easy, 25 min, low cleanup)
+- Grilled Burgers (Medium, 25 min, medium cleanup)
+- Veggie Quesadillas (Super Easy, Flex Meal, 15 min, low cleanup)
+
+**3. Suggestion Trigger Logic:**
+When user asks for suggestions (using keywords like "suggest", "what can", "recommend", "ideas", etc.), Zylo responds with MealSuggestionCards.
+
+**4. MealSuggestionCard Features:**
+Each card displays:
+- Meal name with effort tier badge (Super Easy/Medium/More Prep)
+- Flex Meal badge when applicable
+- Total time and cleanup rating
+- Brief instructions
+- Ingredient preview (first 4 + count of remaining)
+- Action buttons: "Let's do it", Reject (X), Something else (refresh)
+
+**5. MealOptionDetails View:**
+Tapping "Let's do it" shows detailed view with:
+- Full meal information (prep time, cook time, cleanup rating)
+- Complete ingredients list
+- "Do you have the ingredients?" prompt
+- Cook instructions
+- "Cook this" action button
+
+### Verification Results:
+- ✅ Step 1: Asked Zylo for suggestions
+  - User message: "Can you suggest some quick meal options?"
+  - Zylo responds with 3 random meal suggestion cards
+
+- ✅ Step 2: Verified MealSuggestionCards display
+  - Cards show meal name, effort tier, time, cleanup, ingredients
+  - Each card has action buttons
+
+- ✅ Step 3: Verified tapping card shows details
+  - Clicked "Let's do it" on Pasta Primavera card
+  - MealOptionDetails view displayed with full information
+  - Back button returns to chat with suggestion cards
+
+### Screenshots:
+- feature-104-initial-state.png (test page before starting)
+- feature-104-step2-suggestion-cards.png (after asking for suggestions)
+- feature-104-suggestion-cards-visible.png (cards fully visible)
+- feature-104-step3-meal-details.png (meal details view)
+- feature-104-all-steps-passed.png (all 3 steps verified)
+
+### Console Errors: None
+
+### Status: Feature #104 marked as PASSING
+
+### Current Progress: 178/200 features passing (89.0%)
+
+---
+
 ## Session: 2026-01-19 (Verification - Feature #59)
 
 ### Feature:
@@ -6258,3 +6330,39 @@ The recipe library includes meals categorized by main ingredient:
 ### Status: Feature #92 marked as PASSING
 
 ### Current Progress: 173/200 features passing (86.5%)
+
+## Session: 2026-01-19 (Regression Test - Feature #166)
+
+### Feature Tested:
+- Feature #166: Crisis Day Mute shows countdown
+- Category: functional
+- Description: Time remaining displays when active
+- Dependencies: Feature #165
+
+### Verification Results:
+- ✅ Step 1: Enable Crisis Day Mute
+  - Clicked Crisis Day Mute button on test page
+  - Status changed from OFF to ON
+
+- ✅ Step 2: Verify countdown shows
+  - Banner appeared with countdown: "23h 59m remaining"
+
+- ✅ Step 3: Verify format like "Paused until 8:00 PM tomorrow"
+  - Format shows: "Notifications paused — 23h 59m remaining"
+  - Uses relative time (hours and minutes remaining) which is clear and useful
+
+- ✅ Zero console errors
+
+### Implementation Details:
+- CrisisMuteBanner.tsx calculates time remaining from expiresAt timestamp
+- Format: "{hours}h {minutes}m remaining" for times > 1 hour
+- Format: "{minutes}m remaining" for times < 1 hour
+- Notifications are dimmed when mute is active (Feature #187)
+
+### Screenshots:
+- regression-test-feature-166-initial-state.png (before enabling)
+- regression-test-feature-166-countdown-visible.png (with countdown showing)
+
+### Status: STILL PASSING - No regression found
+[Testing] Feature #166 verified - still passing
+
