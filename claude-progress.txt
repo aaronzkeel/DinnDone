@@ -3079,3 +3079,46 @@ Updated sample data in test pages to include proper ingredient quantities:
 ### Status: PASSING - No actual regression (false positive from cache/HMR)
 [Testing] Feature #14 verified - still passing (initial issue was browser cache)
 
+## Session: 2026-01-18 22:38 (Coding Agent - Feature #35)
+
+### Feature:
+- Feature #35: Drag and drop reorders items within store
+- Category: functional
+- Description: Items can be reordered by dragging
+- Dependencies: Feature #24 (Items grouped by store)
+
+### What was implemented:
+1. **Schema changes** (convex/schema.ts):
+   - Added `sortOrder: v.optional(v.number())` field to groceryItems table
+   - Added `by_store_order` index on `["storeId", "sortOrder"]`
+
+2. **Backend mutations** (convex/groceryItems.ts):
+   - Updated `list` query to sort items by sortOrder (nulls go to end)
+   - Updated `add` mutation to set initial sortOrder (max + 1000)
+   - Added new `reorder` mutation that:
+     - Takes item id, optional storeId, and optional beforeId
+     - Calculates new sortOrder based on position (midpoint between neighbors)
+     - Updates both store assignment and sortOrder atomically
+
+3. **Frontend integration** (src/app/test-grocery-convex/page.tsx):
+   - Added `reorderItem` mutation hook
+   - Updated `handleMoveItem` to call the reorder mutation with beforeId
+
+### Test Steps Verified:
+- ✅ Step 1: Long press or drag an item - Dragged "Oranges" using drag handle
+- ✅ Step 2: Drop in new position within same store - Dropped before "Apples"
+- ✅ Step 3: Verify order persists after refresh - Order remained: Oranges, Apples, Bananas, Milk, onions
+
+### Screenshots:
+- feature-35-before-drag.png (initial order: Apples, Bananas, Oranges)
+- feature-35-after-drag.png (after drag: Oranges, Apples, Bananas, Milk, onions)
+- feature-35-after-refresh-order-persisted.png (same order after page refresh)
+
+### Technical Notes:
+- sortOrder uses 1000-increment spacing to allow easy insertions
+- Midpoint calculation for inserting between items
+- Items without sortOrder sort to end (backward compatible)
+- Changes were synced to Convex successfully
+
+### Status: Feature #35 marked as PASSING
+
