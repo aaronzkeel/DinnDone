@@ -206,3 +206,138 @@ export const deleteWeekPlan = mutation({
     return { success: true };
   },
 });
+
+// Seed a sample week plan with meals for testing
+export const seedSampleWeekPlan = mutation({
+  args: {},
+  handler: async (ctx) => {
+    // Check if a week plan already exists
+    const existingPlans = await ctx.db.query("weekPlans").collect();
+    if (existingPlans.length > 0) {
+      // Check if the existing plan has meals
+      const existingMeals = await ctx.db.query("plannedMeals").collect();
+      if (existingMeals.length > 0) {
+        return { seeded: false, message: "Week plan with meals already exists" };
+      }
+    }
+
+    // Get or create a household member for the cook
+    let cookId;
+    const members = await ctx.db.query("householdMembers").collect();
+    if (members.length > 0) {
+      cookId = members[0]._id;
+    } else {
+      // Create a sample household member
+      cookId = await ctx.db.insert("householdMembers", {
+        name: "Sample Cook",
+        isAdmin: true,
+      });
+    }
+
+    // Get the start of the current week (Monday)
+    const today = new Date();
+    const dayOfWeek = today.getDay();
+    const monday = new Date(today);
+    monday.setDate(today.getDate() - ((dayOfWeek + 6) % 7));
+    const weekStart = monday.toISOString().split("T")[0];
+
+    // Create week plan if needed
+    let weekPlanId;
+    if (existingPlans.length > 0) {
+      weekPlanId = existingPlans[0]._id;
+    } else {
+      weekPlanId = await ctx.db.insert("weekPlans", {
+        weekStart,
+        status: "approved",
+      });
+    }
+
+    // Create sample meals for the week
+    const sampleMeals = [
+      {
+        dayOfWeek: "Monday",
+        name: "Chicken Stir Fry",
+        effortTier: "medium" as const,
+        prepTime: 20,
+        cookTime: 15,
+        cleanupRating: 2 as const,
+        ingredients: [
+          { name: "Chicken Breast", quantity: "1.5 lbs" },
+          { name: "Broccoli", quantity: "2 cups" },
+          { name: "Soy Sauce", quantity: "3 tbsp" },
+          { name: "Bell Peppers", quantity: "2" },
+          { name: "Garlic", quantity: "4 cloves" },
+        ],
+        steps: ["Slice chicken", "Prep vegetables", "Stir fry chicken", "Add vegetables", "Season and serve"],
+        isFlexMeal: true,
+      },
+      {
+        dayOfWeek: "Tuesday",
+        name: "Taco Night",
+        effortTier: "easy" as const,
+        prepTime: 15,
+        cookTime: 20,
+        cleanupRating: 2 as const,
+        ingredients: [
+          { name: "Ground Beef", quantity: "1 lb" },
+          { name: "Taco Shells", quantity: "12" },
+          { name: "Lettuce", quantity: "1 head" },
+          { name: "Tomatoes", quantity: "2" },
+          { name: "Cheese", quantity: "1 cup" },
+          { name: "Sour Cream", quantity: "0.5 cup" },
+        ],
+        steps: ["Brown the beef", "Season with taco spices", "Prep toppings", "Serve in shells"],
+        isFlexMeal: false,
+      },
+      {
+        dayOfWeek: "Wednesday",
+        name: "Pasta Carbonara",
+        effortTier: "medium" as const,
+        prepTime: 10,
+        cookTime: 25,
+        cleanupRating: 1 as const,
+        ingredients: [
+          { name: "Spaghetti", quantity: "1 lb" },
+          { name: "Bacon", quantity: "8 strips" },
+          { name: "Eggs", quantity: "4" },
+          { name: "Parmesan Cheese", quantity: "1 cup" },
+          { name: "Black Pepper", quantity: "1 tsp" },
+        ],
+        steps: ["Boil pasta", "Crisp bacon", "Mix eggs and cheese", "Combine hot pasta with egg mixture", "Top with bacon"],
+        isFlexMeal: true,
+      },
+    ];
+
+    const mealIds = [];
+    for (let i = 0; i < sampleMeals.length; i++) {
+      const meal = sampleMeals[i];
+      const date = new Date(monday);
+      date.setDate(monday.getDate() + i);
+      const dateStr = date.toISOString().split("T")[0];
+
+      const mealId = await ctx.db.insert("plannedMeals", {
+        weekPlanId,
+        date: dateStr,
+        dayOfWeek: meal.dayOfWeek,
+        name: meal.name,
+        effortTier: meal.effortTier,
+        prepTime: meal.prepTime,
+        cookTime: meal.cookTime,
+        cleanupRating: meal.cleanupRating,
+        cookId,
+        eaterIds: [cookId],
+        ingredients: meal.ingredients,
+        steps: meal.steps,
+        isFlexMeal: meal.isFlexMeal,
+      });
+      mealIds.push(mealId);
+    }
+
+    return {
+      seeded: true,
+      weekPlanId,
+      mealCount: mealIds.length,
+      mealIds,
+    };
+  },
+});

@@ -13,7 +13,7 @@ import type { GroceryItem, GroceryStore } from "@/types/grocery";
 export default function TestGroceryConvexPage() {
   // Convex queries
   const convexStores = useQuery(api.stores.list);
-  const convexItems = useQuery(api.groceryItems.list);
+  const convexItems = useQuery(api.groceryItems.listWithMealDetails);
 
   // Convex mutations
   const addStore = useMutation(api.stores.add);
@@ -44,6 +44,7 @@ export default function TestGroceryConvexPage() {
     isChecked: i.isChecked,
     organicRequired: i.isOrganic,
     storeId: i.storeId,
+    mealSources: i.mealSources || [],
   }));
 
   // Seed stores if none exist

@@ -15,6 +15,65 @@ export const list = query({
   },
 });
 
+// List all grocery items with linked meal details (name, date)
+export const listWithMealDetails = query({
+  args: {},
+  handler: async (ctx) => {
+    const items = await ctx.db.query("groceryItems").collect();
+
+    // Gather all unique meal IDs from all items
+    const allMealIds = new Set<string>();
+    for (const item of items) {
+      if (item.linkedMealIds) {
+        for (const mealId of item.linkedMealIds) {
+          allMealIds.add(mealId);
+        }
+      }
+    }
+
+    // Fetch all linked meals in one batch
+    const mealMap = new Map<
+      string,
+      { name: string; date: string }
+    >();
+    for (const mealId of allMealIds) {
+      const meal = await ctx.db.get(mealId as unknown as import("./_generated/dataModel").Id<"plannedMeals">);
+      if (meal) {
+        mealMap.set(mealId, { name: meal.name, date: meal.date });
+      }
+    }
+
+    // Enhance items with meal details
+    const enhancedItems = items.map((item) => {
+      const mealSources = (item.linkedMealIds || [])
+        .map((mealId) => {
+          const mealInfo = mealMap.get(mealId);
+          if (mealInfo) {
+            return {
+              mealId,
+              mealName: mealInfo.name,
+              date: mealInfo.date,
+            };
+          }
+          return null;
+        })
+        .filter((source): source is NonNullable<typeof source> => source !== null);
+
+      return {
+        ...item,
+        mealSources,
+      };
+    });
+
+    // Sort items by sortOrder (nulls go to end)
+    return enhancedItems.sort((a, b) => {
+      const orderA = a.sortOrder ?? Number.MAX_SAFE_INTEGER;
+      const orderB = b.sortOrder ?? Number.MAX_SAFE_INTEGER;
+      return orderA - orderB;
+    });
+  },
+});
+
 // List grocery items by store
 export const listByStore = query({
   args: { storeId: v.id("stores") },
@@ -196,5 +255,92 @@ export const reorder = mutation({
     });
 
     return await ctx.db.get(args.id);
+  },
+});
+
+// Link meals to a grocery item
+export const linkMeals = mutation({
+  args: {
+    id: v.id("groceryItems"),
+    mealIds: v.array(v.id("plannedMeals")),
+  },
+  handler: async (ctx, args) => {
+    const item = await ctx.db.get(args.id);
+    if (!item) throw new Error("Item not found");
+
+    // Get existing linked meals and add new ones (avoid duplicates)
+    const existingMealIds = item.linkedMealIds || [];
+    const newMealIds = [...new Set([...existingMealIds, ...args.mealIds])];
+
+    await ctx.db.patch(args.id, { linkedMealIds: newMealIds });
+    return await ctx.db.get(args.id);
+  },
+});
+
+// Seed test items with linked meals for Feature #38 testing
+export const seedLinkedMealItems = mutation({
+  args: {},
+  handler: async (ctx) => {
+    // Get the first store
+    const stores = await ctx.db.query("stores").collect();
+    if (stores.length === 0) {
+      throw new Error("No stores found. Please seed stores first.");
+    }
+    const storeId = stores[0]._id;
+
+    // Get planned meals
+    const meals = await ctx.db.query("plannedMeals").collect();
+    if (meals.length === 0) {
+      throw new Error("No planned meals found. Please create some meals first.");
+    }
+
+    // Create test items linked to meals
+    const testItems = [
+      {
+        name: "Chicken Breast (linked)",
+        quantity: "2 lbs",
+        category: "Meat",
+        isOrganic: false,
+        linkedMealIds: [meals[0]._id, meals.length > 1 ? meals[1]._id : meals[0]._id],
+      },
+      {
+        name: "Broccoli (linked)",
+        quantity: "2 heads",
+        category: "Produce",
+        isOrganic: true,
+        linkedMealIds: [meals[0]._id],
+      },
+      {
+        name: "Soy Sauce (linked)",
+        quantity: "1 bottle",
+        category: "Pantry",
+        isOrganic: false,
+        linkedMealIds: meals.length > 2 ? [meals[0]._id, meals[1]._id, meals[2]._id] : [meals[0]._id],
+      },
+    ];
+
+    // Get max sortOrder
+    const existingItems = await ctx.db
+      .query("groceryItems")
+      .withIndex("by_store", (q) => q.eq("storeId", storeId))
+      .collect();
+    const maxOrder = existingItems.reduce((max, item) => {
+      const order = item.sortOrder ?? 0;
+      return order > max ? order : max;
+    }, 0);
+
+    const createdIds = [];
+    for (let i = 0; i < testItems.length; i++) {
+      const item = testItems[i];
+      const id = await ctx.db.insert("groceryItems", {
+        ...item,
+        storeId,
+        isChecked: false,
+        sortOrder: maxOrder + (i + 1) * 1000,
+      });
+      createdIds.push(id);
+    }
+
+    return { created: createdIds.length, ids: createdIds };
   },
 });
