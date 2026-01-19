@@ -7052,3 +7052,53 @@ the test page to use those existing props.
 ### Console Errors: None (only HMR reconnection warnings from server restart)
 
 ### Status: STILL PASSING - No regression found
+
+
+## Session: 2026-01-19 (Coding Agent - Feature #79)
+
+### Feature:
+- Feature #79: Swap updates database
+- Category: functional
+- Description: Meal swap persists in Convex
+- Dependencies: Feature #78 (User can swap meal in modal)
+
+### What was implemented:
+
+**1. Used Existing swapMeals Mutation (convex/weekPlans.ts):**
+- Mutation exchanges meal content between two plannedMeals
+- Keeps date, dayOfWeek, weekPlanId, cookId, eaterIds unchanged
+- Swaps: name, effortTier, prepTime, cookTime, cleanupRating, ingredients, steps, isFlexMeal, recipeId
+
+**2. Created Test Page (src/app/test-week-swap-persist/page.tsx):**
+- New test page at /test-week-swap-persist specifically for Feature #79
+- Displays current week meals from Convex database with IDs
+- Uses WeekSwapList component to select meal to swap with tonight
+- Calls swapMeals mutation to perform the swap
+- Shows success status after swap completes
+
+### Verification Results:
+- Step 1: Complete a swap - PASSED
+  - Initially: Monday = Quick Pasta Marinara, Tuesday = Taco Night
+  - Opened WeekSwapList
+  - Selected Tuesday's Taco Night to swap
+
+- Step 2: Refresh the page - PASSED
+  - Full page refresh performed
+
+- Step 3: Verify swap persisted - PASSED
+  - After refresh: Monday = Taco Night, Tuesday = Quick Pasta Marinara
+  - Database IDs unchanged (confirming same records updated)
+  - Monday ID: kn769rq59wtsb7zq9pg8nqyd6n7zgs6f
+  - Tuesday ID: kn717d7z2hrbnw52xeabj5ece97zgmvs
+
+- Zero console errors
+
+### Screenshots:
+- feature-79-initial-state.png (page before swap)
+- feature-79-week-swap-list.png (WeekSwapList showing meal options)
+- feature-79-swap-completed.png (success message after swap)
+- feature-79-persistence-verified.png (after refresh, swap persisted)
+
+### Status: Feature #79 marked as PASSING
+
+### Current Progress: 196/200 features passing (98.0%)
