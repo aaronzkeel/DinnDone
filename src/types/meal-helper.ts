@@ -43,6 +43,7 @@ export interface PlannedMealSummary {
   cleanupRating: CleanupRating;
   ingredients: string[];
   briefInstructions?: string;
+  prepSteps?: string[]; // Step-by-step cooking instructions
   isFlexMeal: boolean;
   isKidFriendly?: boolean;
   assignedCookId?: string;

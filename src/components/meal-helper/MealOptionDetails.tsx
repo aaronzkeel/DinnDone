@@ -208,15 +208,37 @@ export function MealOptionDetails({
                 className="text-sm font-semibold"
                 style={{ color: "var(--color-text)" }}
               >
-                Plan
+                {meal.prepSteps && meal.prepSteps.length > 0 ? "Prep Steps" : "Plan"}
               </h2>
-              <p
-                className="mt-2 text-sm"
-                style={{ color: "var(--color-muted)" }}
-              >
-                {meal.briefInstructions ||
-                  "Keep it simple: prep a few things, cook, and call it a win."}
-              </p>
+              {meal.prepSteps && meal.prepSteps.length > 0 ? (
+                <ol
+                  className="mt-2 space-y-2 text-sm"
+                  style={{ color: "var(--color-muted)" }}
+                >
+                  {meal.prepSteps.map((step, index) => (
+                    <li key={index} className="flex gap-3">
+                      <span
+                        className="flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-xs font-semibold"
+                        style={{
+                          backgroundColor: "var(--color-primary)",
+                          color: "white",
+                        }}
+                      >
+                        {index + 1}
+                      </span>
+                      <span className="pt-0.5">{step}</span>
+                    </li>
+                  ))}
+                </ol>
+              ) : (
+                <p
+                  className="mt-2 text-sm"
+                  style={{ color: "var(--color-muted)" }}
+                >
+                  {meal.briefInstructions ||
+                    "Keep it simple: prep a few things, cook, and call it a win."}
+                </p>
+              )}
             </div>
           </div>
         </div>
