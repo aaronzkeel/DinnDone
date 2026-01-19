@@ -187,21 +187,59 @@ function extractIngredientsFromMeals(meals: WeekPlan["meals"]): PantryCheckItem[
   }));
 }
 
+// Generate previous week plan (all days are past)
+function createPreviousWeekPlan(): WeekPlan {
+  const { dates: currentDates } = getCurrentWeekDates();
+  const dayNames = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+
+  // Get previous week dates
+  const prevWeekDates = currentDates.map((dateStr) => {
+    const date = new Date(dateStr);
+    date.setDate(date.getDate() - 7);
+    return date.toISOString().split("T")[0];
+  });
+
+  return {
+    id: "wp-000",
+    weekStartDate: prevWeekDates[0],
+    status: "completed",
+    meals: [
+      { id: "pm-p01", date: prevWeekDates[0], dayOfWeek: dayNames[0], mealName: "Spaghetti & Meatballs", effortTier: "middle", prepTime: 20, cookTime: 30, cleanupRating: "medium", assignedCookId: "hm-001", eaterIds: ["hm-001", "hm-002", "hm-003", "hm-004", "hm-005"], servings: 5, ingredients: ["Spaghetti", "Meatballs", "Marinara"], isFlexMeal: false, isUnplanned: false },
+      { id: "pm-p02", date: prevWeekDates[1], dayOfWeek: dayNames[1], mealName: "Grilled Chicken", effortTier: "super-easy", prepTime: 10, cookTime: 20, cleanupRating: "low", assignedCookId: "hm-002", eaterIds: ["hm-001", "hm-002", "hm-003"], servings: 3, ingredients: ["Chicken breast", "Seasoning"], isFlexMeal: false, isUnplanned: false },
+      { id: "pm-p03", date: prevWeekDates[2], dayOfWeek: dayNames[2], mealName: "Fish Tacos", effortTier: "middle", prepTime: 15, cookTime: 15, cleanupRating: "medium", assignedCookId: "hm-001", eaterIds: ["hm-001", "hm-002", "hm-004"], servings: 3, ingredients: ["Fish", "Tortillas", "Cabbage"], isFlexMeal: true, isUnplanned: false },
+      { id: "pm-p04", date: prevWeekDates[3], dayOfWeek: dayNames[3], mealName: "Beef Stew", effortTier: "more-prep", prepTime: 30, cookTime: 120, cleanupRating: "medium", assignedCookId: "hm-002", eaterIds: ["hm-001", "hm-002", "hm-003", "hm-004", "hm-005"], servings: 5, ingredients: ["Beef", "Potatoes", "Carrots"], isFlexMeal: false, isUnplanned: false },
+      { id: "pm-p05", date: prevWeekDates[4], dayOfWeek: dayNames[4], mealName: "Takeout Night", effortTier: "super-easy", prepTime: 0, cookTime: 0, cleanupRating: "low", assignedCookId: "hm-001", eaterIds: ["hm-001", "hm-002", "hm-003", "hm-004", "hm-005"], servings: 5, ingredients: ["Order from restaurant"], isFlexMeal: false, isUnplanned: false },
+      { id: "pm-p06", date: prevWeekDates[5], dayOfWeek: dayNames[5], mealName: "BBQ Ribs", effortTier: "more-prep", prepTime: 20, cookTime: 180, cleanupRating: "high", assignedCookId: "hm-001", eaterIds: ["hm-001", "hm-002"], servings: 2, ingredients: ["Ribs", "BBQ sauce"], isFlexMeal: false, isUnplanned: false },
+      { id: "pm-p07", date: prevWeekDates[6], dayOfWeek: dayNames[6], mealName: "Roast Chicken", effortTier: "middle", prepTime: 15, cookTime: 90, cleanupRating: "medium", assignedCookId: "hm-002", eaterIds: ["hm-002", "hm-003", "hm-004", "hm-005"], servings: 4, ingredients: ["Whole chicken", "Vegetables"], isFlexMeal: false, isUnplanned: false },
+    ],
+  };
+}
+
 type ViewState = "week-plan" | "pantry-audit";
 
 export default function TestApprovePlanPage() {
-  // Use useMemo to create the week plan once (with current dates)
+  // Use useMemo to create the week plans (with current and previous week dates)
   const initialWeekPlan = useMemo(() => createInitialWeekPlan(), []);
+  const previousWeekPlan = useMemo(() => createPreviousWeekPlan(), []);
   const initialPantryItems = useMemo(() => extractIngredientsFromMeals(initialWeekPlan.meals), [initialWeekPlan.meals]);
 
-  // Dynamic availableWeeks based on current dates
-  const availableWeeks: WeekSummary[] = useMemo(() => [{
-    id: "wp-001",
-    weekStartDate: initialWeekPlan.weekStartDate,
-    label: "This Week",
-    status: "draft" as const,
-  }], [initialWeekPlan.weekStartDate]);
+  // Dynamic availableWeeks - includes previous week for testing past days dimming
+  const availableWeeks: WeekSummary[] = useMemo(() => [
+    {
+      id: "wp-000",
+      weekStartDate: previousWeekPlan.weekStartDate,
+      label: "Last Week",
+      status: "completed" as const,
+    },
+    {
+      id: "wp-001",
+      weekStartDate: initialWeekPlan.weekStartDate,
+      label: "This Week",
+      status: "draft" as const,
+    },
+  ], [initialWeekPlan.weekStartDate, previousWeekPlan.weekStartDate]);
 
+  const [selectedWeekId, setSelectedWeekId] = useState("wp-001");
   const [weekPlan, setWeekPlan] = useState<WeekPlan>(initialWeekPlan);
   const [view, setView] = useState<ViewState>("week-plan");
   const [pantryItems, setPantryItems] = useState<PantryCheckItem[]>(initialPantryItems);
@@ -226,8 +264,13 @@ export default function TestApprovePlanPage() {
     setView("pantry-audit");
   };
 
-  const handleSelectWeek = () => {
-    // Only one week in this test
+  const handleSelectWeek = (weekId: string) => {
+    setSelectedWeekId(weekId);
+    if (weekId === "wp-000") {
+      setWeekPlan(previousWeekPlan);
+    } else {
+      setWeekPlan(initialWeekPlan);
+    }
   };
 
   const handleSelectMeal = (mealId: string) => {
@@ -358,7 +401,11 @@ export default function TestApprovePlanPage() {
       </div>
       <WeekPlanView
         currentUser={currentUser}
-        availableWeeks={availableWeeks.map((w) => ({ ...w, status: weekPlan.status }))}
+        availableWeeks={availableWeeks.map((w) =>
+          w.id === selectedWeekId
+            ? { ...w, status: weekPlan.status }
+            : w
+        )}
         selectedWeekPlan={weekPlan}
         householdMembers={householdMembers}
         onSelectWeek={handleSelectWeek}

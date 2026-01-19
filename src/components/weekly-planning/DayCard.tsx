@@ -7,6 +7,7 @@ interface DayCardProps {
   meal: PlannedMeal;
   householdMembers: HouseholdMember[];
   isToday: boolean;
+  isPast?: boolean;
   onTap?: () => void;
 }
 
@@ -26,6 +27,7 @@ export function DayCard({
   meal,
   householdMembers,
   isToday,
+  isPast = false,
   onTap,
 }: DayCardProps) {
   const cook = householdMembers.find((m) => m.id === meal.assignedCookId);
@@ -53,6 +55,7 @@ export function DayCard({
             : "border hover:border-[var(--color-primary)]"
         }
         ${meal.isUnplanned ? "opacity-60" : ""}
+        ${isPast ? "opacity-50" : ""}
       `}
       style={{
         backgroundColor: isToday
