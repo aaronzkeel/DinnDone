@@ -1,5 +1,66 @@
 # Dinner Bell - Claude Progress Notes
 
+## Session: 2026-01-19 03:20 (Coding Agent - Feature #141)
+
+### Feature Implemented:
+- Feature #141: Day cards match design screenshots
+- Category: style
+- Description: Styling per product-plan reference
+- Dependencies: Feature #114 (Day cards display for week)
+
+### What was changed:
+Updated `src/components/weekly-planning/WeekPlanView.tsx`:
+
+1. **Changed layout from 2-column grid to single-column vertical stack**:
+   - Before: `grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-3`
+   - After: `space-y-2 md:space-y-3`
+   - Design reference clearly shows vertical stack layout
+
+2. **Updated container max-width**:
+   - Before: `max-w-3xl md:max-w-4xl`
+   - After: `max-w-2xl` (672px - matches design reference)
+
+### Verification Results:
+**Step 1: Compare to screenshot** ✅
+- Design shows single-column vertical list, not 2-column grid
+- Fixed by changing from grid to space-y stack layout
+- Screenshots match the product-plan reference
+
+**Step 2: Verify colors match palette** ✅
+- Card background (light): `#F3E8D6` ✅
+- Card background (dark): `#221A14` ✅
+- Border (light): `#D8CBB6` ✅
+- Border (dark): `#3A2D23` ✅
+- Primary text (light): `#2B221A` ✅
+- Primary text (dark): `#F6EDE0` ✅
+- Muted text (light): `#6B5C4D` ✅
+- Gold/Primary dots: `#E2A93B` ✅
+
+**Step 3: Verify spacing and typography** ✅
+- Card spacing: `space-y-2 md:space-y-3` (8px/12px)
+- Card padding: `p-4 md:p-5` (16px/20px)
+- Typography matches design (font-semibold, text-xs, text-sm)
+- Effort dots properly sized (w-2 h-2 rounded-full)
+
+### Additional verifications:
+- ✅ Today's card has special highlighting (border-2, light gold tint)
+- ✅ Mobile responsive (tested at 375x667)
+- ✅ Dark mode works correctly
+- ✅ Zero console errors
+- ✅ Build passes successfully (`npm run build`)
+
+### Screenshots:
+- feature-141-vertical-layout-desktop.png (after fix)
+- feature-141-mobile-viewport.png
+- feature-141-dark-mode.png
+- feature-141-verified-desktop.png
+
+### Status: Feature #141 marked as PASSING
+
+### Current Progress: 107/200 features passing (53.5%)
+
+---
+
 ## Session: 2026-01-19 (Coding Agent - Features #141, #27, #142)
 
 ### Features Verified This Session:
@@ -4306,3 +4367,31 @@ Updated `src/app/test-generate-plan/page.tsx` with comprehensive dietary prefere
 
 ### Status: STILL PASSING - No regression found
 [Testing] Feature #97 verified - still passing
+
+## Session: 2026-01-19 03:19 (Regression Test - Feature #135)
+
+### Feature Tested:
+- Feature #135: Generated plan considers dietary needs
+- Category: functional
+- Description: Plan accounts for family preferences
+
+### Verification Results:
+- ✅ Step 1: Set dietary preferences - Lizzie has 'Vegetarian' preference set
+- ✅ Step 2: Generate a plan - Button shows '1 dietary restriction', plan generated successfully
+- ✅ Step 3: Verify meals respect preferences:
+  - Active preferences: Vegetarian
+  - Meals respecting preferences: 7/7 (100%)
+  - All meals have 'Diet OK' badge
+  - Generated meals (all vegetarian-friendly):
+    1. Monday: Quick Black Bean Burgers (Familiar)
+    2. Tuesday: Vegetarian Chili (Familiar)
+    3. Wednesday: Pasta Primavera (Familiar)
+    4. Thursday: Quesadillas with Sweet Potato and Black Beans (Familiar)
+    5. Friday: Pizza Night - Veggie Toppings (Familiar)
+    6. Saturday: Vegetable Curry with Rice (Familiar)
+    7. Sunday: Lentil Shepherd's Pie (New)
+- ✅ Zero console errors
+- ✅ Screenshots captured
+
+### Status: STILL PASSING - No regression found
+[Testing] Feature #135 verified - still passing
