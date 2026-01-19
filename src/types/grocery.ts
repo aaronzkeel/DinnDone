@@ -48,7 +48,7 @@ export interface GroceryListProps {
   /** Sync status indicator */
   syncStatus?: 'synced' | 'syncing' | 'offline'
   /** Called when user adds a new item via text input */
-  onAddItem?: (name: string, options?: { storeId?: string }) => void
+  onAddItem?: (name: string, options?: { storeId?: string; quantity?: string }) => void
   /** Called when user taps the mic button to add via voice */
   onVoiceInput?: () => void
   /** Called when user checks or unchecks an item */

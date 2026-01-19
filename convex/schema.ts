@@ -138,8 +138,10 @@ const schema = defineSchema({
     isChecked: v.boolean(),
     linkedMealIds: v.optional(v.array(v.id("plannedMeals"))),
     weekPlanId: v.optional(v.id("weekPlans")), // which week this item is for
+    sortOrder: v.optional(v.number()), // order within the store (lower = higher up)
   })
     .index("by_store", ["storeId"])
+    .index("by_store_order", ["storeId", "sortOrder"])
     .index("by_week_plan", ["weekPlanId"])
     .index("by_checked", ["isChecked"]),
 

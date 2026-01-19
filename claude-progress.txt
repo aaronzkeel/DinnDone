@@ -2981,3 +2981,18 @@ Updated sample data in test pages to include proper ingredient quantities:
 - feature-72-meal-details-mobile.png (mobile view)
 
 ### Status: Feature #72 marked as PASSING
+
+## Session: 2026-01-18 22:36 (Regression Test - Feature #3)
+
+### Feature Tested:
+- Feature #3: Convex backend connected
+
+### Verification Results:
+- ✅ Step 1: ConvexProvider is in layout.tsx - ConvexClientProvider wraps app at line 54
+- ✅ Step 2: NEXT_PUBLIC_CONVEX_URL is set in .env.local - https://basic-condor-768.convex.cloud
+- ✅ Step 3: No connection errors in console - Zero errors, status shows 'Connected to Convex'
+- ✅ Verified live data fetching - Week Plans displayed from Convex database
+- ✅ Screenshots: regression-test-feature-3-*.png
+
+### Status: STILL PASSING - No regression found
+[Testing] Feature #3 verified - still passing

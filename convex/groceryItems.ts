@@ -1,11 +1,17 @@
 import { v } from "convex/values";
 import { query, mutation } from "./_generated/server";
 
-// List all grocery items
+// List all grocery items, ordered by sortOrder within each store
 export const list = query({
   args: {},
   handler: async (ctx) => {
-    return await ctx.db.query("groceryItems").collect();
+    const items = await ctx.db.query("groceryItems").collect();
+    // Sort items by sortOrder (nulls go to end)
+    return items.sort((a, b) => {
+      const orderA = a.sortOrder ?? Number.MAX_SAFE_INTEGER;
+      const orderB = b.sortOrder ?? Number.MAX_SAFE_INTEGER;
+      return orderA - orderB;
+    });
   },
 });
 

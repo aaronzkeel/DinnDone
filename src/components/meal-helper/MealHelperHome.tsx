@@ -160,18 +160,14 @@ export function MealHelperHome({
           <button
             onClick={onThisWorks}
             className="px-4 py-3 rounded-xl text-white font-semibold hover:opacity-90 active:scale-[0.99] transition-all"
-            style={{ backgroundColor: "var(--color-primary)" }}
+            style={{ backgroundColor: "var(--color-secondary)" }}
           >
             This works
           </button>
           <button
             onClick={onNewPlan}
-            className="px-4 py-3 rounded-xl font-semibold hover:opacity-80 active:scale-[0.99] transition-all"
-            style={{
-              backgroundColor: "var(--color-card)",
-              border: "1px solid var(--color-border)",
-              color: "var(--color-text)",
-            }}
+            className="px-4 py-3 rounded-xl text-white font-semibold hover:opacity-90 active:scale-[0.99] transition-all"
+            style={{ backgroundColor: "var(--color-primary)" }}
           >
             New plan
           </button>
