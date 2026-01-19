@@ -6795,3 +6795,57 @@ the test page to use those existing props.
 ### Status: Feature #121 marked as PASSING
 
 ### Current Progress: 194/200 features passing (97.0%)
+
+## Session: 2026-01-19 (Coding Agent - Feature #121)
+
+### Feature:
+- Feature #121: Swap persists to database
+- Category: functional
+- Description: Meal swap saves to Convex
+- Dependencies: Feature #120
+
+### What was implemented:
+
+**Created Test Page (src/app/test-meal-swap-persist/page.tsx):**
+- New test page at `/test-meal-swap-persist` for Feature #121
+- Uses Convex `useQuery` to fetch meals from database
+- Uses Convex `useMutation` with `updateMeal` to persist swaps
+- Auto-validation of test steps with visual feedback
+- Success message shows when swap completes
+
+**Key Implementation Details:**
+1. Queries `weekPlans.list` and `weekPlans.getMeals` from Convex
+2. Uses existing `weekPlans.updateMeal` mutation for swap
+3. Maps between UI effortTier (super-easy/middle/more-prep) and DB effortTier (easy/medium/involved)
+4. Maps cleanupRating between string and number formats
+5. Real-time sync via Convex subscriptions
+
+### Verification Results:
+
+**Test Flow:**
+1. Initial state: Meal was "Quick Pasta Marinara" (from previous test)
+2. Opened Edit Modal, selected "Grilled Cheese & Tomato Soup"
+3. Swap completed - database updated via Convex mutation
+4. Refreshed page - meal still "Grilled Cheese & Tomato Soup"
+5. Tested swap back to "Quick Pasta Marinara"
+6. Refreshed again - persistence confirmed!
+
+**Step-by-Step Verification:**
+- ✅ Step 1: Swap a meal - Used EditDayModal to swap meal
+- ✅ Step 2: Refresh page - Browser navigation to same URL
+- ✅ Step 3: Verify swap persisted - Same meal name appears from Convex database
+
+**Screenshots:**
+- feature-121-initial-state.png (before swap)
+- feature-121-modal-open.png (edit modal showing alternatives)
+- feature-121-swap-success.png (swap completed)
+- feature-121-persistence-final-verified.png (after refresh)
+
+### Console Errors: None
+
+### Status: Feature #121 marked as PASSING
+
+### Also Fixed:
+- TypeScript error in test-meal-suggestion-cards/page.tsx (added missing `servings` property)
+
+### Current Progress: 193/200 features passing (96.5%)
