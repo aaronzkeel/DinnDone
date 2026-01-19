@@ -213,8 +213,8 @@ export function GroceryListItem({
                 }
               `}
               disabled={item.isChecked}
-              aria-label="Edit item"
-              title="Click to edit"
+              aria-label={`Edit ${item.name}`}
+              title={item.name}
             >
               {item.name}
             </button>
