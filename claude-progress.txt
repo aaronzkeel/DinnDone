@@ -3882,3 +3882,79 @@ Updated `src/components/grocery-list/GroceryList.tsx` filter pills container:
 
 ### Status: STILL PASSING - No regression found
 [Testing] Feature #15 verified - still passing
+
+## Session: 2026-01-19 (Regression Test - Feature #170)
+
+### Feature Tested:
+- Feature #170: Can toggle notification types on/off
+- Category: functional
+- Description: Individual type toggles available
+
+### Verification Results:
+- ✅ Step 1: Open notification settings - Navigated to /test-notification-settings
+- ✅ Step 2: Find toggle for Daily Brief - 7AM Daily Brief toggle visible with ON/OFF states
+- ✅ Step 3: Toggle off and verify saves:
+  - Started: 7AM Daily Brief was ON (gold toggle)
+  - Clicked: Changed to OFF (gray toggle) 
+  - Clicked again: Changed back to ON (gold toggle)
+  - Visual feedback is immediate and correct
+- ✅ No console errors
+- ✅ All 7 notification types have individual toggles visible
+
+### Screenshots:
+- regression-test-feature-170-notification-settings.png (initial state)
+- regression-test-feature-170-toggle-on.png (after toggling ON)
+- regression-test-feature-170-toggle-off.png (after toggling OFF)
+- regression-test-feature-170-after-refresh.png (persistence check)
+
+### Status: STILL PASSING - No regression found
+[Testing] Feature #170 verified - still passing
+
+## Session: 2026-01-19 (Coding Agent - Feature #117)
+
+### Feature:
+- Feature #117: Day card shows who is eating
+- Category: functional
+- Description: Eater avatars or names display
+- Dependencies: Feature #114 (Day cards display for week)
+
+### What was implemented:
+Updated `src/components/weekly-planning/DayCard.tsx` to show eater names instead of just the count:
+
+1. **Changed eaters display logic**:
+   - Before: `<Users icon> {eaters.length}` (e.g., "5")
+   - After: Shows actual names with smart truncation:
+     - 3 or fewer eaters: Shows all names (e.g., "Aaron, Katie, Lizzie")
+     - 4+ eaters: Shows first 2 names + count (e.g., "Aaron, Katie +3")
+
+2. **Added responsive max-width**:
+   - Mobile: `max-w-[100px]` with truncation
+   - Desktop: `max-w-[150px]` with truncation
+
+3. **Updated test data** in `test-approve-plan/page.tsx`:
+   - Added full family: Aaron, Katie, Lizzie, Ethan, Elijah
+   - Updated meals with various eater combinations to test all display modes
+
+### Test Steps Verified:
+- ✅ Step 1: View a day card - Viewed weekly planning test page with 7 day cards
+- ✅ Step 2: Verify eater indicators show - Names display correctly:
+  - Monday (5 eaters): "Aaron, Katie +3" ✅
+  - Tuesday (4 eaters): "Aaron, Katie +2" ✅
+  - Wednesday (3 eaters): "Aaron, Katie, Lizzie" ✅
+  - Thursday (4 eaters, no Aaron): "Katie, Lizzie +2" ✅
+  - Friday (5 eaters): "Aaron, Katie +3" ✅
+  - Saturday (2 eaters): "Aaron, Katie" ✅
+  - Sunday (4 eaters, no Aaron): "Katie, Lizzie +2" ✅
+- ✅ Step 3: Verify matches planned eaters - All names match the eaterIds in data
+- ✅ Tested mobile viewport (375x667) - Layout doesn't break
+- ✅ No console errors
+
+### Screenshots:
+- feature-117-before-daycard-eaters.png (original showing just count "2")
+- feature-117-after-daycard-eaters-names.png (after change showing names)
+- feature-117-eaters-display-verified.png (desktop with various eater counts)
+- feature-117-eaters-mobile-viewport.png (mobile view)
+
+### Status: Feature #117 marked as PASSING
+
+### Current Progress: 101/200 features passing (50.5%)
