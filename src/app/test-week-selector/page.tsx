@@ -45,7 +45,7 @@ function getWeekLabel(weekStartDate: Date): string {
   }
 }
 
-// Generate available weeks starting from current week
+// Generate available weeks including past weeks (for history)
 function generateWeeks(): WeekSummary[] {
   const today = new Date();
   const currentDay = today.getDay();
@@ -56,16 +56,27 @@ function generateWeeks(): WeekSummary[] {
 
   const weeks: WeekSummary[] = [];
 
-  for (let i = 0; i < 4; i++) {
+  // Generate 3 past weeks + current week + 4 future weeks = 8 total
+  for (let i = -3; i < 5; i++) {
     const weekStart = new Date(thisMonday);
     weekStart.setDate(thisMonday.getDate() + (i * 7));
     const weekStartDate = weekStart.toISOString().split("T")[0];
 
+    // Past weeks are completed, current is in-progress, next is approved, rest are draft
+    let status: WeekSummary["status"] = "draft";
+    if (i < 0) {
+      status = "completed"; // Past weeks
+    } else if (i === 0) {
+      status = "in-progress"; // This week
+    } else if (i === 1) {
+      status = "approved"; // Next week
+    }
+
     weeks.push({
-      id: `wp-${i + 1}`,
+      id: `wp-${i + 4}`, // IDs 1-3 are past, 4 is current, 5+ are future
       weekStartDate,
       label: getWeekLabel(weekStart),
-      status: i === 0 ? "in-progress" : i === 1 ? "approved" : "draft",
+      status,
     });
   }
 
@@ -74,9 +85,26 @@ function generateWeeks(): WeekSummary[] {
 
 export default function TestWeekSelectorPage() {
   const [weeks] = useState<WeekSummary[]>(generateWeeks);
-  const [selectedWeekId, setSelectedWeekId] = useState("wp-1");
+  const [selectedWeekId, setSelectedWeekId] = useState("wp-4"); // wp-4 is "This Week"
 
   const selectedWeek = weeks.find(w => w.id === selectedWeekId);
+  const selectedIndex = weeks.findIndex(w => w.id === selectedWeekId);
+
+  // Navigation handlers
+  const handleNavigatePrevious = () => {
+    if (selectedIndex > 0) {
+      setSelectedWeekId(weeks[selectedIndex - 1].id);
+    }
+  };
+
+  const handleNavigateNext = () => {
+    if (selectedIndex < weeks.length - 1) {
+      setSelectedWeekId(weeks[selectedIndex + 1].id);
+    }
+  };
+
+  const canNavigatePrevious = selectedIndex > 0;
+  const canNavigateNext = selectedIndex < weeks.length - 1;
 
   return (
     <div style={{ backgroundColor: "var(--color-bg)", minHeight: "100vh" }}>
@@ -95,6 +123,10 @@ export default function TestWeekSelectorPage() {
         selectedWeekId={selectedWeekId}
         onSelectWeek={setSelectedWeekId}
         onAddWeek={() => console.log("Add week clicked")}
+        onNavigatePrevious={handleNavigatePrevious}
+        onNavigateNext={handleNavigateNext}
+        canNavigatePrevious={canNavigatePrevious}
+        canNavigateNext={canNavigateNext}
       />
 
       {/* Verification Info */}
@@ -138,13 +170,32 @@ export default function TestWeekSelectorPage() {
           style={{ backgroundColor: "var(--color-card)", border: "1px solid var(--color-border)" }}
         >
           <h2 className="font-semibold mb-2" style={{ color: "var(--color-text)" }}>
-            Verification Checklist
+            Feature #111 Checklist
           </h2>
           <ul className="space-y-1 text-sm" style={{ color: "var(--color-muted)" }}>
             <li>Step 1: View Weekly Planning - ✓ This test page shows WeekSelector</li>
             <li>Step 2: Verify week selector shows date range - Check labels above</li>
             <li>Step 3: Verify current week is selected by default - Check "This Week" has highlight</li>
           </ul>
+        </div>
+
+        <div
+          className="p-4 rounded-lg"
+          style={{ backgroundColor: "var(--color-card)", border: "1px solid var(--color-border)" }}
+        >
+          <h2 className="font-semibold mb-2" style={{ color: "var(--color-text)" }}>
+            Feature #113 Checklist (Previous Week Navigation)
+          </h2>
+          <ul className="space-y-1 text-sm" style={{ color: "var(--color-muted)" }}>
+            <li>Step 1: Click previous week arrow (left chevron) - Use ← button</li>
+            <li>Step 2: Verify dates update to previous week - Check Selected Week Details</li>
+            <li>Step 3: Verify historical meals display - Past weeks show &quot;completed&quot; status</li>
+          </ul>
+          <div className="mt-2 text-xs" style={{ color: "var(--color-muted)" }}>
+            <p><strong>Navigation Status:</strong></p>
+            <p>Can navigate previous: {canNavigatePrevious ? "Yes" : "No (at oldest week)"}</p>
+            <p>Can navigate next: {canNavigateNext ? "Yes" : "No (at newest week)"}</p>
+          </div>
         </div>
       </div>
     </div>
