@@ -1,5 +1,47 @@
 # Dinner Bell - Claude Progress Notes
 
+## Session: 2026-01-18 (Coding Agent - Feature #95)
+
+### Feature:
+- Feature #95: Empty state when no plan exists
+- Category: error-handling
+- Description: Helpful message if no weekly plan
+
+### What was implemented:
+1. **src/types/meal-helper.ts** - Made `tonightMeal` prop optional:
+   - Changed from `tonightMeal: PlannedMealSummary` to `tonightMeal?: PlannedMealSummary | null`
+   - Updated JSDoc comment to document the null case
+
+2. **src/components/meal-helper/MealHelperHome.tsx** - Added empty state handling:
+   - Early return when `tonightMeal` is null/undefined
+   - Displays card with Calendar icon
+   - Shows "No meal planned for tonight" heading
+   - Shows "Create a weekly plan to see tonight's meal suggestion here." message
+   - "Go to Weekly Planning" link button (navigates to /weekly-planning)
+   - "I'm wiped" button still accessible (per requirements)
+   - Chat area still available for Zylo interactions
+
+3. **src/app/test-meal-helper-empty/page.tsx** - Created test page for verification
+
+### Verification Results:
+- ✅ Step 1: View Meal Helper with no weekly plan - Empty state displays
+- ✅ Step 2: Verify message prompts to create plan - Shows "No meal planned for tonight" with helpful text
+- ✅ Step 3: Verify link to Weekly Planning - "Go to Weekly Planning" button present and navigates correctly
+- ✅ Bonus: "I'm wiped" button still works - Opens Emergency Exit screen
+- ✅ Mobile responsive (tested at 375x667)
+- ✅ No console errors
+- ✅ TypeScript compiles without errors
+
+### Screenshots:
+- feature-95-empty-state-no-plan.png (desktop empty state)
+- feature-95-im-wiped-still-works.png (emergency exit screen accessible)
+- feature-95-mobile-empty-state.png (mobile responsive view)
+
+### Status: Feature #95 marked as PASSING
+- Current progress: 51/200 features passing (25.5%)
+
+---
+
 ## Session: 2026-01-18 (Coding Agent - Feature #61)
 
 ### Feature:
