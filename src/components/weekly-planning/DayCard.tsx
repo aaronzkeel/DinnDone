@@ -139,10 +139,18 @@ export function DayCard({
                 </div>
               )}
 
-              {/* Eaters count */}
+              {/* Eaters - show names or initials */}
               <div className="flex items-center gap-1.5">
                 <Users size={14} />
-                <span>{eaters.length}</span>
+                {eaters.length <= 3 ? (
+                  <span className="truncate max-w-[100px] md:max-w-[150px]">
+                    {eaters.map((e) => e.name.split(" ")[0]).join(", ")}
+                  </span>
+                ) : (
+                  <span className="truncate max-w-[100px] md:max-w-[150px]">
+                    {eaters.slice(0, 2).map((e) => e.name.split(" ")[0]).join(", ")} +{eaters.length - 2}
+                  </span>
+                )}
               </div>
             </div>
           )}
