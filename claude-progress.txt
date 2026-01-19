@@ -1,5 +1,35 @@
 # Dinner Bell - Claude Progress Notes
 
+## Session: 2026-01-19 (Single Feature Agent - Feature #87)
+
+### Feature:
+- Feature #87: Add missing to grocery list
+- Category: functional
+- Description: One-tap adds missing ingredients to list
+- Dependencies: Feature #86 (Missing ingredients highlighted), Feature #25
+
+### What was implemented:
+Created test page at `/test-add-missing-to-grocery`:
+
+**Test Page Features:**
+- IngredientsCheckPanel to mark which ingredients are available
+- "Add missing to grocery list" one-tap button
+- Uses Convex `groceryItems.add` mutation to add items
+- Categories ingredients automatically (Meat, Produce, Dairy, etc.)
+- Links added items to the meal if available
+- Three-step verification checklist
+
+### Status:
+- ⚠️ Test page created but browser automation stuck
+- TypeScript compiles without errors
+- Feature skipped (moved to end of queue) - browser MCP unresponsive
+- Will need manual browser verification or retry
+
+### Files created:
+- `src/app/test-add-missing-to-grocery/page.tsx` - Test page for Feature #87
+
+---
+
 ## Session: 2026-01-19 (Single Feature Agent - Feature #131)
 
 ### Feature:
@@ -6992,3 +7022,33 @@ the test page to use those existing props.
 
 ### Status: STILL PASSING - No regression found
 [Testing] Feature #169 verified - still passing
+[Testing] Feature #47 verified - still passing
+
+### Feature Tested:
+- Feature #47: Store sections have distinct visual separation
+- Category: style
+- Description: Each store section is clearly delineated
+
+### Verification Results:
+- ✅ Step 1: View list with multiple stores
+  - Navigated to /test-grocery-list
+  - Page shows 8 items across 4 stores: Meijer (3), Costco (2), Aldi (2), Trader Joe's (1)
+
+- ✅ Step 2: Verify visual separation between stores
+  - Each store section has mb-5 (20px) margin-bottom spacing
+  - Clear whitespace between sections
+  - '+ Add item' button at bottom of each section provides additional separation
+
+- ✅ Step 3: Verify store headers are prominent
+  - Store names in UPPERCASE (MEIJER, COSTCO, ALDI, TRADER JOE'S)
+  - Bold font weight with tracking-wide letter spacing
+  - Item count displayed on right side of each header
+  - Clear visual hierarchy - headers distinguishable from item content
+
+### Screenshots:
+- regression-test-feature-47-store-sections.png
+- regression-test-feature-47-store-sections-scrolled.png
+
+### Console Errors: None (only HMR reconnection warnings from server restart)
+
+### Status: STILL PASSING - No regression found
