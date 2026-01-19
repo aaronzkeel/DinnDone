@@ -1,5 +1,72 @@
 # Dinner Bell - Claude Progress Notes
 
+## Session: 2026-01-19 (Coding Agent - Features #141, #27, #142)
+
+### Features Verified This Session:
+
+#### Feature #141: Day cards match design screenshots
+- Category: style
+- Description: Styling per product-plan reference
+- Verified by comparing current implementation with design reference
+
+**Verification:**
+- Compared DayCard component to product-plan/sections/weekly-planning/weekly-planning-mobile-light.png
+- Day column: 3-letter day + date number ✓
+- Meal name: Bold heading with truncation ✓
+- Effort tier: "Super Easy"/"Medium"/"More Prep" with colored dots ✓
+- Bottom row: Time, cook, eaters displayed ✓
+- Colors match palette (gold primary, warm cream background) ✓
+- Responsive design: 2-column on desktop, single column on mobile ✓
+
+**Screenshots:** feature-141-daycard-current.png, feature-141-daycard-light-mode.png, feature-141-daycard-mobile.png
+
+**Status:** PASSING
+
+---
+
+#### Feature #27: User can add item with quantity
+- Category: functional
+- Description: Items can have optional quantity like 2 lbs or 1 dozen
+
+**Code Changes:**
+- Fixed src/app/grocery-list/page.tsx handleAddItem to use quantity parameter
+- The GroceryList component already has parseItemInput() that parses "Apples 2 lbs" → name: "Apples", quantity: "2 lbs"
+
+**Verification:**
+- Added "Apples 2 lbs" via inline add → correctly parsed and displayed
+- Quantity shown as clickable button next to item name
+- Test data shows items with various quantities (1 lb, 1 dozen, 2 lbs, 32 oz)
+
+**Screenshot:** feature-27-item-with-quantity.png
+
+**Status:** PASSING
+
+---
+
+#### Feature #142: Today is highlighted
+- Category: style
+- Description: Current day has distinct styling
+
+**Code Changes:**
+- Updated src/app/test-approve-plan/page.tsx to use dynamic current week dates
+- Added getCurrentWeekDates() helper function
+- Refactored initialWeekPlan to createInitialWeekPlan() function
+
+**Verification:**
+- Today (Mon 19) shows with gold/primary colored text for day/date
+- Card has subtle gold tint background (rgba(226, 169, 59, 0.1))
+- Other days show muted gray text
+
+**Screenshot:** feature-142-today-highlight.png
+
+**Status:** PASSING
+
+---
+
+### Current Progress: 109/200 features passing (54.5%)
+
+---
+
 ## Session: 2026-01-19 (Coding Agent - Feature #134)
 
 ### Feature:
@@ -4194,3 +4261,38 @@ Updated `src/app/test-generate-plan/page.tsx` with comprehensive dietary prefere
 ### Status: Feature #135 marked as PASSING
 
 ### Current Progress: 105/200 features passing (52.5%)
+[Testing] Feature #27 regression fixed - quantity parsing now works in test-grocery-list
+
+## Session: 2026-01-19 03:16 (Regression Test - Feature #97)
+
+### Feature Tested:
+- Feature #97: Tonights Plan card matches design
+- Category: style
+- Description: Card styling per screenshots
+
+### Verification Results:
+- ✅ Step 1: Compare to product-plan screenshot - All elements match design spec
+  - TONIGHT'S PLAN label (uppercase)
+  - Meal name in heading font
+  - Effort badge (Medium/Super Easy/More Prep)
+  - Flex and Kid-friendly badges
+  - Time, cleanup, cook info with icons
+  - Ingredient pills with +N more
+  - Three action buttons
+- ✅ Step 2: Verify colors match Harvest Hug palette
+  - Card background: #F3E8D6 (--color-card) ✓
+  - Border: #D8CBB6 (--color-border) ✓
+  - Gold buttons: #E2A93B (--color-primary) ✓
+  - Text colors correct
+- ✅ Step 3: Verify typography uses correct fonts
+  - Lora for app name and meal heading
+  - Plus Jakarta Sans for body text/buttons
+- ✅ Mobile responsive - layout adapts correctly at 375px
+- ✅ Zero console errors
+
+### Screenshots:
+- regression-test-feature-97-tonights-plan-card.png (desktop view)
+- regression-test-feature-97-mobile-viewport.png (mobile view)
+
+### Status: STILL PASSING - No regression found
+[Testing] Feature #97 verified - still passing
