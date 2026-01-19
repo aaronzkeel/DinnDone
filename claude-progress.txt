@@ -1,5 +1,46 @@
 # Dinner Bell - Claude Progress Notes
 
+## Session: 2026-01-18 (Coding Agent - Feature #159)
+
+### Feature:
+- Feature #159: NotificationCard shows type icon
+- Category: functional
+- Description: Each type has distinct icon
+- Dependencies: Feature #156 (Notification history displays)
+
+### What was implemented:
+The feature was already implemented in `src/components/notifications/NotificationCard.tsx`:
+- Lines 15-23: `typeIcons` mapping for all 7 notification types
+- Lines 25-33: `typeColors` mapping with unique color schemes
+- Lines 74-78: Icon rendered in circular colored background
+
+### Verification:
+Created `src/app/test-notification-types/page.tsx` test page showing all 7 notification types
+
+### Verification Results:
+- ✅ Step 1: View different notification types - All 7 types displayed
+- ✅ Step 2: Verify each has unique icon:
+  - daily-brief → Sun icon
+  - strategic-pivot → Clock icon
+  - thaw-guardian → Snowflake icon
+  - weekly-plan-ready → Calendar icon
+  - inventory-sos → AlertCircle icon
+  - leftover-check → UtensilsCrossed icon
+  - cook-reminder → ChefHat icon
+- ✅ Step 3: Verify icons match spec - All colors match:
+  - Sun (yellow), Clock (blue), Snowflake (cyan), Calendar (purple)
+  - AlertCircle (orange), UtensilsCrossed (lime), ChefHat (amber)
+- ✅ No console errors
+
+### Screenshots:
+- feature-159-notification-type-icons.png
+- feature-159-notification-types-bottom.png
+- feature-159-notification-types-full.png
+
+### Status: Feature #159 marked as PASSING
+
+---
+
 ## Session: 2026-01-18 22:50 (Coding Agent - Feature #170 Check)
 
 ### Assignment:
