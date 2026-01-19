@@ -30,8 +30,8 @@ export function WeekPlanView({
       className="flex flex-col h-full"
       style={{ backgroundColor: "var(--color-bg)" }}
     >
-      {/* Centered container for tablet/desktop */}
-      <div className="w-full max-w-3xl mx-auto">
+      {/* Centered container for tablet/desktop - wider on tablet for 2-column grid */}
+      <div className="w-full max-w-3xl md:max-w-4xl mx-auto">
       {/* Week selector */}
       <WeekSelector
         weeks={availableWeeks}
@@ -131,7 +131,8 @@ export function WeekPlanView({
             </button>
           </div>
         ) : (
-          <div className="space-y-2 md:space-y-3">
+          /* Grid layout: 1 column on mobile, 2 columns on tablet */
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-3">
             {selectedWeekPlan.meals.map((meal) => (
               <DayCard
                 key={meal.id}
