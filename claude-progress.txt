@@ -2848,3 +2848,81 @@ The file was further enhanced with a 2-column grid layout for meal cards:
 
 ### Status: STILL PASSING - No regression found
 [Testing] Feature #69 verified - still passing
+
+## Session: 2026-01-18 (Regression Test - Feature #66)
+
+### Feature Tested:
+- Feature #66: Tonight's Plan card displays
+
+### Verification Results:
+- ✅ Step 1: Have a weekly plan with today's meal - Mock data provides 'Chicken Stir Fry'
+- ✅ Step 2: View Meal Helper - MealHelperHome view displayed
+- ✅ Step 3: Verify tonight's meal name and details show:
+  - 'Tonight's Plan' label
+  - Meal name: 'Chicken Stir Fry'
+  - Difficulty badge: 'Medium'
+  - Flexibility badge: 'Flex'
+  - Cook time: '35 min'
+  - Cleanup: 'Medium cleanup'
+  - Assigned cook: 'Katie cooking'
+  - Ingredient preview: Chicken breast, Bell peppers, Broccoli, Soy sauce, Garlic, +2 more
+  - Action buttons: This works, New plan, I'm wiped
+  - Check what we've got button
+- ✅ No console errors
+- ✅ Screenshot: regression-test-feature-66-tonights-plan-card.png
+
+### Status: STILL PASSING - No regression found
+[Testing] Feature #66 verified - still passing
+
+## Session: 2026-01-18 (Regression Test - Feature #90)
+
+### Feature Tested:
+- Feature #90: Zylo responds to messages
+
+### Verification Results:
+- ✅ Step 1: Send a message like "What can I make?" - Message typed and sent
+- ✅ Step 2: Wait for response - Response received within 3 seconds
+- ✅ Step 3: Verify Zylo responds with helpful suggestion - Response: "Tonight's meal is Chicken Stir Fry. It's a flex meal, which means swapping it out is totally fine too! If you're not in the mood, maybe try leftovers or takeout? 🥡"
+- ✅ No console errors
+- ✅ Screenshots: regression-test-feature-90-initial.png, regression-test-feature-90-response.png
+
+### Status: STILL PASSING - No regression found
+[Testing] Feature #90 verified - still passing
+
+## Session: 2026-01-18 (Coding Agent - Feature #72)
+
+### Feature:
+- Feature #72: Meal details shows ingredients
+- Category: functional
+- Description: MealOptionDetails lists all ingredients
+- Dependencies: Feature #69 (This works button confirms meal)
+
+### What was implemented:
+Updated sample data in test pages to include proper ingredient quantities:
+
+1. **src/app/test-this-works/page.tsx**:
+   - Updated sampleTonightMeal ingredients to include quantities
+   - Examples: "1.5 lbs chicken breast, sliced", "2 cups broccoli florets"
+
+2. **src/app/test-zylo-chat/page.tsx**:
+   - Same ingredient quantity updates for consistency
+
+### Verification Results:
+- ✅ Step 1: Open meal details - Clicked "This works" button to open MealOptionDetails
+- ✅ Step 2: Verify ingredients list displays - "Ingredients" heading with bulleted list shows
+- ✅ Step 3: Verify quantities show with each ingredient:
+  - "1.5 lbs chicken breast, sliced"
+  - "2 bell peppers, diced"
+  - "2 cups broccoli florets"
+  - "3 tbsp soy sauce"
+  - "4 cloves garlic, minced"
+  - "1 tbsp fresh ginger, grated"
+  - "2 cups jasmine rice"
+- ✅ Tested on desktop (1280px) and mobile (375px) viewports
+- ✅ No console errors
+
+### Screenshots:
+- feature-72-meal-details-ingredients.png (desktop view with full ingredients list)
+- feature-72-meal-details-mobile.png (mobile view)
+
+### Status: Feature #72 marked as PASSING
