@@ -1,5 +1,38 @@
 # Dinner Bell - Claude Progress Notes
 
+## Session: 2026-01-18 (Coding Agent - Feature #119)
+
+### Feature:
+- Feature #119: Edit modal shows alternative meals
+- Category: functional
+- Description: Swap options display in modal
+- Dependencies: Feature #118 (Tapping day card opens edit modal)
+
+### What was verified:
+The feature was already fully implemented:
+- `src/components/weekly-planning/EditDayModal.tsx` has "Swap with Alternative" section (lines 215-280)
+- Alternative meals display with: meal name, brief description, effort tier, total time, effort dots
+- Clicking an alternative triggers `onSelectAlternative` callback
+- Test page `src/app/test-edit-day-modal/page.tsx` demonstrates the functionality
+
+### Verification Results:
+- ✅ Step 1: Open edit modal - Modal displays when test page loads
+- ✅ Step 2: Verify alternative meal suggestions show - "Swap with Alternative" section visible with all details
+- ✅ Step 3: Verify at least 2-3 alternatives - 3 alternatives displayed:
+  - Quick Pasta Marinara (Super Easy • 20m)
+  - Grilled Cheese & Tomato Soup (Super Easy • 15m)
+  - Sheet Pan Fajitas (Medium • 40m)
+- ✅ Clicking an alternative works - Shows alert confirming selection
+- ✅ No console errors
+
+### Screenshots:
+- feature-119-edit-modal-with-alternatives.png (initial modal view)
+- feature-119-all-alternatives-visible.png (scrolled view showing all 3 alternatives)
+
+### Status: Feature #119 marked as PASSING
+
+---
+
 ## Session: 2026-01-18 (Coding Agent - Feature #159)
 
 ### Feature:
@@ -3220,3 +3253,35 @@ Updated sample data in test pages to include proper ingredient quantities:
 
 ### Status: STILL PASSING - No regression found
 [Testing] Feature #126 verified - still passing
+
+## Session: 2026-01-18 22:44 (Regression Test - Feature #68)
+
+### Feature Tested:
+- Feature #68: Tonight's Plan shows effort tier
+
+### Verification Results:
+- ✅ Step 1: View Tonight's Plan card - Card displays with 'TONIGHT'S PLAN' label and 'Chicken Stir Fry' meal
+- ✅ Step 2: Verify effort tier badge shows - 'Medium' badge visible in top-right of card
+- ✅ Step 3: Verify appropriate color/icon for tier - Badge has amber/orange background color appropriate for medium effort
+- ✅ No console errors
+- ✅ Screenshot: regression-test-feature-68-effort-tier.png
+
+### Status: STILL PASSING - No regression found
+[Testing] Feature #68 verified - still passing
+
+## Session: 2026-01-18 22:45 (Regression Test - Feature #164)
+
+### Feature Tested:
+- Feature #164: Crisis Day Mute toggle displays
+- Category: functional
+- Description: CrisisMuteBanner shows toggle
+
+### Verification Results:
+- ✅ Step 1: View Notifications page - Page loaded with Notifications section
+- ✅ Step 2: Verify Crisis Day Mute toggle is visible - Toggle icon in toolbar with 'Enable Crisis Day Mute' label
+- ✅ Step 3: Verify toggle is in off state by default - Status shows 'OFF (default)' in green
+- ✅ No console errors
+- ✅ Screenshot: regression-test-feature-164-crisis-mute-toggle.png
+
+### Status: STILL PASSING - No regression found
+[Testing] Feature #164 verified - still passing
