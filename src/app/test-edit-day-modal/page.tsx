@@ -86,7 +86,17 @@ export default function TestEditDayModalPage() {
   const handleSelectAlternative = (altId: string) => {
     const alt = mockAlternatives.find((a) => a.id === altId);
     if (alt) {
-      alert(`Selected alternative: ${alt.mealName}`);
+      // Feature #120: Actually swap the meal
+      setCurrentMeal((prev) => ({
+        ...prev,
+        id: alt.id,
+        mealName: alt.mealName,
+        effortTier: alt.effortTier,
+        prepTime: alt.prepTime,
+        cookTime: alt.cookTime,
+        cleanupRating: alt.cleanupRating,
+        isFlexMeal: alt.isFlexMeal,
+      }));
     }
   };
 
