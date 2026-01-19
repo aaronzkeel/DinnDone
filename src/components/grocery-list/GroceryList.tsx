@@ -1,9 +1,10 @@
 'use client'
 
-import { useMemo, useState } from 'react'
-import { Mic, Cloud, CloudOff, Loader2, Store, Settings2, Plus, Trash2, ChevronDown, ChevronUp, AlignJustify, List, AlertTriangle } from 'lucide-react'
+import { useMemo, useState, useEffect } from 'react'
+import { Mic, MicOff, Cloud, CloudOff, Loader2, Store, Settings2, Plus, Trash2, ChevronDown, ChevronUp, AlignJustify, List, AlertTriangle, X } from 'lucide-react'
 import type { GroceryListProps, GroceryItem, GroceryStore, DuplicateItemInfo } from '@/types/grocery'
 import { GroceryListItem } from './GroceryListItem'
+import { useVoiceInput } from '@/hooks/useVoiceInput'
 
 // (We keep category on items for future use, but ordering is manual via drag-and-drop.)
 
@@ -100,6 +101,7 @@ export function GroceryList({
   onCheckDuplicate,
   onMergeQuantity,
   onVoiceInput,
+  onVoiceResult,
   onToggleChecked,
   onDeleteItem,
   onUpdateItem,
@@ -124,6 +126,36 @@ export function GroceryList({
   const [showDuplicateWarning, setShowDuplicateWarning] = useState(false)
   const [duplicateItem, setDuplicateItem] = useState<DuplicateItemInfo | null>(null)
   const [pendingAdd, setPendingAdd] = useState<{ name: string; quantity?: string; storeId?: string } | null>(null)
+
+  // Voice input state - shows toast when voice adds item
+  const [voiceAddedItem, setVoiceAddedItem] = useState<string | null>(null)
+
+  // Voice input hook - only use if onVoiceResult is provided (component handles voice)
+  const voiceInput = useVoiceInput({
+    onResult: (transcript) => {
+      if (onVoiceResult) {
+        onVoiceResult(transcript)
+        // Show toast notification
+        setVoiceAddedItem(transcript)
+        setTimeout(() => setVoiceAddedItem(null), 3000)
+      }
+    },
+  })
+
+  // Handle voice button click
+  const handleVoiceClick = () => {
+    if (onVoiceResult) {
+      // Component handles voice internally
+      if (voiceInput.isListening) {
+        voiceInput.stopListening()
+      } else {
+        voiceInput.startListening()
+      }
+    } else if (onVoiceInput) {
+      // Legacy: parent handles voice
+      onVoiceInput()
+    }
+  }
 
   // Separate active and checked items
   const activeItems = items.filter((item) => !item.isChecked)
@@ -224,11 +256,17 @@ export function GroceryList({
             </button>
             <button
               type="button"
-              onClick={onVoiceInput}
-              className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-semibold text-stone-600 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors"
+              onClick={handleVoiceClick}
+              disabled={onVoiceResult && !voiceInput.isSupported}
+              className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-semibold transition-colors ${
+                voiceInput.isListening
+                  ? 'bg-red-100 dark:bg-red-900/40 text-red-600 dark:text-red-400 animate-pulse'
+                  : 'text-stone-600 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800'
+              } ${onVoiceResult && !voiceInput.isSupported ? 'opacity-50 cursor-not-allowed' : ''}`}
+              aria-label={voiceInput.isListening ? 'Stop listening' : 'Start voice input'}
             >
-              <Mic size={16} />
-              Voice
+              {voiceInput.isListening ? <MicOff size={16} /> : <Mic size={16} />}
+              {voiceInput.isListening ? 'Listening...' : 'Voice'}
             </button>
             <button
               type="button"
@@ -676,6 +714,68 @@ export function GroceryList({
                 Cancel
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Voice listening modal overlay */}
+      {voiceInput.isListening && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-stone-900/60" role="dialog" aria-modal="true" aria-label="Voice input active">
+          <div className="bg-white dark:bg-stone-900 rounded-2xl p-6 mx-4 max-w-sm w-full text-center shadow-xl">
+            <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-red-100 dark:bg-red-900/40 flex items-center justify-center animate-pulse">
+              <Mic size={36} className="text-red-500 dark:text-red-400" />
+            </div>
+            <h3 className="text-lg font-semibold text-stone-900 dark:text-stone-100 mb-2">
+              Listening...
+            </h3>
+            <p className="text-sm text-stone-500 dark:text-stone-400 mb-4">
+              {voiceInput.transcript || 'Say the name of the item to add'}
+            </p>
+            {voiceInput.transcript && (
+              <p className="text-base font-medium text-stone-800 dark:text-stone-200 bg-stone-100 dark:bg-stone-800 rounded-lg px-3 py-2 mb-4">
+                &ldquo;{voiceInput.transcript}&rdquo;
+              </p>
+            )}
+            <button
+              type="button"
+              onClick={voiceInput.stopListening}
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-stone-200 dark:bg-stone-700 text-stone-700 dark:text-stone-200 font-semibold text-sm hover:bg-stone-300 dark:hover:bg-stone-600 transition-colors"
+            >
+              <X size={16} />
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Voice error toast */}
+      {voiceInput.error && (
+        <div className="fixed bottom-20 inset-x-4 z-50 max-w-sm mx-auto">
+          <div className="bg-red-600 dark:bg-red-700 text-white rounded-xl px-4 py-3 shadow-lg flex items-start gap-3">
+            <AlertTriangle size={20} className="flex-shrink-0 mt-0.5" />
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium">{voiceInput.error}</p>
+            </div>
+            <button
+              type="button"
+              onClick={voiceInput.clearError}
+              className="flex-shrink-0 p-1 rounded hover:bg-red-500 dark:hover:bg-red-600 transition-colors"
+              aria-label="Dismiss error"
+            >
+              <X size={16} />
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Voice added item toast */}
+      {voiceAddedItem && (
+        <div className="fixed bottom-20 inset-x-4 z-50 max-w-sm mx-auto">
+          <div className="bg-green-600 dark:bg-green-700 text-white rounded-xl px-4 py-3 shadow-lg flex items-center gap-3">
+            <Mic size={20} className="flex-shrink-0" />
+            <p className="text-sm font-medium flex-1">
+              Added &ldquo;{voiceAddedItem}&rdquo; to list
+            </p>
           </div>
         </div>
       )}

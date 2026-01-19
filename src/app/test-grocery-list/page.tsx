@@ -167,7 +167,13 @@ export default function TestGroceryListPage() {
   }
 
   const handleVoiceInput = () => {
-    console.log('Voice input triggered')
+    console.log('Voice input triggered (legacy)')
+  }
+
+  const handleVoiceResult = (transcript: string) => {
+    console.log('Voice input result:', transcript)
+    // Parse the transcript and add as item (reusing existing add logic)
+    handleAddItem(transcript)
   }
 
   return (
@@ -178,6 +184,7 @@ export default function TestGroceryListPage() {
         syncStatus="synced"
         onAddItem={handleAddItem}
         onVoiceInput={handleVoiceInput}
+        onVoiceResult={handleVoiceResult}
         onToggleChecked={handleToggleChecked}
         onDeleteItem={handleDeleteItem}
         onUpdateItem={handleUpdateItem}
