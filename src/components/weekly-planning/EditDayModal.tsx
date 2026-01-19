@@ -280,14 +280,14 @@ export function EditDayModal({
           </div>
 
           {/* Swap with Alternative */}
-          {alternatives.length > 0 && (
-            <div>
-              <h3
-                className="text-xs font-semibold uppercase mb-2"
-                style={{ color: "var(--color-muted)" }}
-              >
-                Swap with Alternative
-              </h3>
+          <div>
+            <h3
+              className="text-xs font-semibold uppercase mb-2"
+              style={{ color: "var(--color-muted)" }}
+            >
+              Swap with Alternative
+            </h3>
+            {alternatives.length > 0 ? (
               <div className="space-y-2">
                 {alternatives.map((alt) => {
                   const altTotalTime = alt.prepTime + alt.cookTime;
@@ -343,8 +343,29 @@ export function EditDayModal({
                   );
                 })}
               </div>
-            </div>
-          )}
+            ) : (
+              <div
+                className="p-4 rounded-xl text-center"
+                style={{
+                  backgroundColor: "var(--color-bg)",
+                  border: "1px dashed var(--color-border)",
+                }}
+              >
+                <p
+                  className="text-sm font-medium"
+                  style={{ color: "var(--color-muted)" }}
+                >
+                  No quick swap options available
+                </p>
+                <p
+                  className="text-xs mt-1"
+                  style={{ color: "var(--color-muted)" }}
+                >
+                  Tap &quot;More options&quot; below to browse all meals or add your own
+                </p>
+              </div>
+            )}
+          </div>
 
           {/* Action Buttons */}
           <div className="space-y-2 pt-2 pb-4">
