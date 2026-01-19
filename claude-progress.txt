@@ -6709,3 +6709,89 @@ the test page to use those existing props.
 
 ### Current Progress: 193/200 features passing (96.5%)
 
+
+## Session: 2026-01-19 (Regression Test - Feature #30)
+
+### Feature Tested:
+- Feature #30: User can uncheck item
+- Category: functional
+- Description: Unchecking returns item to active list
+- Dependencies: Feature #29
+
+### Verification Results:
+- ✅ Step 1: Find a checked item
+  - Checked Grapes to create a checked item
+  - Expanded Done section to see checked items
+  - Found 'Uncheck Grapes' button
+
+- ✅ Step 2: Tap to uncheck
+  - Clicked 'Uncheck Grapes' button
+  - Item was successfully unchecked
+
+- ✅ Step 3: Verify item returns to its store section
+  - Grapes returned to Meijer section
+  - Meijer count increased from 2 to 3
+  - Done section disappeared (no more checked items)
+
+- ✅ Zero console errors
+
+### Screenshot:
+- regression-test-feature-30-uncheck-complete.png
+
+### Status: STILL PASSING - No regression found
+[Testing] Feature #30 verified - still passing
+[Testing] Feature #178 verified - still passing
+
+
+## Session: 2026-01-19 (Coding Agent - Feature #121)
+
+### Feature:
+- Feature #121: Swap persists to database
+- Category: functional
+- Description: Meal swap saves to Convex
+- Dependencies: Feature #120 (User can swap meal in modal)
+
+### Test Page Used:
+- /test-meal-swap-persist (already existed, connects to Convex)
+
+### How it works:
+1. Page queries weekPlans and plannedMeals from Convex database
+2. Displays current meal with Database ID for verification
+3. EditDayModal allows selecting alternative meals
+4. When alternative is selected, updateMeal mutation is called
+5. Convex updates the plannedMeals record with new meal data
+6. After page refresh, the same Database ID shows updated meal name
+
+### Verification Results:
+- ✅ Step 1: Swap a meal
+  - Original meal: Chicken Stir Fry (seeded data)
+  - Opened EditDayModal
+  - Selected "Sheet Pan Fajitas" from alternatives
+  - Mutation succeeded, UI updated immediately
+
+- ✅ Step 2: Refresh page
+  - Navigated to same URL (full page refresh)
+  - Page reloaded and queried Convex database
+
+- ✅ Step 3: Verify swap persisted
+  - Current meal shows: "Sheet Pan Fajitas"
+  - Same Database ID: kn769rq59wtsb7zq9pg8nqyd6n7zgs6f
+  - Effort tier, prep time, cook time all updated correctly
+  - Data persisted across page refresh
+
+- ✅ Zero console errors
+
+### Implementation Details:
+- Convex mutation: api.weekPlans.updateMeal
+- Updates: name, effortTier, prepTime, cookTime, cleanupRating, isFlexMeal
+- Database: plannedMeals table with by_week_plan index
+
+### Screenshots:
+- feature-121-initial-state.png (page loaded with Chicken Stir Fry)
+- feature-121-step1-modal-open.png (EditDayModal with alternatives)
+- feature-121-step1-swap-completed.png (success message after swap)
+- feature-121-verified-persistence.png (after refresh, Sheet Pan Fajitas persists)
+
+### Status: Feature #121 marked as PASSING
+
+### Current Progress: 194/200 features passing (97.0%)

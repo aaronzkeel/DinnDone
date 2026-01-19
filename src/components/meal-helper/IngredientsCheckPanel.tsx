@@ -35,16 +35,16 @@ export function IngredientsCheckPanel({
   const [checkedIngredients, setCheckedIngredients] = useState<Record<string, boolean>>(initialChecked);
 
   const handleToggle = useCallback((ingredient: string) => {
-    setCheckedIngredients((prev) => {
-      const newChecked = !prev[ingredient];
-      onIngredientToggle?.(ingredient, newChecked);
-      return { ...prev, [ingredient]: newChecked };
-    });
-  }, [onIngredientToggle]);
+    const newChecked = !checkedIngredients[ingredient];
+    setCheckedIngredients((prev) => ({ ...prev, [ingredient]: newChecked }));
+    // Call callback after state update is queued (not inside the updater function)
+    onIngredientToggle?.(ingredient, newChecked);
+  }, [checkedIngredients, onIngredientToggle]);
 
-  // Count checked vs total
+  // Count checked vs total and calculate missing
   const checkedCount = Object.values(checkedIngredients).filter(Boolean).length;
   const totalCount = meal.ingredients.length;
+  const missingCount = totalCount - checkedCount;
   const allChecked = checkedCount === totalCount;
 
   return (
@@ -66,15 +66,31 @@ export function IngredientsCheckPanel({
           <span className="text-xs" style={{ color: "var(--color-muted)" }}>
             For: <span className="font-semibold">{meal.mealName}</span>
           </span>
-          <span
-            className="text-xs font-medium px-2 py-0.5 rounded-full"
-            style={{
-              backgroundColor: allChecked ? "rgba(76, 175, 80, 0.15)" : "var(--color-border)",
-              color: allChecked ? "#4caf50" : "var(--color-muted)",
-            }}
-          >
-            {checkedCount}/{totalCount} checked
-          </span>
+          <div className="flex gap-2">
+            {/* Show missing count when not all checked */}
+            {missingCount > 0 && (
+              <span
+                className="text-xs font-medium px-2 py-0.5 rounded-full"
+                style={{
+                  backgroundColor: "rgba(239, 68, 68, 0.15)",
+                  color: "#ef4444",
+                }}
+                role="status"
+                aria-live="polite"
+              >
+                {missingCount} missing
+              </span>
+            )}
+            <span
+              className="text-xs font-medium px-2 py-0.5 rounded-full"
+              style={{
+                backgroundColor: allChecked ? "rgba(76, 175, 80, 0.15)" : "var(--color-border)",
+                color: allChecked ? "#4caf50" : "var(--color-muted)",
+              }}
+            >
+              {checkedCount}/{totalCount} checked
+            </span>
+          </div>
         </div>
       </div>
 
@@ -82,33 +98,42 @@ export function IngredientsCheckPanel({
         <ul className="space-y-2 text-sm">
           {meal.ingredients.map((ingredient) => {
             const isChecked = checkedIngredients[ingredient] || false;
+            const isMissing = !isChecked;
             return (
               <li key={ingredient}>
                 <button
                   type="button"
                   onClick={() => handleToggle(ingredient)}
-                  className="w-full flex items-start gap-3 text-left transition-colors"
+                  className={`w-full flex items-start gap-3 text-left transition-colors rounded-lg px-2 py-1.5 -mx-2 ${
+                    isMissing ? "bg-red-50 dark:bg-red-950/30" : ""
+                  }`}
                   style={{ color: "var(--color-text)" }}
                   aria-pressed={isChecked}
-                  aria-label={`${ingredient} - ${isChecked ? "checked" : "unchecked"}`}
+                  aria-label={`${ingredient} - ${isChecked ? "checked, available" : "unchecked, missing"}`}
                 >
                   {/* Checkbox */}
                   <span
                     className="mt-0.5 w-5 h-5 rounded flex items-center justify-center flex-shrink-0 transition-colors"
                     style={{
                       backgroundColor: isChecked ? "var(--color-secondary)" : "transparent",
-                      border: isChecked ? "none" : "2px solid var(--color-border)",
+                      border: isChecked ? "none" : "2px solid #ef4444",
                     }}
                   >
                     {isChecked && <Check size={14} className="text-white" />}
                   </span>
                   {/* Ingredient text */}
                   <span
-                    className={isChecked ? "line-through opacity-60" : ""}
-                    style={{ color: "var(--color-text)" }}
+                    className={isChecked ? "line-through opacity-60" : "font-medium"}
+                    style={{ color: isChecked ? "var(--color-text)" : "#ef4444" }}
                   >
                     {ingredient}
                   </span>
+                  {/* Missing indicator */}
+                  {isMissing && (
+                    <span className="ml-auto text-xs font-medium text-red-500 dark:text-red-400">
+                      needed
+                    </span>
+                  )}
                 </button>
               </li>
             );
