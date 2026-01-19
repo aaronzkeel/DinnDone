@@ -6849,3 +6849,65 @@ the test page to use those existing props.
 - TypeScript error in test-meal-suggestion-cards/page.tsx (added missing `servings` property)
 
 ### Current Progress: 193/200 features passing (96.5%)
+
+## Session: 2026-01-19 (Single Feature Agent - Feature #86)
+
+### Feature:
+- Feature #86: Missing ingredients highlighted
+- Category: functional
+- Description: Unchecked ingredients show as needed
+- Dependencies: Feature #85 (User can mark ingredients as available)
+
+### What was implemented:
+
+**1. Updated IngredientsCheckPanel Component:**
+- Added `missingCount` calculation (total - checked)
+- Added red "X missing" badge at top when items are unchecked
+- Applied visual highlighting to unchecked/missing ingredients:
+  - Red/pink background (`bg-red-50 dark:bg-red-950/30`)
+  - Red text color (`#ef4444`)
+  - Red checkbox border (`2px solid #ef4444`)
+  - "needed" label on right side
+- Fixed React state update warning (moved callback outside setState updater)
+
+**2. Created Test Page (src/app/test-missing-ingredients/page.tsx):**
+- New test page at `/test-missing-ingredients` for Feature #86
+- Pre-checks 3 of 7 ingredients to show both states
+- Visual test step tracking with auto-validation
+- "I see the highlighting" / "I see the count badge" buttons
+- Legend showing all visual indicators
+- All 3 test steps verified
+
+### Verification Results:
+
+**Test Steps:**
+- ✅ Step 1: Leave some ingredients unchecked
+  - 4 of 7 ingredients pre-unchecked
+  - Automatically validated
+
+- ✅ Step 2: Verify they are visually highlighted
+  - Red/pink background on unchecked items
+  - Red text and red checkbox borders
+  - "needed" label on each missing item
+
+- ✅ Step 3: Verify count of missing items shows
+  - "4 missing" badge shows in red at top
+  - "3/7 checked" progress badge also visible
+
+**Additional Verification:**
+- Toggled chicken breast: counts updated correctly (3 missing, 4/7 checked)
+- Tested on original test-ingredients-check page: highlighting works there too
+- Zero console errors after fix
+
+### Screenshots:
+- feature-86-missing-ingredients-initial.png (initial state with highlighting)
+- feature-86-all-steps-passed.png (all steps verified)
+- feature-86-toggle-item.png (after toggling an item)
+- feature-86-test-passed-final.png (final test passed state)
+- feature-86-regression-test-ingredients-check.png (regression test on Feature #84 page)
+
+### Console Errors: None (fixed React state update warning)
+
+### Status: Feature #86 marked as PASSING
+
+### Current Progress: 196/200 features passing (98.0%)
