@@ -1,5 +1,58 @@
 # Dinner Bell - Claude Progress Notes
 
+## Session: 2026-01-19 (Coding Agent - Feature #64)
+
+### Feature:
+- Feature #64: Duplicate item warning
+- Category: error-handling
+- Description: Alert when adding item that already exists
+- Dependencies: Feature #25
+
+### What was verified:
+The feature was already fully implemented across multiple files:
+
+1. **Backend** (convex/groceryItems.ts):
+   - `findDuplicate` query - checks if item exists (case-insensitive)
+   - `mergeQuantity` mutation - merges quantities when combining duplicates
+
+2. **Frontend** (src/components/grocery-list/GroceryList.tsx):
+   - `onCheckDuplicate` and `onMergeQuantity` props
+   - Duplicate warning modal with three options:
+     - "Combine quantities" - merges quantities into existing item
+     - "Add anyway" - adds duplicate item
+     - "Cancel" - closes modal without action
+
+3. **Test page** (src/app/test-grocery-convex/page.tsx):
+   - `handleCheckDuplicate` - calls findDuplicate query
+   - `handleMergeQuantity` - calls mergeQuantity mutation
+   - Both handlers wired to GroceryList component
+
+### Verification Results:
+- ✅ Step 1: Add Milk to list - Milk was already on list ("1 gallon + 2 gallons")
+- ✅ Step 2: Try to add Milk again - Modal appeared with warning
+- ✅ Step 3: Verify warning or merge prompt - Dialog shows:
+  - "Item already on list" title
+  - Shows existing item name and quantity
+  - Three options: "Combine quantities", "Add anyway", "Cancel"
+
+### Additional Verifications:
+- ✅ "Cancel" closes modal without adding
+- ✅ "Add anyway" adds duplicate item (increases count)
+- ✅ "Combine quantities" merges quantities (e.g., "1 gallon + 2 gallons + 2 gallons")
+- ✅ Case-insensitive detection works ("milk" matches "Milk")
+- ✅ Data persists after page refresh
+- ✅ No console errors
+
+### Screenshots:
+- feature-64-duplicate-warning-modal.png (warning dialog)
+- feature-64-combine-quantities-result.png (after combining - quantity merged)
+- feature-64-after-refresh-persisted.png (merged quantity persisted)
+- feature-64-case-insensitive-detection.png (lowercase "milk" detected uppercase "Milk")
+
+### Status: Feature #64 marked as PASSING
+
+### Current Progress: 98/200 features passing (49.0%)
+
 ## Session: 2026-01-19 03:00 (Coding Agent - Feature #107)
 
 ### Feature:
