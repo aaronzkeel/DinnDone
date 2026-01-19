@@ -5,7 +5,13 @@ import { GroceryList } from '@/components/grocery-list'
 import type { GroceryItem, GroceryStore } from '@/types/grocery'
 
 // Test page for verifying Feature #24: Items grouped by store
+// Also supports Feature #63: Recently checked items can be quickly re-added
 // This bypasses auth for testing purposes
+
+interface RecentItem {
+  name: string
+  clearedAt: string
+}
 
 const testStores: GroceryStore[] = [
   { id: 'store-meijer', name: 'Meijer' },
@@ -103,6 +109,7 @@ const testItems: GroceryItem[] = [
 export default function TestGroceryListPage() {
   const [stores, setStores] = useState<GroceryStore[]>(testStores)
   const [items, setItems] = useState<GroceryItem[]>(testItems)
+  const [recentItems, setRecentItems] = useState<RecentItem[]>([])
 
   const handleAddItem = (name: string, options?: { storeId?: string; quantity?: string }) => {
     const newItem: GroceryItem = {
@@ -167,7 +174,39 @@ export default function TestGroceryListPage() {
   }
 
   const handleClearChecked = () => {
+    // Feature #63: Save checked items to recent items before clearing
+    const checkedItems = items.filter((item) => item.isChecked)
+    const now = new Date().toISOString()
+    const newRecentItems = checkedItems.map((item) => ({
+      name: item.name,
+      clearedAt: now,
+    }))
+
+    // Add to recent items (most recent first), limit to 20 items
+    setRecentItems((prev) => {
+      const combined = [...newRecentItems, ...prev]
+      // Remove duplicates by name, keeping the most recent
+      const unique = combined.filter(
+        (item, index, self) => self.findIndex((i) => i.name === item.name) === index
+      )
+      return unique.slice(0, 20)
+    })
+
     setItems((prev) => prev.filter((item) => !item.isChecked))
+  }
+
+  // Feature #63: Re-add a recent item to the list
+  const handleReAddItem = (name: string) => {
+    const newItem: GroceryItem = {
+      id: `gi-${Date.now()}`,
+      name,
+      category: 'Other',
+      quantity: '1',
+      isChecked: false,
+      organicRequired: false,
+      storeId: undefined,
+    }
+    setItems((prev) => [...prev, newItem])
   }
 
   const handleVoiceInput = () => {
@@ -197,6 +236,8 @@ export default function TestGroceryListPage() {
         onRenameStore={handleRenameStore}
         onDeleteStore={handleDeleteStore}
         onClearChecked={handleClearChecked}
+        recentItems={recentItems}
+        onReAddItem={handleReAddItem}
       />
     </div>
   )
