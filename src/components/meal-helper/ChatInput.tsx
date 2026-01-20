@@ -17,13 +17,13 @@ export function ChatInput({ onSendMessage, onVoiceInput, disabled }: ChatInputPr
 
   return (
     <div
-      className="px-4 py-3"
+      className="fixed left-0 right-0 z-40 px-4 py-3"
       style={{
-        backgroundColor: "var(--color-card)",
-        borderTop: "1px solid var(--color-border)",
+        backgroundColor: "var(--color-bg)",
+        bottom: "calc(80px + env(safe-area-inset-bottom))",
       }}
     >
-      <form onSubmit={handleSubmit} className="flex gap-2">
+      <form onSubmit={handleSubmit} className="flex gap-2 max-w-[1440px] mx-auto">
         {/* Voice input button */}
         <button
           type="button"

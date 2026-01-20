@@ -1,7 +1,7 @@
-// Dinner Bell Service Worker
+// DinnDone Service Worker
 // Basic PWA service worker for offline support
 
-const CACHE_NAME = 'dinner-bell-v2';
+const CACHE_NAME = 'dinndone-v2';
 const OFFLINE_URL = '/offline.html';
 
 // Assets to cache on install
@@ -116,11 +116,11 @@ self.addEventListener('push', (event) => {
   console.log('[Service Worker] Push received:', event);
 
   let data = {
-    title: 'Dinner Bell',
+    title: 'DinnDone',
     body: 'You have a new notification',
     icon: '/icons/icon-192x192.png',
     badge: '/icons/icon-192x192.png',
-    tag: 'dinner-bell-notification',
+    tag: 'dinndone-notification',
     data: { url: '/notifications' }
   };
 

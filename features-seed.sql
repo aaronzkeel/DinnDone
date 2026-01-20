@@ -1,4 +1,4 @@
--- Dinner Bell Features Seed
+-- DinnDone Features Seed
 -- ~200 features organized by milestone with dependencies
 -- Foundation (0-19): No dependencies
 -- Grocery List (20-64): Depends on Foundation
@@ -31,7 +31,7 @@ INSERT INTO features (id, priority, category, name, description, steps, passes, 
 
 (9, 9, 'functional', 'HouseholdMember seeded for Zink family', 'Database contains Aaron, Katie, Lizzie, Ethan, Elijah with correct roles', '["Step 1: Query HouseholdMember table", "Step 2: Verify 5 members exist", "Step 3: Verify Aaron and Katie are admins, kids are viewers"]', 0, 0, '[4]'),
 
-(10, 10, 'navigation', 'App shell renders with header', 'Header shows app name (Dinner Bell) and user menu', '["Step 1: Load any page", "Step 2: Verify header displays Dinner Bell in Lora font", "Step 3: Verify user avatar/menu is visible when signed in"]', 0, 0, '[2, 6]'),
+(10, 10, 'navigation', 'App shell renders with header', 'Header shows app name (DinnDone) and user menu', '["Step 1: Load any page", "Step 2: Verify header displays DinnDone in Lora font", "Step 3: Verify user avatar/menu is visible when signed in"]', 0, 0, '[2, 6]'),
 
 (11, 11, 'navigation', 'Bottom tab navigation renders', 'Mobile navigation with 4 tabs: Home, Plan, List, Notifications', '["Step 1: Load app on mobile viewport", "Step 2: Verify bottom nav is visible", "Step 3: Verify all 4 tabs are present and tappable"]', 0, 0, '[0]'),
 
@@ -45,7 +45,7 @@ INSERT INTO features (id, priority, category, name, description, steps, passes, 
 
 (16, 16, 'style', 'Cards use correct background colors', 'Card components use Harvest Hug palette', '["Step 1: View a card component", "Step 2: Verify light mode uses #F3E8D6", "Step 3: Verify dark mode uses #221A14"]', 0, 0, '[1]'),
 
-(17, 17, 'functional', 'PWA manifest configured', 'App can be installed as PWA with correct name and icons', '["Step 1: Check manifest.json exists", "Step 2: Verify name is Dinner Bell", "Step 3: Verify icons are configured"]', 0, 0, '[0]'),
+(17, 17, 'functional', 'PWA manifest configured', 'App can be installed as PWA with correct name and icons', '["Step 1: Check manifest.json exists", "Step 2: Verify name is DinnDone", "Step 3: Verify icons are configured"]', 0, 0, '[0]'),
 
 (18, 18, 'functional', 'Service worker registered', 'Basic service worker for PWA functionality', '["Step 1: Load app in production mode", "Step 2: Check DevTools > Application > Service Workers", "Step 3: Verify service worker is registered"]', 0, 0, '[17]'),
 

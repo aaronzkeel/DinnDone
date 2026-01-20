@@ -19,7 +19,7 @@ interface ThemeContextValue {
 
 const ThemeContext = createContext<ThemeContextValue | undefined>(undefined);
 
-const STORAGE_KEY = "dinner-bell-theme";
+const STORAGE_KEY = "dinndone-theme";
 
 // Store for theme state (external to React)
 let themeState: Theme = "system";

@@ -7,7 +7,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const publicDir = join(__dirname, '..', 'public', 'icons');
 
-// Simple bell icon SVG with Dinner Bell colors
+// Simple bell icon SVG with DinnDone colors
 const createIconSvg = (size) => `
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${size} ${size}" width="${size}" height="${size}">
   <!-- Background circle - Sage Green -->

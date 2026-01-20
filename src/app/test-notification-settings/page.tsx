@@ -11,7 +11,7 @@ import type {
 // Test page for verifying Feature #174: Fandom Voice selector available
 // This bypasses auth for testing purposes
 
-const STORAGE_KEY = "dinner-bell-notification-prefs";
+const STORAGE_KEY = "dinndone-notification-prefs";
 
 const defaultPreferences: NotificationPreferences = {
   userId: "test-user",

@@ -54,6 +54,7 @@ export interface PlannedMealSummary {
 export interface TonightPlanCardProps {
   meal: PlannedMealSummary;
   householdMembers: HouseholdMember[];
+  onView?: () => void;
 }
 
 export interface ChatInputProps {
@@ -91,6 +92,8 @@ export interface MealHelperHomeProps {
   onThisWorks?: () => void;
   onNewPlan?: () => void;
   onImWiped?: () => void;
+  /** View meal details */
+  onViewMeal?: () => void;
   /** Secondary actions */
   onOpenInventoryCheck?: () => void;
   /** Optional rails-first panel (swap list, ingredient check, etc.) */

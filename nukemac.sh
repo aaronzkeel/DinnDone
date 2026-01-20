@@ -14,6 +14,11 @@ PROJECT_DIR="$(pwd)"
 DEFAULT_PORT=3002
 PORT="${NUKEMAC_PORT:-${PORT:-}}"
 
+WORKTREE_COUNT=1
+if command -v git > /dev/null 2>&1; then
+  WORKTREE_COUNT="$(git worktree list --porcelain 2>/dev/null | grep -c '^worktree ' || echo 1)"
+fi
+
 extract_port_from_script() {
   local script="$1"
   printf '%s' "$script" \
@@ -21,6 +26,26 @@ extract_port_from_script() {
     | grep -Eo '[0-9]+' 2>/dev/null \
     | tail -n 1 \
     || true
+}
+
+pid_in_project_dir() {
+  local pid="$1"
+  local cwd
+  if ! command -v lsof > /dev/null 2>&1; then
+    return 1
+  fi
+  cwd="$(lsof -a -p "$pid" -d cwd -Fn 2>/dev/null | sed -n 's/^n//p' | head -n 1)"
+  if [ -z "$cwd" ]; then
+    return 1
+  fi
+  case "$cwd" in
+    "$PROJECT_DIR"/*|"$PROJECT_DIR")
+      return 0
+      ;;
+    *)
+      return 1
+      ;;
+  esac
 }
 
 if [ -z "$PORT" ]; then
@@ -59,10 +84,28 @@ echo "Clearing port $PORT"
 if command -v lsof > /dev/null 2>&1; then
   PIDS="$(lsof -ti:"$PORT" 2>/dev/null || true)"
   if [ -n "$PIDS" ]; then
-    echo "Stopping processes on port $PORT: $PIDS"
-    kill $PIDS 2>/dev/null || true
-    sleep 1
-    kill -9 $PIDS 2>/dev/null || true
+    if [ "$WORKTREE_COUNT" -gt 1 ] && [ "${NUKEMAC_FORCE_KILL:-0}" -ne 1 ]; then
+      echo "Multiple worktrees detected ($WORKTREE_COUNT). Only stopping processes tied to $PROJECT_DIR."
+      MATCHING_PIDS=""
+      for pid in $PIDS; do
+        if pid_in_project_dir "$pid"; then
+          MATCHING_PIDS="$MATCHING_PIDS $pid"
+        fi
+      done
+      if [ -n "$MATCHING_PIDS" ]; then
+        echo "Stopping processes on port $PORT: $MATCHING_PIDS"
+        kill $MATCHING_PIDS 2>/dev/null || true
+        sleep 1
+        kill -9 $MATCHING_PIDS 2>/dev/null || true
+      else
+        echo "No matching processes found for this worktree. Set NUKEMAC_FORCE_KILL=1 to override."
+      fi
+    else
+      echo "Stopping processes on port $PORT: $PIDS"
+      kill $PIDS 2>/dev/null || true
+      sleep 1
+      kill -9 $PIDS 2>/dev/null || true
+    fi
   fi
 else
   echo "lsof not found; skipping port cleanup."

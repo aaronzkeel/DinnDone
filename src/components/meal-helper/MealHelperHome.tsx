@@ -44,6 +44,7 @@ export function MealHelperHome({
   onThisWorks,
   onNewPlan,
   onImWiped,
+  onViewMeal,
   onOpenInventoryCheck,
   panel,
   onSendMessage,
@@ -92,7 +93,7 @@ export function MealHelperHome({
             </p>
             <Link
               href="/weekly-planning"
-              className="inline-flex items-center gap-2 px-5 py-3 rounded-xl font-semibold text-white hover:opacity-90 active:scale-[0.99] transition-all"
+              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold text-white hover:opacity-90 active:scale-[0.99] transition-all"
               style={{ backgroundColor: "var(--color-primary)" }}
             >
               <Calendar className="w-4 h-4" />
@@ -103,7 +104,7 @@ export function MealHelperHome({
           {/* I'm wiped button still available */}
           <button
             onClick={onImWiped}
-            className="w-full px-4 py-3 rounded-xl font-semibold hover:opacity-80 active:scale-[0.99] transition-all"
+            className="w-full px-3 py-2.5 rounded-lg text-sm font-semibold hover:opacity-80 active:scale-[0.99] transition-all"
             style={{
               backgroundColor: "transparent",
               border: "1px dashed var(--color-muted)",
@@ -115,7 +116,7 @@ export function MealHelperHome({
         </div>
 
         {/* Chat area for Zylo interactions */}
-        <div className="flex-1 overflow-auto px-4 pb-2">
+        <div className="flex-1 overflow-auto px-4 pb-24">
           {messages.length === 0 ? (
             <div className="py-10 text-center">
               <p className="font-medium" style={{ color: "var(--color-text)" }}>
@@ -205,26 +206,26 @@ export function MealHelperHome({
       style={{ backgroundColor: "var(--color-bg)" }}
     >
       <div className="px-4 pt-4 pb-3 space-y-3">
-        <TonightPlanCard meal={tonightMeal} householdMembers={householdMembers} />
+        <TonightPlanCard meal={tonightMeal} householdMembers={householdMembers} onView={onViewMeal} />
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
           <button
             onClick={onThisWorks}
-            className="px-4 py-3 rounded-xl text-white font-semibold hover:opacity-90 active:scale-[0.99] transition-all"
+            className="px-3 py-2.5 rounded-lg text-sm font-semibold text-white hover:opacity-90 active:scale-[0.99] transition-all"
             style={{ backgroundColor: "var(--color-secondary)" }}
           >
             This works
           </button>
           <button
             onClick={onNewPlan}
-            className="px-4 py-3 rounded-xl text-white font-semibold hover:opacity-90 active:scale-[0.99] transition-all"
+            className="px-3 py-2.5 rounded-lg text-sm font-semibold text-white hover:opacity-90 active:scale-[0.99] transition-all"
             style={{ backgroundColor: "var(--color-primary)" }}
           >
             New plan
           </button>
           <button
             onClick={onImWiped}
-            className="px-4 py-3 rounded-xl font-semibold hover:opacity-80 active:scale-[0.99] transition-all"
+            className="px-3 py-2.5 rounded-lg text-sm font-semibold hover:opacity-80 active:scale-[0.99] transition-all"
             style={{
               backgroundColor: "transparent",
               border: "1px dashed var(--color-muted)",
@@ -247,7 +248,7 @@ export function MealHelperHome({
         {panel}
       </div>
 
-      <div className="flex-1 overflow-auto px-4 pb-2">
+      <div className="flex-1 overflow-auto px-4 pb-24">
         {messages.length === 0 ? (
           <div className="py-10 text-center">
             <p className="font-medium" style={{ color: "var(--color-text)" }}>

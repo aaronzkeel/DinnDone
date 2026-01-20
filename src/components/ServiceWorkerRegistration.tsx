@@ -4,6 +4,9 @@ import { useEffect } from 'react';
 
 export function ServiceWorkerRegistration() {
   useEffect(() => {
+    if (process.env.NODE_ENV !== 'production') {
+      return;
+    }
     if ('serviceWorker' in navigator) {
       // Register service worker immediately since React components
       // mount after the page has already loaded

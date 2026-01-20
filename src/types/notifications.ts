@@ -1,4 +1,4 @@
-// Notification Types for Dinner Bell
+// Notification Types for DinnDone
 
 export type NotificationType =
   | "daily-brief"

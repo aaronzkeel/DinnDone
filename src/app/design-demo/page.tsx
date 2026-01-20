@@ -24,7 +24,7 @@ export default function DesignDemoPage() {
         fontSize: '2rem',
         marginBottom: '2rem'
       }}>
-        Dinner Bell — Button Design Demo
+        DinnDone — Button Design Demo
       </h1>
 
       <p style={{ marginBottom: '1.5rem', color: 'var(--color-muted)' }}>

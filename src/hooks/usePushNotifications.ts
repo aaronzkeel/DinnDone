@@ -231,7 +231,7 @@ export function usePushNotifications(): UsePushNotificationsReturn {
         ],
       };
 
-      await registration.showNotification("Dinner Bell", notificationOptions);
+      await registration.showNotification("DinnDone", notificationOptions);
     } catch (err) {
       setError("Failed to send test notification");
       console.error("Test notification failed:", err);

@@ -43,7 +43,7 @@ const sampleTonightMeal: PlannedMealSummary = {
 };
 
 // System prompt for Zylo
-const ZYLO_SYSTEM_PROMPT = `You are Zylo, a warm and encouraging meal planning assistant for the Dinner Bell family meal planning app.
+const ZYLO_SYSTEM_PROMPT = `You are Zylo, a warm and encouraging meal planning assistant for the DinnDone family meal planning app.
 
 Your personality:
 - Friendly, supportive, and never judgmental

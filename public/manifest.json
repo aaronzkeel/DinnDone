@@ -1,6 +1,6 @@
 {
-  "name": "Dinner Bell",
-  "short_name": "Dinner Bell",
+  "name": "DinnDone",
+  "short_name": "DinnDone",
   "description": "AI-powered meal planning companion",
   "start_url": "/",
   "display": "standalone",

@@ -20,14 +20,14 @@ const plusJakartaSans = Plus_Jakarta_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "Dinner Bell",
+  title: "DinnDone",
   description: "AI-powered meal planning companion",
   manifest: "/manifest.json",
   themeColor: "#4F6E44",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
-    title: "Dinner Bell",
+    title: "DinnDone",
   },
   icons: {
     icon: [
@@ -54,7 +54,9 @@ export default function RootLayout({
           <ConvexClientProvider>
             <ServiceWorkerRegistration />
             <Header />
-            <main className="pb-20">{children}</main>
+            <main className="pb-20">
+              <div className="mx-auto w-full max-w-[1440px]">{children}</div>
+            </main>
             <BottomNav />
           </ConvexClientProvider>
         </ThemeProvider>

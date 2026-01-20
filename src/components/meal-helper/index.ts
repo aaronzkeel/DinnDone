@@ -6,3 +6,5 @@ export { MealSuggestionCard } from "./MealSuggestionCard";
 export { MealOptionDetails } from "./MealOptionDetails";
 export { EmergencyExit } from "./EmergencyExit";
 export { WeekSwapList } from "./WeekSwapList";
+export { IngredientsCheckPanel } from "./IngredientsCheckPanel";
+export { InventoryCheck } from "./InventoryCheck";

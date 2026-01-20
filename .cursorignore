@@ -1,0 +1,3 @@
+# Secrets (keep out of Cursor AI context)
+.env.local
+.env.*.local

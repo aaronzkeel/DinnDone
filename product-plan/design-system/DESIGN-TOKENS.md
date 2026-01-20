@@ -1,4 +1,4 @@
-# Dinner Bell — Design Tokens (LOCKED)
+# DinnDone — Design Tokens (LOCKED)
 
 > **Status:** ✅ FINAL — Do not modify without product owner approval
 > **Last Updated:** January 2025
@@ -33,7 +33,7 @@ fontFamily: {
 ### Usage
 
 ```css
-/* App name "Dinner Bell" */
+/* App name "DinnDone" */
 .app-name { font-family: var(--font-heading); font-weight: 700; }
 
 /* Section headings */

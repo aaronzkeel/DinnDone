@@ -138,7 +138,7 @@ const sampleWeekMeals: Array<PlannedMealSummary & { dayLabel: string }> = [
 type ViewState = "home" | "meal-details" | "emergency-exit" | "week-swap";
 
 // System prompt for Zylo to have context about the meal helper
-const ZYLO_SYSTEM_PROMPT = `You are Zylo, a warm and encouraging meal planning assistant for the Dinner Bell family meal planning app.
+const ZYLO_SYSTEM_PROMPT = `You are Zylo, a warm and encouraging meal planning assistant for the DinnDone family meal planning app.
 
 Your personality:
 - Friendly, supportive, and never judgmental

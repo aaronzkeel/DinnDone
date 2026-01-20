@@ -21,7 +21,7 @@ const cleanupLabels: Record<CleanupRating, string> = {
   high: "High cleanup",
 };
 
-export function TonightPlanCard({ meal, householdMembers }: TonightPlanCardProps) {
+export function TonightPlanCard({ meal, householdMembers, onView }: TonightPlanCardProps) {
   const cook = meal.assignedCookId
     ? householdMembers.find((member) => member.id === meal.assignedCookId)
     : undefined;
@@ -47,12 +47,14 @@ export function TonightPlanCard({ meal, householdMembers }: TonightPlanCardProps
           >
             Tonight&apos;s plan
           </p>
-          <h2
-            className="text-lg font-semibold font-heading truncate"
+          <button
+            type="button"
+            onClick={onView}
+            className="text-lg font-semibold font-heading truncate text-left hover:underline focus:underline focus:outline-none"
             style={{ color: "var(--color-text)" }}
           >
             {meal.mealName}
-          </h2>
+          </button>
         </div>
         <div className="flex items-center gap-2 flex-shrink-0">
           <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${effortColors[meal.effortTier]}`}>

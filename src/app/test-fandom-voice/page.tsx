@@ -125,7 +125,7 @@ export default function TestFandomVoicePage() {
 
   // Build system prompt with selected fandom voice
   const buildSystemPrompt = (voice: FandomVoice) => {
-    return `You are Zylo, a meal planning assistant for the Dinner Bell family meal planning app.
+    return `You are Zylo, a meal planning assistant for the DinnDone family meal planning app.
 
 ${FANDOM_VOICE_PROMPTS[voice]}
 

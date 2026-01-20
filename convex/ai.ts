@@ -71,7 +71,7 @@ export const testConnection = action({
         {
           role: "system",
           content:
-            "You are Zylo, a friendly meal planning assistant for Dinner Bell app. Respond briefly.",
+            "You are Zylo, a friendly meal planning assistant for DinnDone app. Respond briefly.",
         },
         {
           role: "user",
@@ -84,8 +84,8 @@ export const testConnection = action({
         headers: {
           Authorization: `Bearer ${apiKey}`,
           "Content-Type": "application/json",
-          "HTTP-Referer": "https://dinner-bell.app",
-          "X-Title": "Dinner Bell",
+          "HTTP-Referer": "https://dinndone.com",
+          "X-Title": "DinnDone",
         },
         body: JSON.stringify({
           model: DEFAULT_MODEL,
@@ -189,8 +189,8 @@ export const chat = action({
         headers: {
           Authorization: `Bearer ${apiKey}`,
           "Content-Type": "application/json",
-          "HTTP-Referer": "https://dinner-bell.app",
-          "X-Title": "Dinner Bell",
+          "HTTP-Referer": "https://dinndone.com",
+          "X-Title": "DinnDone",
         },
         body: JSON.stringify({
           model: DEFAULT_MODEL,
@@ -356,8 +356,8 @@ Use these exact dates: ${dates.join(", ")}`;
         headers: {
           Authorization: `Bearer ${apiKey}`,
           "Content-Type": "application/json",
-          "HTTP-Referer": "https://dinner-bell.app",
-          "X-Title": "Dinner Bell",
+          "HTTP-Referer": "https://dinndone.com",
+          "X-Title": "DinnDone",
         },
         body: JSON.stringify({
           model: DEFAULT_MODEL,
