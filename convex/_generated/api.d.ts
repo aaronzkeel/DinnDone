@@ -13,6 +13,7 @@ import type * as auth from "../auth.js";
 import type * as groceryItems from "../groceryItems.js";
 import type * as householdMembers from "../householdMembers.js";
 import type * as http from "../http.js";
+import type * as notificationPreferences from "../notificationPreferences.js";
 import type * as notifications from "../notifications.js";
 import type * as pushSubscriptions from "../pushSubscriptions.js";
 import type * as stores from "../stores.js";
@@ -30,6 +31,7 @@ declare const fullApi: ApiFromModules<{
   groceryItems: typeof groceryItems;
   householdMembers: typeof householdMembers;
   http: typeof http;
+  notificationPreferences: typeof notificationPreferences;
   notifications: typeof notifications;
   pushSubscriptions: typeof pushSubscriptions;
   stores: typeof stores;

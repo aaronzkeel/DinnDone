@@ -158,24 +158,38 @@ export const add = mutation({
   args: {
     name: v.string(),
     quantity: v.optional(v.string()),
-    storeId: v.id("stores"),
+    storeId: v.optional(v.id("stores")), // undefined = unassigned
     category: v.string(),
     isOrganic: v.boolean(),
     linkedMealIds: v.optional(v.array(v.id("plannedMeals"))),
     weekPlanId: v.optional(v.id("weekPlans")),
   },
   handler: async (ctx, args) => {
-    // Get existing items in this store to determine sortOrder
-    const storeItems = await ctx.db
-      .query("groceryItems")
-      .withIndex("by_store", (q) => q.eq("storeId", args.storeId))
-      .collect();
+    let maxOrder = 0;
 
-    // Find the maximum sortOrder and add 1000
-    const maxOrder = storeItems.reduce((max, item) => {
-      const order = item.sortOrder ?? 0;
-      return order > max ? order : max;
-    }, 0);
+    // Get existing items to determine sortOrder
+    if (args.storeId) {
+      const storeItems = await ctx.db
+        .query("groceryItems")
+        .withIndex("by_store", (q) => q.eq("storeId", args.storeId))
+        .collect();
+
+      maxOrder = storeItems.reduce((max, item) => {
+        const order = item.sortOrder ?? 0;
+        return order > max ? order : max;
+      }, 0);
+    } else {
+      // For unassigned items, get all items with no store
+      const unassignedItems = await ctx.db
+        .query("groceryItems")
+        .filter((q) => q.eq(q.field("storeId"), undefined))
+        .collect();
+
+      maxOrder = unassignedItems.reduce((max, item) => {
+        const order = item.sortOrder ?? 0;
+        return order > max ? order : max;
+      }, 0);
+    }
 
     return await ctx.db.insert("groceryItems", {
       ...args,
@@ -247,25 +261,38 @@ export const clearChecked = mutation({
 });
 
 // Reorder an item within a store (or move to a different store)
+// storeId: specific store ID to move to, null = move to unassigned, undefined = keep current
 // beforeId: the item this should appear before (null = move to end of store)
 export const reorder = mutation({
   args: {
     id: v.id("groceryItems"),
-    storeId: v.optional(v.id("stores")),
+    storeId: v.optional(v.union(v.id("stores"), v.null())),
     beforeId: v.optional(v.union(v.id("groceryItems"), v.null())),
   },
   handler: async (ctx, args) => {
     const item = await ctx.db.get(args.id);
     if (!item) throw new Error("Item not found");
 
-    // Determine the target store (use provided or keep current)
-    const targetStoreId = args.storeId ?? item.storeId;
+    // Determine the target store:
+    // - If storeId is provided (including null), use it
+    // - If storeId is undefined, keep current store
+    const targetStoreId =
+      args.storeId === undefined ? item.storeId : args.storeId ?? undefined;
 
     // Get all items in the target store, sorted by sortOrder
-    const storeItems = await ctx.db
-      .query("groceryItems")
-      .withIndex("by_store", (q) => q.eq("storeId", targetStoreId))
-      .collect();
+    let storeItems;
+    if (targetStoreId) {
+      storeItems = await ctx.db
+        .query("groceryItems")
+        .withIndex("by_store", (q) => q.eq("storeId", targetStoreId))
+        .collect();
+    } else {
+      // Get unassigned items
+      storeItems = await ctx.db
+        .query("groceryItems")
+        .filter((q) => q.eq(q.field("storeId"), undefined))
+        .collect();
+    }
 
     // Sort by sortOrder (nulls at end)
     storeItems.sort((a, b) => {

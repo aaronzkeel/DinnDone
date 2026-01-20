@@ -13,37 +13,17 @@ import type {
   FandomVoice,
 } from "@/types/notifications";
 
-// Default preferences
-const defaultPreferences: NotificationPreferences = {
-  userId: "current-user",
-  enabledTypes: [
-    "daily-brief",
-    "strategic-pivot",
-    "thaw-guardian",
-    "weekly-plan-ready",
-    "cook-reminder",
-  ],
-  quietHoursStart: "21:00",
-  quietHoursEnd: "07:00",
-  fandomVoice: "default",
-  pushEnabled: true,
-};
-
 function NotificationsContent() {
-  // Fetch notifications from Convex
+  // Fetch notifications and preferences from Convex
   const convexNotifications = useQuery(api.notifications.list);
+  const convexPreferences = useQuery(api.notificationPreferences.get);
   const markDone = useMutation(api.notifications.markDone);
+  const updatePreferences = useMutation(api.notificationPreferences.update);
+  const toggleCrisisMute = useMutation(api.notificationPreferences.toggleCrisisMute);
+  const resetToDefaults = useMutation(api.notificationPreferences.resetToDefaults);
 
   // View state: "list" or "settings"
   const [view, setView] = useState<"list" | "settings">("list");
-
-  const [crisisDayMute, setCrisisDayMute] = useState<CrisisDayMute>({
-    isActive: false,
-  });
-
-  // Notification preferences state (would be stored in Convex in production)
-  const [preferences, setPreferences] =
-    useState<NotificationPreferences>(defaultPreferences);
 
   // Convert Convex notifications to component format
   const notifications: Notification[] = useMemo(() => {
@@ -61,9 +41,49 @@ function NotificationsContent() {
     }));
   }, [convexNotifications]);
 
+  // Convert Convex preferences to component format
+  const preferences: NotificationPreferences = useMemo(() => {
+    if (!convexPreferences) {
+      return {
+        userId: "loading",
+        enabledTypes: [
+          "daily-brief",
+          "strategic-pivot",
+          "thaw-guardian",
+          "weekly-plan-ready",
+          "cook-reminder",
+        ],
+        quietHoursStart: "21:00",
+        quietHoursEnd: "07:00",
+        fandomVoice: "default",
+        pushEnabled: true,
+      };
+    }
+
+    return {
+      userId: convexPreferences.userId ?? "unknown",
+      enabledTypes: convexPreferences.enabledTypes as NotificationType[],
+      quietHoursStart: convexPreferences.quietHoursStart,
+      quietHoursEnd: convexPreferences.quietHoursEnd,
+      fandomVoice: convexPreferences.fandomVoice as FandomVoice,
+      pushEnabled: convexPreferences.pushEnabled,
+    };
+  }, [convexPreferences]);
+
+  // Convert crisis day mute from preferences
+  const crisisDayMute: CrisisDayMute = useMemo(() => {
+    if (!convexPreferences?.crisisDayMute) {
+      return { isActive: false };
+    }
+
+    return {
+      isActive: convexPreferences.crisisDayMute.isActive,
+      expiresAt: convexPreferences.crisisDayMute.expiresAt,
+    };
+  }, [convexPreferences]);
+
   const handleAction = async (notificationId: string, actionId: string) => {
     try {
-      // Call Convex mutation to mark notification as done
       await markDone({
         notificationId: notificationId as Parameters<typeof markDone>[0]["notificationId"],
         actionId,
@@ -73,14 +93,12 @@ function NotificationsContent() {
     }
   };
 
-  const handleToggleCrisisMute = () => {
-    setCrisisDayMute((prev) => ({
-      isActive: !prev.isActive,
-      activatedAt: !prev.isActive ? new Date().toISOString() : undefined,
-      expiresAt: !prev.isActive
-        ? new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString()
-        : undefined,
-    }));
+  const handleToggleCrisisMute = async () => {
+    try {
+      await toggleCrisisMute({});
+    } catch (error) {
+      console.error("Failed to toggle crisis mute:", error);
+    }
   };
 
   const handleOpenSettings = () => {
@@ -88,44 +106,55 @@ function NotificationsContent() {
   };
 
   const handleOpenPreview = () => {
-    // TODO: Navigate to or open preview modal
     console.log("Open notification preview");
   };
 
   // Settings handlers
-  const handleToggleType = (type: NotificationType) => {
-    setPreferences((prev) => ({
-      ...prev,
-      enabledTypes: prev.enabledTypes.includes(type)
-        ? prev.enabledTypes.filter((t) => t !== type)
-        : [...prev.enabledTypes, type],
-    }));
+  const handleToggleType = async (type: NotificationType) => {
+    try {
+      const newTypes = preferences.enabledTypes.includes(type)
+        ? preferences.enabledTypes.filter((t) => t !== type)
+        : [...preferences.enabledTypes, type];
+
+      await updatePreferences({ enabledTypes: newTypes });
+    } catch (error) {
+      console.error("Failed to toggle notification type:", error);
+    }
   };
 
-  const handleUpdateQuietHours = (start: string, end: string) => {
-    setPreferences((prev) => ({
-      ...prev,
-      quietHoursStart: start,
-      quietHoursEnd: end,
-    }));
+  const handleUpdateQuietHours = async (start: string, end: string) => {
+    try {
+      await updatePreferences({
+        quietHoursStart: start,
+        quietHoursEnd: end,
+      });
+    } catch (error) {
+      console.error("Failed to update quiet hours:", error);
+    }
   };
 
-  const handleChangeFandomVoice = (voice: FandomVoice) => {
-    setPreferences((prev) => ({
-      ...prev,
-      fandomVoice: voice,
-    }));
+  const handleChangeFandomVoice = async (voice: FandomVoice) => {
+    try {
+      await updatePreferences({ fandomVoice: voice });
+    } catch (error) {
+      console.error("Failed to change fandom voice:", error);
+    }
   };
 
-  const handleTogglePush = () => {
-    setPreferences((prev) => ({
-      ...prev,
-      pushEnabled: !prev.pushEnabled,
-    }));
+  const handleTogglePush = async () => {
+    try {
+      await updatePreferences({ pushEnabled: !preferences.pushEnabled });
+    } catch (error) {
+      console.error("Failed to toggle push notifications:", error);
+    }
   };
 
-  const handleResetDefaults = () => {
-    setPreferences(defaultPreferences);
+  const handleResetDefaults = async () => {
+    try {
+      await resetToDefaults({});
+    } catch (error) {
+      console.error("Failed to reset to defaults:", error);
+    }
   };
 
   const handleBackFromSettings = () => {
@@ -133,15 +162,15 @@ function NotificationsContent() {
   };
 
   // Show loading state while fetching
-  if (convexNotifications === undefined) {
+  if (convexNotifications === undefined || convexPreferences === undefined) {
     return (
       <div
-        className="flex items-center justify-center h-[calc(100vh-120px)]"
+        className="flex h-[calc(100vh-120px)] items-center justify-center"
         style={{ backgroundColor: "var(--color-bg)" }}
       >
         <div className="text-center">
           <div
-            className="animate-spin w-8 h-8 border-2 border-t-transparent rounded-full mx-auto mb-2"
+            className="mx-auto mb-2 h-8 w-8 animate-spin rounded-full border-2 border-t-transparent"
             style={{
               borderColor: "var(--color-primary)",
               borderTopColor: "transparent",

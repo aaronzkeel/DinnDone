@@ -92,11 +92,24 @@ export const updateStatus = mutation({
       v.literal("in-progress"),
       v.literal("completed")
     ),
+    approvedBy: v.optional(v.id("householdMembers")),
   },
   handler: async (ctx, args) => {
-    await ctx.db.patch(args.id, {
+    const updates: {
+      status: typeof args.status;
+      approvedBy?: typeof args.approvedBy;
+      approvedAt?: string;
+    } = {
       status: args.status,
-    });
+    };
+
+    // If approving, set approval info
+    if (args.status === "approved" && args.approvedBy) {
+      updates.approvedBy = args.approvedBy;
+      updates.approvedAt = new Date().toISOString();
+    }
+
+    await ctx.db.patch(args.id, updates);
     return { success: true };
   },
 });

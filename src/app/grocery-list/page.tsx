@@ -1,232 +1,167 @@
 'use client'
 
-import { useState } from 'react'
+import { useMemo } from 'react'
+import { useQuery, useMutation } from 'convex/react'
+import { api } from '../../../convex/_generated/api'
+import type { Id } from '../../../convex/_generated/dataModel'
 import { GroceryList } from '@/components/grocery-list'
 import { RequireAuth } from '@/components/RequireAuth'
-import type { GroceryItem, GroceryStore } from '@/types/grocery'
-
-// Sample data for initial rendering - will be replaced with real API data later
-const initialStores: GroceryStore[] = [
-  { id: 'store-meijer', name: 'Meijer' },
-  { id: 'store-costco', name: 'Costco' },
-  { id: 'store-aldi', name: 'Aldi' },
-  { id: 'store-trader-joes', name: "Trader Joe's" },
-]
-
-const initialItems: GroceryItem[] = [
-  {
-    id: 'gi-001',
-    name: 'Spinach',
-    category: 'Produce',
-    quantity: '1 bunch',
-    isChecked: false,
-    organicRequired: true,
-    storeId: 'store-aldi',
-    mealSources: [{ mealId: 'pm-003', mealName: "Mom's Chicken Stir Fry", date: '2024-01-17' }],
-  },
-  {
-    id: 'gi-002',
-    name: 'Strawberries',
-    category: 'Produce',
-    quantity: '1 lb',
-    isChecked: false,
-    organicRequired: true,
-    storeId: 'store-costco',
-  },
-  {
-    id: 'gi-003',
-    name: 'Avocados',
-    category: 'Produce',
-    quantity: '3',
-    isChecked: false,
-    organicRequired: false,
-    storeId: 'store-trader-joes',
-  },
-  {
-    id: 'gi-004',
-    name: 'Bananas',
-    category: 'Produce',
-    quantity: '1 bunch',
-    isChecked: false,
-    organicRequired: false,
-    storeId: 'store-aldi',
-  },
-  {
-    id: 'gi-005',
-    name: 'Grapes',
-    category: 'Produce',
-    quantity: '1 lb',
-    isChecked: false,
-    organicRequired: true,
-    storeId: 'store-meijer',
-  },
-  {
-    id: 'gi-006',
-    name: 'Eggs',
-    category: 'Dairy',
-    quantity: '1 dozen',
-    isChecked: false,
-    organicRequired: true,
-    storeId: 'store-meijer',
-  },
-  {
-    id: 'gi-007',
-    name: 'Greek Yogurt',
-    category: 'Dairy',
-    quantity: '32 oz',
-    isChecked: false,
-    organicRequired: false,
-    storeId: 'store-costco',
-  },
-  {
-    id: 'gi-008',
-    name: 'Butter',
-    category: 'Dairy',
-    quantity: '1 lb',
-    isChecked: false,
-    organicRequired: true,
-    storeId: 'store-costco',
-  },
-  {
-    id: 'gi-009',
-    name: 'Chicken Thighs',
-    category: 'Meat',
-    quantity: '2 lbs',
-    isChecked: false,
-    organicRequired: true,
-    storeId: 'store-meijer',
-    mealSources: [
-      { mealId: 'pm-001', mealName: 'Sheet Pan Salmon & Asparagus', date: '2024-01-15' },
-      { mealId: 'pm-003', mealName: "Mom's Chicken Stir Fry", date: '2024-01-17' },
-    ],
-  },
-  {
-    id: 'gi-010',
-    name: 'Ground Turkey',
-    category: 'Meat',
-    quantity: '1 lb',
-    isChecked: false,
-    organicRequired: true,
-    storeId: 'store-aldi',
-  },
-  {
-    id: 'gi-011',
-    name: 'Olive Oil',
-    category: 'Pantry',
-    quantity: '1 bottle',
-    isChecked: false,
-    organicRequired: false,
-    storeId: 'store-costco',
-  },
-  {
-    id: 'gi-012',
-    name: 'Black Beans',
-    category: 'Pantry',
-    quantity: '2 cans',
-    isChecked: false,
-    organicRequired: false,
-    storeId: 'store-aldi',
-    mealSources: [{ mealId: 'pm-002', mealName: 'Taco Tuesday', date: '2024-01-16' }],
-  },
-  {
-    id: 'gi-013',
-    name: 'Frozen Berries',
-    category: 'Frozen',
-    quantity: '1 bag',
-    isChecked: true,
-    organicRequired: true,
-    storeId: 'store-costco',
-  },
-  {
-    id: 'gi-014',
-    name: 'Almond Milk',
-    category: 'Dairy',
-    quantity: '1/2 gallon',
-    isChecked: true,
-    organicRequired: false,
-    storeId: 'store-trader-joes',
-  },
-  {
-    id: 'gi-015',
-    name: 'Salsa',
-    category: 'Pantry',
-    quantity: '1 jar',
-    isChecked: true,
-    organicRequired: false,
-    storeId: 'store-trader-joes',
-  },
-]
+import { toGroceryStore, toGroceryItem } from '@/lib/grocery-adapters'
 
 export default function GroceryListPage() {
-  const [stores, setStores] = useState<GroceryStore[]>(initialStores)
-  const [items, setItems] = useState<GroceryItem[]>(initialItems)
+  // Queries
+  const storesData = useQuery(api.stores.list)
+  const itemsData = useQuery(api.groceryItems.listWithMealDetails)
 
-  const handleAddItem = (name: string, options?: { storeId?: string; quantity?: string }) => {
-    const newItem: GroceryItem = {
-      id: `gi-${Date.now()}`,
-      name,
-      category: 'Other',
-      quantity: options?.quantity || '1',
-      isChecked: false,
-      organicRequired: false,
-      storeId: options?.storeId,
+  // Mutations
+  const addItem = useMutation(api.groceryItems.add)
+  const toggleChecked = useMutation(api.groceryItems.toggleChecked)
+  const removeItem = useMutation(api.groceryItems.remove)
+  const updateItem = useMutation(api.groceryItems.update)
+  const reorderItem = useMutation(api.groceryItems.reorder)
+  const addStore = useMutation(api.stores.add)
+  const updateStore = useMutation(api.stores.update)
+  const removeStore = useMutation(api.stores.remove)
+  const clearChecked = useMutation(api.groceryItems.clearChecked)
+
+  // Convert Convex data to UI types
+  const stores = useMemo(() => {
+    if (!storesData) return []
+    return storesData.map(toGroceryStore)
+  }, [storesData])
+
+  const items = useMemo(() => {
+    if (!itemsData) return []
+    return itemsData.map(toGroceryItem)
+  }, [itemsData])
+
+  // Loading state
+  const isLoading = storesData === undefined || itemsData === undefined
+
+  const handleAddItem = async (
+    name: string,
+    options?: { storeId?: string; quantity?: string }
+  ) => {
+    try {
+      await addItem({
+        name,
+        quantity: options?.quantity || '1',
+        storeId: options?.storeId as Id<'stores'> | undefined,
+        category: 'Other',
+        isOrganic: false,
+      })
+    } catch (error) {
+      console.error('Failed to add item:', error)
     }
-    setItems((prev) => [...prev, newItem])
   }
 
-  const handleToggleChecked = (id: string) => {
-    setItems((prev) => prev.map((item) => (item.id === id ? { ...item, isChecked: !item.isChecked } : item)))
-  }
-
-  const handleDeleteItem = (id: string) => {
-    setItems((prev) => prev.filter((item) => item.id !== id))
-  }
-
-  const handleUpdateItem = (id: string, updates: { name?: string; quantity?: string }) => {
-    setItems((prev) => prev.map((item) => (item.id === id ? { ...item, ...updates } : item)))
-  }
-
-  const handleMoveItem = (id: string, options: { storeId?: string; beforeId?: string | null }) => {
-    setItems((prev) => {
-      const itemIndex = prev.findIndex((item) => item.id === id)
-      if (itemIndex === -1) return prev
-
-      const item = { ...prev[itemIndex], storeId: options.storeId }
-      const newItems = prev.filter((i) => i.id !== id)
-
-      if (options.beforeId) {
-        const beforeIndex = newItems.findIndex((i) => i.id === options.beforeId)
-        if (beforeIndex !== -1) {
-          newItems.splice(beforeIndex, 0, item)
-          return newItems
-        }
-      }
-
-      return [...newItems, item]
-    })
-  }
-
-  const handleAddStore = (name: string) => {
-    const newStore: GroceryStore = {
-      id: `store-${Date.now()}`,
-      name,
+  const handleToggleChecked = async (id: string) => {
+    try {
+      await toggleChecked({ id: id as Id<'groceryItems'> })
+    } catch (error) {
+      console.error('Failed to toggle checked:', error)
     }
-    setStores((prev) => [...prev, newStore])
   }
 
-  const handleRenameStore = (id: string, name: string) => {
-    setStores((prev) => prev.map((store) => (store.id === id ? { ...store, name } : store)))
+  const handleDeleteItem = async (id: string) => {
+    try {
+      await removeItem({ id: id as Id<'groceryItems'> })
+    } catch (error) {
+      console.error('Failed to delete item:', error)
+    }
   }
 
-  const handleDeleteStore = (id: string) => {
-    setStores((prev) => prev.filter((store) => store.id !== id))
-    // Move items from deleted store to unassigned
-    setItems((prev) => prev.map((item) => (item.storeId === id ? { ...item, storeId: undefined } : item)))
+  const handleUpdateItem = async (
+    id: string,
+    updates: { name?: string; quantity?: string; organicRequired?: boolean }
+  ) => {
+    try {
+      await updateItem({
+        id: id as Id<'groceryItems'>,
+        name: updates.name,
+        quantity: updates.quantity,
+        isOrganic: updates.organicRequired,
+      })
+    } catch (error) {
+      console.error('Failed to update item:', error)
+    }
+  }
+
+  const handleMoveItem = async (
+    id: string,
+    options: { storeId?: string; beforeId?: string | null }
+  ) => {
+    try {
+      // Convert undefined storeId to null to signal "move to unassigned"
+      // If storeId is a valid string, use it. If undefined, pass null.
+      const storeIdArg =
+        options.storeId !== undefined
+          ? (options.storeId as Id<'stores'>)
+          : null
+
+      await reorderItem({
+        id: id as Id<'groceryItems'>,
+        storeId: storeIdArg,
+        beforeId:
+          options.beforeId === null
+            ? null
+            : options.beforeId !== undefined
+              ? (options.beforeId as Id<'groceryItems'>)
+              : undefined,
+      })
+    } catch (error) {
+      console.error('Failed to move item:', error)
+    }
+  }
+
+  const handleAddStore = async (name: string) => {
+    try {
+      await addStore({ name })
+    } catch (error) {
+      console.error('Failed to add store:', error)
+    }
+  }
+
+  const handleRenameStore = async (id: string, name: string) => {
+    try {
+      await updateStore({ id: id as Id<'stores'>, name })
+    } catch (error) {
+      console.error('Failed to rename store:', error)
+    }
+  }
+
+  const handleDeleteStore = async (id: string) => {
+    try {
+      await removeStore({ id: id as Id<'stores'> })
+    } catch (error) {
+      console.error('Failed to delete store:', error)
+    }
+  }
+
+  const handleClearChecked = async () => {
+    try {
+      await clearChecked({})
+    } catch (error) {
+      console.error('Failed to clear checked items:', error)
+    }
   }
 
   const handleVoiceInput = () => {
     // Placeholder for voice input - will be implemented later
     console.log('Voice input triggered')
+  }
+
+  if (isLoading) {
+    return (
+      <RequireAuth>
+        <div className="flex h-[calc(100vh-120px)] items-center justify-center">
+          <div className="text-center">
+            <div className="mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-4 border-[var(--color-primary)] border-t-transparent" />
+            <p className="text-[var(--color-text-secondary)]">Loading grocery list...</p>
+          </div>
+        </div>
+      </RequireAuth>
+    )
   }
 
   return (
@@ -245,6 +180,7 @@ export default function GroceryListPage() {
           onAddStore={handleAddStore}
           onRenameStore={handleRenameStore}
           onDeleteStore={handleDeleteStore}
+          onClearChecked={handleClearChecked}
         />
       </div>
     </RequireAuth>

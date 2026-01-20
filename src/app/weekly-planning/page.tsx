@@ -1,353 +1,27 @@
 "use client";
 
-import { useState } from "react";
-import { useAction } from "convex/react";
+import { useState, useMemo, useEffect } from "react";
+import { useQuery, useMutation, useAction } from "convex/react";
 import { api } from "../../../convex/_generated/api";
+import type { Id } from "../../../convex/_generated/dataModel";
 import { WeekPlanView, EditDayModal, PantryAudit } from "@/components/weekly-planning";
 import { RequireAuth } from "@/components/RequireAuth";
+import {
+  toHouseholdMember,
+  toWeekSummary,
+  toWeekPlan,
+  effortTierReverseMap,
+  cleanupRatingReverseMap,
+} from "@/lib/meal-adapters";
 import type {
-  HouseholdMember,
-  WeekSummary,
-  WeekPlan,
   PlannedMeal,
   MealAlternative,
   PantryCheckItem,
+  EffortTier,
+  CleanupRating,
 } from "@/types/weekly-planning";
 
-// Sample data - will be replaced with Convex queries
-const householdMembers: HouseholdMember[] = [
-  { id: "hm-001", name: "Aaron", isAdmin: true },
-  { id: "hm-002", name: "Katie", isAdmin: true },
-  { id: "hm-003", name: "Lizzie", isAdmin: false },
-  { id: "hm-004", name: "Ethan", isAdmin: false },
-  { id: "hm-005", name: "Elijah", isAdmin: false },
-];
-
-const availableWeeks: WeekSummary[] = [
-  {
-    id: "wp-001",
-    weekStartDate: "2024-01-15",
-    label: "This Week",
-    status: "draft",
-  },
-  {
-    id: "wp-002",
-    weekStartDate: "2024-01-22",
-    label: "Next Week",
-    status: "approved",
-  },
-  {
-    id: "wp-003",
-    weekStartDate: "2024-01-29",
-    label: "Jan 29 - Feb 4",
-    status: "draft",
-  },
-];
-
-const weekPlans: Record<string, WeekPlan> = {
-  "wp-001": {
-    id: "wp-001",
-    weekStartDate: "2024-01-15",
-    status: "draft",
-    meals: [
-      {
-        id: "pm-001",
-        date: "2024-01-15",
-        dayOfWeek: "Monday",
-        mealName: "Sheet Pan Salmon & Asparagus",
-        effortTier: "super-easy",
-        prepTime: 10,
-        cookTime: 20,
-        cleanupRating: "low",
-        assignedCookId: "hm-001",
-        eaterIds: ["hm-001", "hm-002", "hm-003", "hm-004", "hm-005"],
-        servings: 5,
-        ingredients: [
-          "Salmon fillets",
-          "Asparagus",
-          "Lemon",
-          "Olive oil",
-          "Dill",
-        ],
-        isFlexMeal: false,
-        isUnplanned: false,
-      },
-      {
-        id: "pm-002",
-        date: "2024-01-16",
-        dayOfWeek: "Tuesday",
-        mealName: "Taco Tuesday",
-        effortTier: "super-easy",
-        prepTime: 10,
-        cookTime: 15,
-        cleanupRating: "medium",
-        assignedCookId: "hm-002",
-        eaterIds: ["hm-001", "hm-002", "hm-003", "hm-004", "hm-005"],
-        servings: 6,
-        ingredients: [
-          "Ground turkey",
-          "Taco seasoning",
-          "Tortillas",
-          "Cheese",
-          "Lettuce",
-          "Tomato",
-          "Sour cream",
-        ],
-        isFlexMeal: true,
-        isUnplanned: false,
-      },
-      {
-        id: "pm-003",
-        date: "2024-01-17",
-        dayOfWeek: "Wednesday",
-        mealName: "Mom's Chicken Stir Fry",
-        effortTier: "middle",
-        prepTime: 20,
-        cookTime: 15,
-        cleanupRating: "medium",
-        assignedCookId: "hm-002",
-        eaterIds: ["hm-002", "hm-003", "hm-004", "hm-005"],
-        servings: 4,
-        ingredients: [
-          "Chicken breast",
-          "Broccoli",
-          "Carrots",
-          "Soy sauce",
-          "Ginger",
-          "Garlic",
-          "Rice",
-        ],
-        isFlexMeal: true,
-        isUnplanned: false,
-      },
-      {
-        id: "pm-004",
-        date: "2024-01-18",
-        dayOfWeek: "Thursday",
-        mealName: "Turkey Spinach Skillet",
-        effortTier: "super-easy",
-        prepTime: 5,
-        cookTime: 15,
-        cleanupRating: "low",
-        assignedCookId: "hm-001",
-        eaterIds: ["hm-001", "hm-002", "hm-003", "hm-004", "hm-005"],
-        servings: 5,
-        ingredients: ["Ground turkey", "Spinach", "Garlic", "Onion", "Rice"],
-        isFlexMeal: true,
-        isUnplanned: false,
-      },
-      {
-        id: "pm-005",
-        date: "2024-01-19",
-        dayOfWeek: "Friday",
-        mealName: "Pizza Night",
-        effortTier: "super-easy",
-        prepTime: 5,
-        cookTime: 0,
-        cleanupRating: "low",
-        assignedCookId: "hm-001",
-        eaterIds: ["hm-001", "hm-002", "hm-003", "hm-004", "hm-005"],
-        servings: 5,
-        ingredients: ["Order from Luigi's (gluten-free option for Lizzie)"],
-        isFlexMeal: false,
-        isUnplanned: false,
-      },
-      {
-        id: "pm-006",
-        date: "2024-01-20",
-        dayOfWeek: "Saturday",
-        mealName: "Grilled Salmon Burgers",
-        effortTier: "middle",
-        prepTime: 15,
-        cookTime: 10,
-        cleanupRating: "medium",
-        assignedCookId: "hm-001",
-        eaterIds: ["hm-001", "hm-002", "hm-003", "hm-004", "hm-005"],
-        servings: 5,
-        ingredients: [
-          "Salmon",
-          "Burger buns",
-          "Lettuce",
-          "Tomato",
-          "Avocado",
-          "Sweet potato fries",
-        ],
-        isFlexMeal: false,
-        isUnplanned: false,
-      },
-      {
-        id: "pm-007",
-        date: "2024-01-21",
-        dayOfWeek: "Sunday",
-        mealName: "Slow Cooker Pot Roast",
-        effortTier: "more-prep",
-        prepTime: 25,
-        cookTime: 480,
-        cleanupRating: "medium",
-        assignedCookId: "hm-002",
-        eaterIds: ["hm-002", "hm-003", "hm-004", "hm-005"],
-        servings: 4,
-        ingredients: [
-          "Beef roast",
-          "Potatoes",
-          "Carrots",
-          "Onion",
-          "Beef broth",
-          "Herbs",
-        ],
-        isFlexMeal: false,
-        isUnplanned: false,
-      },
-    ],
-  },
-  "wp-002": {
-    id: "wp-002",
-    weekStartDate: "2024-01-22",
-    status: "approved",
-    approvedBy: "hm-001",
-    approvedAt: "2024-01-14T19:00:00Z",
-    meals: [
-      {
-        id: "pm-008",
-        date: "2024-01-22",
-        dayOfWeek: "Monday",
-        mealName: "Lemon Herb Salmon",
-        effortTier: "super-easy",
-        prepTime: 10,
-        cookTime: 20,
-        cleanupRating: "low",
-        assignedCookId: "hm-001",
-        eaterIds: ["hm-001", "hm-002", "hm-003", "hm-004", "hm-005"],
-        servings: 5,
-        ingredients: ["Salmon", "Lemon", "Herbs", "Olive oil"],
-        isFlexMeal: false,
-        isUnplanned: false,
-      },
-      {
-        id: "pm-009",
-        date: "2024-01-23",
-        dayOfWeek: "Tuesday",
-        mealName: "Taco Tuesday",
-        effortTier: "super-easy",
-        prepTime: 10,
-        cookTime: 15,
-        cleanupRating: "medium",
-        assignedCookId: "hm-002",
-        eaterIds: ["hm-001", "hm-002", "hm-003", "hm-004", "hm-005"],
-        servings: 6,
-        ingredients: [
-          "Ground turkey",
-          "Taco seasoning",
-          "Tortillas",
-          "Toppings",
-        ],
-        isFlexMeal: true,
-        isUnplanned: false,
-      },
-      {
-        id: "pm-010",
-        date: "2024-01-24",
-        dayOfWeek: "Wednesday",
-        mealName: "Pasta Primavera",
-        effortTier: "middle",
-        prepTime: 15,
-        cookTime: 20,
-        cleanupRating: "medium",
-        assignedCookId: "hm-002",
-        eaterIds: ["hm-001", "hm-002", "hm-003", "hm-004", "hm-005"],
-        servings: 5,
-        ingredients: ["Pasta", "Seasonal vegetables", "Olive oil", "Parmesan"],
-        isFlexMeal: true,
-        isUnplanned: false,
-      },
-      {
-        id: "pm-011",
-        date: "2024-01-25",
-        dayOfWeek: "Thursday",
-        mealName: "Black Bean Quesadillas",
-        effortTier: "super-easy",
-        prepTime: 5,
-        cookTime: 10,
-        cleanupRating: "low",
-        assignedCookId: "hm-001",
-        eaterIds: ["hm-001", "hm-002", "hm-003", "hm-004", "hm-005"],
-        servings: 5,
-        ingredients: ["Tortillas", "Black beans", "Cheese", "Salsa"],
-        isFlexMeal: true,
-        isUnplanned: false,
-      },
-      {
-        id: "pm-012",
-        date: "2024-01-26",
-        dayOfWeek: "Friday",
-        mealName: "Pizza Night",
-        effortTier: "super-easy",
-        prepTime: 5,
-        cookTime: 0,
-        cleanupRating: "low",
-        assignedCookId: "hm-001",
-        eaterIds: ["hm-001", "hm-002", "hm-003", "hm-004", "hm-005"],
-        servings: 5,
-        ingredients: ["Order from Luigi's"],
-        isFlexMeal: false,
-        isUnplanned: false,
-      },
-      {
-        id: "pm-013",
-        date: "2024-01-27",
-        dayOfWeek: "Saturday",
-        mealName: "Grilled Fish Tacos",
-        effortTier: "middle",
-        prepTime: 15,
-        cookTime: 15,
-        cleanupRating: "medium",
-        assignedCookId: "hm-001",
-        eaterIds: ["hm-001", "hm-002", "hm-003", "hm-004", "hm-005"],
-        servings: 5,
-        ingredients: ["White fish", "Tortillas", "Cabbage", "Lime crema"],
-        isFlexMeal: false,
-        isUnplanned: false,
-      },
-      {
-        id: "pm-014",
-        date: "2024-01-28",
-        dayOfWeek: "Sunday",
-        mealName: "Roast Chicken & Vegetables",
-        effortTier: "more-prep",
-        prepTime: 20,
-        cookTime: 60,
-        cleanupRating: "medium",
-        assignedCookId: "hm-002",
-        eaterIds: ["hm-002", "hm-003", "hm-004", "hm-005"],
-        servings: 4,
-        ingredients: [
-          "Whole chicken",
-          "Potatoes",
-          "Carrots",
-          "Onion",
-          "Herbs",
-        ],
-        isFlexMeal: false,
-        isUnplanned: false,
-      },
-    ],
-  },
-  "wp-003": {
-    id: "wp-003",
-    weekStartDate: "2024-01-29",
-    status: "draft",
-    meals: [],
-  },
-};
-
-// Current user - will be replaced with auth
-const currentUser: HouseholdMember = {
-  id: "hm-001",
-  name: "Aaron",
-  isAdmin: true,
-};
-
-// Sample alternatives for swapping meals
+// Sample alternatives for swapping meals (will be replaced with AI suggestions)
 const sampleAlternatives: MealAlternative[] = [
   {
     id: "alt-001",
@@ -372,24 +46,69 @@ const sampleAlternatives: MealAlternative[] = [
 ];
 
 export default function WeeklyPlanningPage() {
-  const [selectedWeekId, setSelectedWeekId] = useState("wp-001");
+  const [selectedWeekId, setSelectedWeekId] = useState<string | null>(null);
   const [selectedMeal, setSelectedMeal] = useState<PlannedMeal | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
-  const [localWeekPlans, setLocalWeekPlans] = useState(weekPlans);
   const [showPantryAudit, setShowPantryAudit] = useState(false);
   const [pantryItems, setPantryItems] = useState<PantryCheckItem[]>([]);
 
+  // Convex queries
+  const householdMembersData = useQuery(api.householdMembers.list);
+  const weekPlansData = useQuery(api.weekPlans.list);
+  const selectedWeekData = useQuery(
+    api.weekPlans.getWithMeals,
+    selectedWeekId ? { id: selectedWeekId as Id<"weekPlans"> } : "skip"
+  );
+
+  // Convex mutations
+  const updateMeal = useMutation(api.weekPlans.updateMeal);
+  const updateStatus = useMutation(api.weekPlans.updateStatus);
+
+  // AI action
   const generateWeekPlan = useAction(api.ai.generateWeekPlan);
 
-  const selectedWeekPlan = localWeekPlans[selectedWeekId] || localWeekPlans["wp-001"];
+  // Convert Convex data to UI types
+  const householdMembers = useMemo(() => {
+    if (!householdMembersData) return [];
+    return householdMembersData.map(toHouseholdMember);
+  }, [householdMembersData]);
+
+  const availableWeeks = useMemo(() => {
+    if (!weekPlansData) return [];
+    return weekPlansData.map(toWeekSummary);
+  }, [weekPlansData]);
+
+  const selectedWeekPlan = useMemo(() => {
+    if (!selectedWeekData) return null;
+    return toWeekPlan(selectedWeekData, selectedWeekData.meals);
+  }, [selectedWeekData]);
+
+  // Current user is first admin member (for now)
+  const currentUser = useMemo(() => {
+    const admin = householdMembers.find((m) => m.isAdmin);
+    return admin || householdMembers[0] || { id: "", name: "Guest", isAdmin: false };
+  }, [householdMembers]);
+
+  // Auto-select first week when data loads
+  useEffect(() => {
+    if (availableWeeks.length > 0 && !selectedWeekId) {
+      setSelectedWeekId(availableWeeks[0].id);
+    }
+  }, [availableWeeks, selectedWeekId]);
+
+  // Loading state
+  const isLoading =
+    householdMembersData === undefined ||
+    weekPlansData === undefined ||
+    (selectedWeekId && selectedWeekData === undefined);
 
   const handleSelectWeek = (weekId: string) => {
     setSelectedWeekId(weekId);
   };
 
   const handleSelectMeal = (mealId: string) => {
-    const meal = selectedWeekPlan.meals.find((m) => m.id === mealId);
+    const meal = selectedWeekPlan?.meals.find((m) => m.id === mealId);
     if (meal) {
       setSelectedMeal(meal);
       setIsModalOpen(true);
@@ -401,72 +120,111 @@ export default function WeeklyPlanningPage() {
     setSelectedMeal(null);
   };
 
-  const handleChangeCook = (newCookId: string) => {
-    console.log("Change cook to:", newCookId);
-    // TODO: Implement cook change with Convex mutation
+  const handleChangeCook = async (newCookId: string) => {
+    if (!selectedMeal) return;
+    try {
+      await updateMeal({
+        id: selectedMeal.id as Id<"plannedMeals">,
+        cookId: newCookId as Id<"householdMembers">,
+      });
+    } catch (error) {
+      console.error("Failed to change cook:", error);
+    }
   };
 
-  const handleToggleEater = (memberId: string) => {
-    console.log("Toggle eater:", memberId);
-    // TODO: Implement eater toggle with Convex mutation
+  const handleToggleEater = async (memberId: string) => {
+    if (!selectedMeal) return;
+    try {
+      const currentEaters = selectedMeal.eaterIds;
+      const newEaters = currentEaters.includes(memberId)
+        ? currentEaters.filter((id) => id !== memberId)
+        : [...currentEaters, memberId];
+
+      await updateMeal({
+        id: selectedMeal.id as Id<"plannedMeals">,
+        eaterIds: newEaters.map((id) => id as Id<"householdMembers">),
+      });
+    } catch (error) {
+      console.error("Failed to toggle eater:", error);
+    }
   };
 
-  const handleSelectAlternative = (alternativeId: string) => {
-    console.log("Selected alternative:", alternativeId);
-    handleCloseModal();
-    // TODO: Implement meal swap with Convex mutation
+  const handleSelectAlternative = async (alternativeId: string) => {
+    if (!selectedMeal) return;
+    const alternative = sampleAlternatives.find((a) => a.id === alternativeId);
+    if (!alternative) return;
+
+    try {
+      await updateMeal({
+        id: selectedMeal.id as Id<"plannedMeals">,
+        name: alternative.mealName,
+        effortTier: effortTierReverseMap[alternative.effortTier as EffortTier],
+        prepTime: alternative.prepTime,
+        cookTime: alternative.cookTime,
+        cleanupRating: cleanupRatingReverseMap[alternative.cleanupRating as CleanupRating],
+        isFlexMeal: alternative.isFlexMeal,
+      });
+      handleCloseModal();
+    } catch (error) {
+      console.error("Failed to swap meal:", error);
+    }
   };
 
   const handleMoreOptions = () => {
-    console.log("More options requested");
-    // TODO: Show more options from AI
+    console.log("More options requested - will integrate with AI");
   };
 
-  const handleUnplan = () => {
-    console.log("Unplan meal");
-    handleCloseModal();
-    // TODO: Mark meal as unplanned with Convex mutation
+  const handleUnplan = async () => {
+    if (!selectedMeal) return;
+    try {
+      await updateMeal({
+        id: selectedMeal.id as Id<"plannedMeals">,
+        name: "Unplanned",
+        isFlexMeal: true,
+      });
+      handleCloseModal();
+    } catch (error) {
+      console.error("Failed to unplan meal:", error);
+    }
   };
 
-  const handleApprovePlan = () => {
-    // Update local state to mark plan as approved
-    setLocalWeekPlans((prev) => ({
-      ...prev,
-      [selectedWeekId]: {
-        ...prev[selectedWeekId],
-        status: "approved" as const,
-        approvedBy: currentUser.id,
-        approvedAt: new Date().toISOString(),
-      },
-    }));
-    console.log("Plan approved:", selectedWeekId);
+  const handleApprovePlan = async () => {
+    if (!selectedWeekPlan || !currentUser.id) return;
 
-    // Extract unique ingredients from all meals in the week to create pantry items
-    const allIngredients = selectedWeekPlan.meals.flatMap((meal) => meal.ingredients);
-    const uniqueIngredients = [...new Set(allIngredients)];
+    try {
+      await updateStatus({
+        id: selectedWeekPlan.id as Id<"weekPlans">,
+        status: "approved",
+        approvedBy: currentUser.id as Id<"householdMembers">,
+      });
 
-    // Create pantry check items from ingredients
-    const items: PantryCheckItem[] = uniqueIngredients.map((ingredient, index) => ({
-      id: `pantry-${index}`,
-      name: ingredient,
-      alreadyHave: false,
-    }));
+      // Extract unique ingredients from all meals to create pantry items
+      const allIngredients = selectedWeekPlan.meals.flatMap((meal) => meal.ingredients);
+      const uniqueIngredients = [...new Set(allIngredients)];
 
-    setPantryItems(items);
-    setShowPantryAudit(true);
+      const items: PantryCheckItem[] = uniqueIngredients.map((ingredient, index) => ({
+        id: `pantry-${index}`,
+        name: ingredient,
+        alreadyHave: false,
+      }));
+
+      setPantryItems(items);
+      setShowPantryAudit(true);
+    } catch (error) {
+      console.error("Failed to approve plan:", error);
+    }
   };
 
   const handleAddWeek = () => {
-    // TODO: Call Convex mutation to generate new week
-    console.log("Add new week");
+    console.log("Add new week - will implement with create mutation");
   };
 
   const handlePantryAudit = () => {
-    // Extract unique ingredients from all meals in the week to create pantry items
+    if (!selectedWeekPlan) return;
+
     const allIngredients = selectedWeekPlan.meals.flatMap((meal) => meal.ingredients);
     const uniqueIngredients = [...new Set(allIngredients)];
 
-    // Create pantry check items from ingredients
     const items: PantryCheckItem[] = uniqueIngredients.map((ingredient, index) => ({
       id: `pantry-${index}`,
       name: ingredient,
@@ -487,12 +245,13 @@ export default function WeeklyPlanningPage() {
 
   const handleCompletePantryAudit = () => {
     setShowPantryAudit(false);
-    // TODO: Generate grocery list from unchecked items
     const uncheckedItems = pantryItems.filter((item) => !item.alreadyHave);
     console.log("Items to add to grocery list:", uncheckedItems.map((i) => i.name));
   };
 
   const handleGeneratePlan = async () => {
+    if (!selectedWeekPlan) return;
+
     setIsGenerating(true);
     try {
       const result = await generateWeekPlan({
@@ -500,37 +259,11 @@ export default function WeeklyPlanningPage() {
         householdSize: householdMembers.length,
       });
 
-      if (result.success && result.meals) {
-        // Convert AI meals to PlannedMeal format
-        const newMeals: PlannedMeal[] = result.meals.map((meal, index) => ({
-          id: `pm-gen-${selectedWeekId}-${index}`,
-          date: meal.date,
-          dayOfWeek: meal.dayOfWeek,
-          mealName: meal.mealName,
-          effortTier: meal.effortTier,
-          prepTime: meal.prepTime,
-          cookTime: meal.cookTime,
-          cleanupRating: meal.cleanupRating,
-          assignedCookId: householdMembers[index % 2]?.id || "hm-001", // Alternate between first two members
-          eaterIds: householdMembers.map((m) => m.id),
-          servings: householdMembers.length,
-          ingredients: meal.ingredients,
-          isFlexMeal: meal.isFlexMeal,
-          isUnplanned: false,
-        }));
-
-        // Update local state with new meals
-        setLocalWeekPlans((prev) => ({
-          ...prev,
-          [selectedWeekId]: {
-            ...prev[selectedWeekId],
-            meals: newMeals,
-          },
-        }));
-      } else {
+      if (!result.success) {
         console.error("Failed to generate plan:", result.error);
         alert("Failed to generate plan: " + (result.error || "Unknown error"));
       }
+      // Success: Convex will auto-update via the query subscription
     } catch (error) {
       console.error("Error generating plan:", error);
       alert("Error generating plan. Please try again.");
@@ -539,7 +272,64 @@ export default function WeeklyPlanningPage() {
     }
   };
 
-  // If pantry audit is showing, render it instead of the week plan view
+  // Loading state
+  if (isLoading) {
+    return (
+      <RequireAuth>
+        <div
+          className="flex min-h-[calc(100vh-120px)] items-center justify-center"
+          style={{ backgroundColor: "var(--color-bg)" }}
+        >
+          <div className="text-center">
+            <div className="mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-4 border-[var(--color-primary)] border-t-transparent" />
+            <p className="text-[var(--color-text-secondary)]">Loading week plans...</p>
+          </div>
+        </div>
+      </RequireAuth>
+    );
+  }
+
+  // No weeks available
+  if (availableWeeks.length === 0) {
+    return (
+      <RequireAuth>
+        <div
+          className="flex min-h-[calc(100vh-120px)] flex-col items-center justify-center p-4"
+          style={{ backgroundColor: "var(--color-bg)" }}
+        >
+          <p className="mb-4 text-[var(--color-text-secondary)]">
+            No week plans yet. Create one to get started!
+          </p>
+          <button
+            onClick={handleAddWeek}
+            className="rounded-lg px-6 py-3 font-medium"
+            style={{
+              backgroundColor: "var(--color-primary)",
+              color: "white",
+            }}
+          >
+            Create Week Plan
+          </button>
+        </div>
+      </RequireAuth>
+    );
+  }
+
+  // No selected plan (shouldn't happen with auto-select)
+  if (!selectedWeekPlan) {
+    return (
+      <RequireAuth>
+        <div
+          className="flex min-h-[calc(100vh-120px)] items-center justify-center"
+          style={{ backgroundColor: "var(--color-bg)" }}
+        >
+          <p className="text-[var(--color-text-secondary)]">Select a week to view</p>
+        </div>
+      </RequireAuth>
+    );
+  }
+
+  // Pantry audit view
   if (showPantryAudit) {
     return (
       <RequireAuth>

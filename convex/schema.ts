@@ -82,6 +82,8 @@ const schema = defineSchema({
   weekPlans: defineTable({
     weekStart: v.string(), // ISO date string (YYYY-MM-DD)
     status: weekPlanStatus,
+    approvedBy: v.optional(v.id("householdMembers")), // Who approved the plan
+    approvedAt: v.optional(v.string()), // ISO timestamp when approved
   }).index("by_week_start", ["weekStart"]),
 
   // PlannedMeal - a meal scheduled for a specific date
@@ -132,7 +134,7 @@ const schema = defineSchema({
   groceryItems: defineTable({
     name: v.string(),
     quantity: v.optional(v.string()),
-    storeId: v.id("stores"),
+    storeId: v.optional(v.id("stores")), // undefined = unassigned
     category: v.string(),
     isOrganic: v.boolean(),
     isChecked: v.boolean(),
