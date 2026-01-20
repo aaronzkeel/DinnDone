@@ -193,3 +193,187 @@ Status: Ready for testing/merge
 ```
 
 No conflicts expected. All TypeScript checks pass.
+
+---
+
+# Round 2: Manual QA Findings and Implementation Plan
+
+**Date:** January 20, 2025 (later session)
+**Status:** PLANNING COMPLETE - Ready to implement in new chat
+
+---
+
+## QA Issues Found
+
+### Critical Bug: Generate Plan Doesn't Save Meals
+The `generateWeekPlan` AI action returns meal data, but **nothing saves it to the database**.
+- Code has comment "Success: Convex will auto-update via query subscription" but save logic was never implemented
+- User clicks button, sees spinner, nothing happens
+- **Must fix:** After `generateWeekPlan` returns, call `addMeal` mutation for each meal
+
+### UX Issue: "No Quick Swap Options" Confusion
+The `alternatives` state starts empty (intentional - fetched on-demand via "More options"). But users expect to see other meals from the week as quick swap options.
+
+### Missing: Edit Custom Meals After Entry
+Users can enter a custom meal but can't edit it after (fix typo, add ingredients). Current flow only allows full replacement.
+
+### Missing: Recipe Library
+Custom meals are not saved anywhere for reuse. The `recipes` table exists in Convex schema but is unused.
+
+### Missing: Chat with Zylo in Modal
+User wants conversational option to describe meals, not just buttons/forms.
+
+### Correction: Conversational Planning
+The app is a **HYBRID** - structured UI (Rails) plus chat everywhere. Users should be able to talk to Zylo from any screen, including the Edit Day modal.
+
+---
+
+## Implementation Plan (4 Phases)
+
+### Phase 1: Critical Fixes (NEXT SESSION)
+
+**1.1 Fix Generate Plan Bug**
+- Location: `src/app/weekly-planning/page.tsx` handleGeneratePlan()
+- After `generateWeekPlan` returns, loop through meals and call `addMeal` mutation
+- Show success message when complete
+
+**1.2 Show Week Meals as Quick Swaps**
+- When modal opens, populate `alternatives` with other meals from same week
+- This is instant (no API call) - just filter `selectedWeekPlan.meals`
+- Keep "More options" button for AI suggestions
+
+**1.3 Make Meal Fields Editable**
+- In EditDayModal, change "Current Meal" section from read-only to editable:
+  - Meal name → text input
+  - Effort tier → picker buttons
+  - Prep/cook time → number inputs (optional)
+  - Ingredients → add/remove list
+- Save on blur or explicit save button
+
+### Phase 2: Recipe Library
+
+**2.1 Create `convex/recipes.ts`**
+```typescript
+// Queries
+api.recipes.list        // Get all user recipes
+api.recipes.search      // Search by name
+
+// Mutations
+api.recipes.create      // Save new recipe
+api.recipes.update      // Edit recipe
+api.recipes.delete      // Remove recipe
+```
+
+**2.2 Auto-Save Custom Meals**
+When user saves a custom meal, also call `recipes.create` to save it for future use.
+
+**2.3 Browse Recipes in Modal**
+Add "From my recipes" section in EditDayModal showing saved recipes.
+
+### Phase 3: Generate Plan Flow Redesign
+
+**3.1 Quick Questions Modal**
+When "Generate Plan" clicked, show modal with:
+- "How's your energy this week?" (Low / Medium / High)
+- "Anyone joining or away?" (text input or skip)
+- "Any meals you definitely want?" (pick from recipes to anchor)
+
+**3.2 Anchor Meals**
+Let users pick 1-3 meals to lock in before generating.
+- AI fills remaining days around anchored meals
+- Anchored meals show lock icon in UI
+
+**3.3 Settings/Preferences Page**
+Create or enhance Settings with:
+- Household size
+- Dietary restrictions / allergies
+- Cuisine preferences
+- Default effort level
+- Zylo can update these via chat (with confirmation)
+
+### Phase 4: Chat with Zylo in Modal
+
+**4.1 Inline Chat Input**
+Add small chat input at bottom of EditDayModal:
+- Placeholder: "Ask Zylo for suggestions..."
+- Responses appear inline below input
+- Can request specific meals conversationally
+- Uses existing `api.ai.chat` action with meal context
+
+---
+
+## Files to Modify by Phase
+
+### Phase 1
+| File | Changes |
+|------|---------|
+| `src/app/weekly-planning/page.tsx` | Fix handleGeneratePlan to save meals, populate alternatives on modal open |
+| `src/components/weekly-planning/EditDayModal.tsx` | Make meal fields editable |
+| `convex/weekPlans.ts` | May need to update addMeal for batch inserts |
+
+### Phase 2
+| File | Changes |
+|------|---------|
+| `convex/recipes.ts` | NEW - Recipe CRUD operations |
+| `src/app/weekly-planning/page.tsx` | Query recipes, call create on custom meal |
+| `src/components/weekly-planning/EditDayModal.tsx` | Add "From my recipes" section |
+
+### Phase 3
+| File | Changes |
+|------|---------|
+| `src/components/weekly-planning/GeneratePlanModal.tsx` | NEW - Questions modal |
+| `src/app/settings/page.tsx` | NEW or enhance - Preferences UI |
+| `convex/preferences.ts` | NEW - User preferences storage |
+| `convex/ai.ts` | Update generateWeekPlan to accept preferences/anchors |
+
+### Phase 4
+| File | Changes |
+|------|---------|
+| `src/components/weekly-planning/EditDayModal.tsx` | Add inline chat input |
+| `src/app/weekly-planning/page.tsx` | Add chat handler using api.ai.chat |
+
+---
+
+## Verification Steps
+
+### Phase 1 Testing
+1. Click "Generate Plan" on empty week → Meals should appear on the calendar
+2. Open meal modal → Should see other week meals as swap options immediately
+3. Edit meal name in modal → Should save and persist after closing
+4. Add ingredient to meal → Should save and show in pantry audit
+
+### Phase 2 Testing
+1. Enter custom meal → Check it appears in "My Recipes"
+2. Open modal on different day → "From my recipes" shows saved meals
+3. Select a recipe → Meal updates to that recipe
+
+### Phase 3 Testing
+1. Click Generate Plan → Questions modal appears first
+2. Answer questions → AI generates appropriate plan based on answers
+3. Anchor "Taco Tuesday" → That meal stays locked, AI fills other days
+4. Check Settings → Preferences persist across sessions
+
+### Phase 4 Testing
+1. Type "suggest something easy" in modal chat → Zylo responds with suggestions
+2. Type "use the pasta one" → Meal updates to pasta suggestion
+3. Ask about ingredients → Zylo lists what's needed
+
+---
+
+## Data Model Notes
+
+**Existing tables (unused):**
+- `pantryItems` - for tracking fridge/freezer/pantry inventory (skip for now)
+- `recipes` - for saved meal recipes (Phase 2)
+
+**Table to create:**
+- `preferences` - user/household preferences for AI (Phase 3)
+
+---
+
+## Priority Order
+
+1. **Phase 1** - Most critical, fixes broken functionality
+2. **Phase 2** - High value, enables reuse of meals
+3. **Phase 3** - Medium, improves AI generation quality
+4. **Phase 4** - Nice to have, adds conversational option
