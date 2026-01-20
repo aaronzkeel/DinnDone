@@ -59,4 +59,3 @@ git revert <merge-commit-sha>
 - Do NOT read, open, quote, summarize, or reference `.env.local` or any `.env*` files.
 - If you need config values, ask the user to paste only the specific non-secret value or use `.env.example`.
 - If a task requires secrets, stop and ask for a safer workflow (environment variables or external secrets file).
-
