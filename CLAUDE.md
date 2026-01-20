@@ -36,6 +36,7 @@ You are the main builder. You can read, write, and modify any code.
 
 ## Current State (Jan 2025)
 
-- Meal Helper UI wired with mock data
+- Meal Helper UI wired to Convex (household members, week plans, meals)
 - AI chat working via OpenRouter
-- Not yet connected to Convex database for persistence
+- Swap meals mutation connected to database
+- Not yet done: voice input, grocery list integration
