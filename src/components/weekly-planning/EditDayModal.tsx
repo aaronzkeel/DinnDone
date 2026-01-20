@@ -1,7 +1,7 @@
 "use client";
 
-import { useRef, useEffect, useCallback } from "react";
-import { X, Clock, ChefHat, Users, Sparkles } from "lucide-react";
+import { useState, useRef, useEffect, useCallback } from "react";
+import { X, Clock, ChefHat, Users, Sparkles, Loader2, PenLine } from "lucide-react";
 import type {
   PlannedMeal,
   MealAlternative,
@@ -45,6 +45,10 @@ export interface EditDayModalProps {
   onUnplan?: () => void;
   /** Called when user closes modal */
   onClose?: () => void;
+  /** Whether alternatives are being loaded from AI */
+  isLoadingAlternatives?: boolean;
+  /** Called when user enters a custom meal */
+  onCustomMeal?: (mealName: string, effortTier: "super-easy" | "middle" | "more-prep") => void;
 }
 
 export function EditDayModal({
@@ -60,7 +64,13 @@ export function EditDayModal({
   onMoreOptions,
   onUnplan,
   onClose,
+  isLoadingAlternatives = false,
+  onCustomMeal,
 }: EditDayModalProps) {
+  // Custom meal state
+  const [customMealName, setCustomMealName] = useState("");
+  const [customEffortTier, setCustomEffortTier] = useState<"super-easy" | "middle" | "more-prep">("middle");
+  const [showCustomMealForm, setShowCustomMealForm] = useState(false);
   const cook = householdMembers.find((m) => m.id === currentMeal.assignedCookId);
   const totalTime = currentMeal.prepTime + currentMeal.cookTime;
   const modalRef = useRef<HTMLDivElement>(null);
@@ -300,7 +310,27 @@ export function EditDayModal({
             >
               Swap with Alternative
             </h3>
-            {alternatives.length > 0 ? (
+            {isLoadingAlternatives ? (
+              <div
+                className="p-6 rounded-xl text-center"
+                style={{
+                  backgroundColor: "var(--color-bg)",
+                  border: "1px dashed var(--color-border)",
+                }}
+              >
+                <Loader2
+                  size={24}
+                  className="animate-spin mx-auto mb-2"
+                  style={{ color: "var(--color-primary)" }}
+                />
+                <p
+                  className="text-sm font-medium"
+                  style={{ color: "var(--color-muted)" }}
+                >
+                  Zylo is finding alternatives...
+                </p>
+              </div>
+            ) : alternatives.length > 0 ? (
               <div className="space-y-2">
                 {alternatives.map((alt) => {
                   const altTotalTime = alt.prepTime + alt.cookTime;
@@ -380,15 +410,117 @@ export function EditDayModal({
             )}
           </div>
 
+          {/* Custom Meal Entry */}
+          <div>
+            <button
+              onClick={() => setShowCustomMealForm(!showCustomMealForm)}
+              className="flex items-center gap-2 text-sm font-medium mb-2"
+              style={{ color: "var(--color-primary)" }}
+            >
+              <PenLine size={14} />
+              {showCustomMealForm ? "Hide custom meal" : "Enter your own meal"}
+            </button>
+
+            {showCustomMealForm && (
+              <div
+                className="p-4 rounded-xl space-y-3"
+                style={{
+                  backgroundColor: "var(--color-bg)",
+                  border: "1px solid var(--color-border)",
+                }}
+              >
+                <div>
+                  <label
+                    className="text-xs font-medium mb-1 block"
+                    style={{ color: "var(--color-muted)" }}
+                  >
+                    Meal name
+                  </label>
+                  <input
+                    type="text"
+                    value={customMealName}
+                    onChange={(e) => setCustomMealName(e.target.value)}
+                    placeholder="e.g., Leftover night, Pizza delivery"
+                    className="w-full px-3 py-2 rounded-lg text-sm"
+                    style={{
+                      backgroundColor: "var(--color-card)",
+                      border: "1px solid var(--color-border)",
+                      color: "var(--color-text)",
+                    }}
+                  />
+                </div>
+
+                <div>
+                  <label
+                    className="text-xs font-medium mb-1 block"
+                    style={{ color: "var(--color-muted)" }}
+                  >
+                    Effort level
+                  </label>
+                  <div className="flex gap-2">
+                    {(["super-easy", "middle", "more-prep"] as const).map((tier) => (
+                      <button
+                        key={tier}
+                        onClick={() => setCustomEffortTier(tier)}
+                        className="flex-1 px-3 py-2 rounded-lg text-xs font-medium transition-colors"
+                        style={{
+                          backgroundColor:
+                            customEffortTier === tier
+                              ? "var(--color-primary)"
+                              : "var(--color-card)",
+                          color:
+                            customEffortTier === tier
+                              ? "white"
+                              : "var(--color-text)",
+                          border: "1px solid var(--color-border)",
+                        }}
+                      >
+                        {effortLabels[tier]}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <button
+                  onClick={() => {
+                    if (customMealName.trim() && onCustomMeal) {
+                      onCustomMeal(customMealName.trim(), customEffortTier);
+                      setCustomMealName("");
+                      setShowCustomMealForm(false);
+                    }
+                  }}
+                  disabled={!customMealName.trim()}
+                  className="w-full px-4 py-2 rounded-lg font-medium text-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  style={{
+                    backgroundColor: "var(--color-secondary)",
+                    color: "white",
+                  }}
+                >
+                  Use this meal
+                </button>
+              </div>
+            )}
+          </div>
+
           {/* Action Buttons */}
           <div className="space-y-2 pt-2 pb-4">
             <button
               onClick={onMoreOptions}
-              className="w-full px-4 py-3 rounded-xl font-semibold transition-colors flex items-center justify-center gap-2 text-white"
+              disabled={isLoadingAlternatives}
+              className="w-full px-4 py-3 rounded-xl font-semibold transition-colors flex items-center justify-center gap-2 text-white disabled:opacity-50 disabled:cursor-not-allowed"
               style={{ backgroundColor: "var(--color-primary)" }}
             >
-              <Sparkles size={18} />
-              More options
+              {isLoadingAlternatives ? (
+                <>
+                  <Loader2 size={18} className="animate-spin" />
+                  Finding options...
+                </>
+              ) : (
+                <>
+                  <Sparkles size={18} />
+                  More options
+                </>
+              )}
             </button>
             <button
               onClick={onUnplan}

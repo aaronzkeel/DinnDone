@@ -21,30 +21,6 @@ import type {
   CleanupRating,
 } from "@/types/weekly-planning";
 
-// Sample alternatives for swapping meals (will be replaced with AI suggestions)
-const sampleAlternatives: MealAlternative[] = [
-  {
-    id: "alt-001",
-    mealName: "Pasta Primavera",
-    effortTier: "middle",
-    prepTime: 15,
-    cookTime: 20,
-    cleanupRating: "medium",
-    briefDescription: "Fresh seasonal vegetables with pasta and olive oil",
-    isFlexMeal: true,
-  },
-  {
-    id: "alt-002",
-    mealName: "Grilled Chicken Salad",
-    effortTier: "super-easy",
-    prepTime: 10,
-    cookTime: 15,
-    cleanupRating: "low",
-    briefDescription: "Light and healthy with mixed greens",
-    isFlexMeal: false,
-  },
-];
-
 export default function WeeklyPlanningPage() {
   const [selectedWeekId, setSelectedWeekId] = useState<string | null>(null);
   const [selectedMeal, setSelectedMeal] = useState<PlannedMeal | null>(null);
@@ -52,6 +28,8 @@ export default function WeeklyPlanningPage() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [showPantryAudit, setShowPantryAudit] = useState(false);
   const [pantryItems, setPantryItems] = useState<PantryCheckItem[]>([]);
+  const [alternatives, setAlternatives] = useState<MealAlternative[]>([]);
+  const [isLoadingAlternatives, setIsLoadingAlternatives] = useState(false);
 
   // Convex queries
   const householdMembersData = useQuery(api.householdMembers.list);
@@ -64,9 +42,12 @@ export default function WeeklyPlanningPage() {
   // Convex mutations
   const updateMeal = useMutation(api.weekPlans.updateMeal);
   const updateStatus = useMutation(api.weekPlans.updateStatus);
+  const createWeekPlan = useMutation(api.weekPlans.create);
+  const addGroceryItem = useMutation(api.groceryItems.add);
 
-  // AI action
+  // AI actions
   const generateWeekPlan = useAction(api.ai.generateWeekPlan);
+  const suggestAlternatives = useAction(api.ai.suggestAlternatives);
 
   // Convert Convex data to UI types
   const householdMembers = useMemo(() => {
@@ -97,6 +78,16 @@ export default function WeeklyPlanningPage() {
     }
   }, [availableWeeks, selectedWeekId]);
 
+  // Sync selectedMeal with Convex data when it updates (keeps modal in sync after mutations)
+  useEffect(() => {
+    if (selectedMeal && selectedWeekPlan) {
+      const updatedMeal = selectedWeekPlan.meals.find((m) => m.id === selectedMeal.id);
+      if (updatedMeal && JSON.stringify(updatedMeal) !== JSON.stringify(selectedMeal)) {
+        setSelectedMeal(updatedMeal);
+      }
+    }
+  }, [selectedWeekPlan, selectedMeal]);
+
   // Loading state
   const isLoading =
     householdMembersData === undefined ||
@@ -118,6 +109,8 @@ export default function WeeklyPlanningPage() {
   const handleCloseModal = () => {
     setIsModalOpen(false);
     setSelectedMeal(null);
+    setAlternatives([]);
+    setIsLoadingAlternatives(false);
   };
 
   const handleChangeCook = async (newCookId: string) => {
@@ -151,7 +144,7 @@ export default function WeeklyPlanningPage() {
 
   const handleSelectAlternative = async (alternativeId: string) => {
     if (!selectedMeal) return;
-    const alternative = sampleAlternatives.find((a) => a.id === alternativeId);
+    const alternative = alternatives.find((a: MealAlternative) => a.id === alternativeId);
     if (!alternative) return;
 
     try {
@@ -170,8 +163,42 @@ export default function WeeklyPlanningPage() {
     }
   };
 
-  const handleMoreOptions = () => {
-    console.log("More options requested - will integrate with AI");
+  const handleMoreOptions = async () => {
+    if (!selectedMeal || !selectedWeekPlan) return;
+
+    setIsLoadingAlternatives(true);
+    try {
+      // Get other meal names in the plan to exclude from suggestions
+      const excludeMeals = selectedWeekPlan.meals
+        .map((m) => m.mealName)
+        .filter((name) => name !== selectedMeal.mealName);
+
+      const result = await suggestAlternatives({
+        currentMealName: selectedMeal.mealName,
+        excludeMeals,
+      });
+
+      if (result.success && result.alternatives) {
+        // Convert AI alternatives to MealAlternative format with unique IDs
+        const newAlternatives: MealAlternative[] = result.alternatives.map((alt, index) => ({
+          id: `ai-alt-${Date.now()}-${index}`,
+          mealName: alt.mealName,
+          effortTier: alt.effortTier,
+          prepTime: alt.prepTime,
+          cookTime: alt.cookTime,
+          cleanupRating: alt.cleanupRating,
+          briefDescription: alt.briefDescription,
+          isFlexMeal: alt.isFlexMeal,
+        }));
+        setAlternatives(newAlternatives);
+      } else {
+        console.error("Failed to get alternatives:", result.error);
+      }
+    } catch (error) {
+      console.error("Error fetching alternatives:", error);
+    } finally {
+      setIsLoadingAlternatives(false);
+    }
   };
 
   const handleUnplan = async () => {
@@ -185,6 +212,24 @@ export default function WeeklyPlanningPage() {
       handleCloseModal();
     } catch (error) {
       console.error("Failed to unplan meal:", error);
+    }
+  };
+
+  const handleCustomMeal = async (
+    mealName: string,
+    effortTier: "super-easy" | "middle" | "more-prep"
+  ) => {
+    if (!selectedMeal) return;
+    try {
+      await updateMeal({
+        id: selectedMeal.id as Id<"plannedMeals">,
+        name: mealName,
+        effortTier: effortTierReverseMap[effortTier as EffortTier],
+        isFlexMeal: true,
+      });
+      handleCloseModal();
+    } catch (error) {
+      console.error("Failed to set custom meal:", error);
     }
   };
 
@@ -215,8 +260,39 @@ export default function WeeklyPlanningPage() {
     }
   };
 
-  const handleAddWeek = () => {
-    console.log("Add new week - will implement with create mutation");
+  const handleAddWeek = async () => {
+    // Calculate the next Monday after all existing weeks
+    let nextMonday: Date;
+
+    if (weekPlansData && weekPlansData.length > 0) {
+      // Find the latest week start date
+      const latestWeekStart = weekPlansData
+        .map((wp) => new Date(wp.weekStart + "T12:00:00"))
+        .sort((a, b) => b.getTime() - a.getTime())[0];
+
+      // Next week is 7 days after the latest
+      nextMonday = new Date(latestWeekStart);
+      nextMonday.setDate(latestWeekStart.getDate() + 7);
+    } else {
+      // No existing weeks - start with current week's Monday
+      const today = new Date();
+      const dayOfWeek = today.getDay();
+      nextMonday = new Date(today);
+      nextMonday.setDate(today.getDate() - ((dayOfWeek + 6) % 7));
+    }
+
+    const weekStart = nextMonday.toISOString().split("T")[0];
+
+    try {
+      const newWeekId = await createWeekPlan({
+        weekStart,
+        status: "draft",
+      });
+      // Select the newly created week
+      setSelectedWeekId(newWeekId);
+    } catch (error) {
+      console.error("Failed to create week plan:", error);
+    }
   };
 
   const handlePantryAudit = () => {
@@ -243,10 +319,24 @@ export default function WeeklyPlanningPage() {
     );
   };
 
-  const handleCompletePantryAudit = () => {
-    setShowPantryAudit(false);
+  const handleCompletePantryAudit = async () => {
     const uncheckedItems = pantryItems.filter((item) => !item.alreadyHave);
-    console.log("Items to add to grocery list:", uncheckedItems.map((i) => i.name));
+
+    // Add unchecked items to grocery list
+    try {
+      for (const item of uncheckedItems) {
+        await addGroceryItem({
+          name: item.name,
+          category: "From Meal Plan",
+          isOrganic: false,
+          weekPlanId: selectedWeekId as Id<"weekPlans"> | undefined,
+        });
+      }
+    } catch (error) {
+      console.error("Failed to add items to grocery list:", error);
+    }
+
+    setShowPantryAudit(false);
   };
 
   const handleGeneratePlan = async () => {
@@ -372,7 +462,7 @@ export default function WeeklyPlanningPage() {
         {isModalOpen && selectedMeal && (
           <EditDayModal
             currentMeal={selectedMeal}
-            alternatives={sampleAlternatives}
+            alternatives={alternatives}
             householdMembers={householdMembers}
             onChangeCook={handleChangeCook}
             onToggleEater={handleToggleEater}
@@ -380,6 +470,8 @@ export default function WeeklyPlanningPage() {
             onMoreOptions={handleMoreOptions}
             onUnplan={handleUnplan}
             onClose={handleCloseModal}
+            isLoadingAlternatives={isLoadingAlternatives}
+            onCustomMeal={handleCustomMeal}
           />
         )}
       </div>

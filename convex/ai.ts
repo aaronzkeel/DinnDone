@@ -235,6 +235,182 @@ export const chat = action({
 });
 
 /**
+ * Suggest alternative meals for swapping.
+ * Given a current meal, returns 3 alternatives with different effort levels.
+ */
+export const suggestAlternatives = action({
+  args: {
+    currentMealName: v.string(),
+    effortPreference: v.optional(v.string()),
+    excludeMeals: v.optional(v.array(v.string())),
+  },
+  returns: v.object({
+    success: v.boolean(),
+    alternatives: v.optional(
+      v.array(
+        v.object({
+          mealName: v.string(),
+          effortTier: v.union(
+            v.literal("super-easy"),
+            v.literal("middle"),
+            v.literal("more-prep")
+          ),
+          prepTime: v.number(),
+          cookTime: v.number(),
+          cleanupRating: v.union(
+            v.literal("low"),
+            v.literal("medium"),
+            v.literal("high")
+          ),
+          briefDescription: v.string(),
+          isFlexMeal: v.boolean(),
+        })
+      )
+    ),
+    error: v.optional(v.string()),
+  }),
+  handler: async (
+    ctx,
+    { currentMealName, effortPreference, excludeMeals }
+  ): Promise<{
+    success: boolean;
+    alternatives?: Array<{
+      mealName: string;
+      effortTier: "super-easy" | "middle" | "more-prep";
+      prepTime: number;
+      cookTime: number;
+      cleanupRating: "low" | "medium" | "high";
+      briefDescription: string;
+      isFlexMeal: boolean;
+    }>;
+    error?: string;
+  }> => {
+    const apiKey = process.env.OPENROUTER_API_KEY;
+
+    if (!apiKey || apiKey === "sk-or-v1-your-key-here") {
+      return {
+        success: false,
+        error: "OpenRouter API key not configured",
+      };
+    }
+
+    const excludeList = excludeMeals?.length
+      ? `\nDo NOT suggest these meals (already in plan): ${excludeMeals.join(", ")}`
+      : "";
+
+    const systemPrompt = `You are Zylo, a meal planning assistant. Suggest 3 alternative dinner options.
+Return ONLY valid JSON in this exact format (no markdown, no explanation):
+{
+  "alternatives": [
+    {
+      "mealName": "Example Meal",
+      "effortTier": "super-easy",
+      "prepTime": 10,
+      "cookTime": 20,
+      "cleanupRating": "low",
+      "briefDescription": "A quick and easy option",
+      "isFlexMeal": true
+    }
+  ]
+}
+
+Rules:
+- effortTier must be exactly: "super-easy", "middle", or "more-prep"
+- cleanupRating must be exactly: "low", "medium", or "high"
+- prepTime and cookTime are in minutes
+- briefDescription should be 1 short sentence (under 60 chars)
+- Provide variety: one easy, one medium, one more involved option
+- Suggest family-friendly, common meals people actually cook
+- Consider similar cuisine or ingredients to the current meal${excludeList}`;
+
+    const userPrompt = `Current meal: "${currentMealName}"
+${effortPreference ? `Preference: ${effortPreference}` : "No effort preference."}
+
+Suggest 3 alternative dinners that could replace this meal.`;
+
+    try {
+      const response = await fetch(OPENROUTER_API_URL, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${apiKey}`,
+          "Content-Type": "application/json",
+          "HTTP-Referer": "https://dinndone.com",
+          "X-Title": "DinnDone",
+        },
+        body: JSON.stringify({
+          model: DEFAULT_MODEL,
+          messages: [
+            { role: "system", content: systemPrompt },
+            { role: "user", content: userPrompt },
+          ],
+          max_tokens: 800,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        return {
+          success: false,
+          error: `API error (${response.status}): ${errorText}`,
+        };
+      }
+
+      const data = (await response.json()) as OpenRouterResponse;
+
+      if (!data.choices || data.choices.length === 0) {
+        return {
+          success: false,
+          error: "Empty response from AI",
+        };
+      }
+
+      const content = data.choices[0].message.content;
+
+      try {
+        const cleanedContent = content
+          .replace(/```json\n?/g, "")
+          .replace(/```\n?/g, "")
+          .trim();
+
+        const parsed = JSON.parse(cleanedContent) as {
+          alternatives: Array<{
+            mealName: string;
+            effortTier: "super-easy" | "middle" | "more-prep";
+            prepTime: number;
+            cookTime: number;
+            cleanupRating: "low" | "medium" | "high";
+            briefDescription: string;
+            isFlexMeal: boolean;
+          }>;
+        };
+
+        if (!parsed.alternatives || !Array.isArray(parsed.alternatives)) {
+          return {
+            success: false,
+            error: "Invalid response format: missing alternatives array",
+          };
+        }
+
+        return {
+          success: true,
+          alternatives: parsed.alternatives,
+        };
+      } catch (parseError) {
+        return {
+          success: false,
+          error: `Failed to parse AI response: ${parseError instanceof Error ? parseError.message : String(parseError)}`,
+        };
+      }
+    } catch (error) {
+      return {
+        success: false,
+        error: `Request failed: ${error instanceof Error ? error.message : String(error)}`,
+      };
+    }
+  },
+});
+
+/**
  * Generate a 7-day meal plan using AI.
  * Returns an array of planned meals for the week.
  */
