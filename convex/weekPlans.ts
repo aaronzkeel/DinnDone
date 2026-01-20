@@ -257,6 +257,46 @@ export const swapMeals = mutation({
   },
 });
 
+// Get current week's plan with all meals
+// Returns the week plan, meals array, and identifies today's meal
+export const getCurrentWeekWithMeals = query({
+  args: { today: v.string() }, // Pass today's date as YYYY-MM-DD from client
+  handler: async (ctx, args) => {
+    // Calculate Monday of this week from the provided date
+    const todayDate = new Date(args.today + "T12:00:00");
+    const dayOfWeek = todayDate.getDay();
+    const monday = new Date(todayDate);
+    monday.setDate(todayDate.getDate() - ((dayOfWeek + 6) % 7));
+    const weekStart = monday.toISOString().split("T")[0];
+
+    // Get the week plan
+    const weekPlan = await ctx.db
+      .query("weekPlans")
+      .withIndex("by_week_start", (q) => q.eq("weekStart", weekStart))
+      .first();
+
+    if (!weekPlan) {
+      return null;
+    }
+
+    // Get all meals for this week
+    const meals = await ctx.db
+      .query("plannedMeals")
+      .withIndex("by_week_plan", (q) => q.eq("weekPlanId", weekPlan._id))
+      .collect();
+
+    // Find today's meal
+    const todayMeal = meals.find((m) => m.date === args.today);
+
+    return {
+      weekPlan,
+      meals,
+      todayMealId: todayMeal?._id ?? null,
+      weekStart,
+    };
+  },
+});
+
 // Seed a sample week plan with meals for testing
 export const seedSampleWeekPlan = mutation({
   args: {},

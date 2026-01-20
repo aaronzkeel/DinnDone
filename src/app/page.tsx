@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
-import { useConvexAuth, useAction } from "convex/react";
+import { useState, useMemo } from "react";
+import { useConvexAuth, useAction, useQuery, useMutation } from "convex/react";
 import { api } from "../../convex/_generated/api";
+import type { Id } from "../../convex/_generated/dataModel";
 import { SignInButton } from "@/components/SignInButton";
 import {
   MealHelperHome,
@@ -12,116 +13,77 @@ import {
   IngredientsCheckPanel,
   InventoryCheck,
 } from "@/components/meal-helper";
-import type { HouseholdMember, PlannedMealSummary, ChatMessage } from "@/types/meal-helper";
+import type { PlannedMealSummary, ChatMessage } from "@/types/meal-helper";
+import {
+  toPlannedMealSummary,
+  toHouseholdMember,
+  getDayLabel,
+  getTodayDateString,
+} from "@/lib/meal-adapters";
 
 type ViewState = "home" | "details" | "swap" | "emergency" | "ingredients-check" | "missing-choice" | "swap-ingredients" | "inventory";
-
-// Sample data - will be replaced with real data from Convex
-const sampleHouseholdMembers: HouseholdMember[] = [
-  { id: "hm-001", name: "Aaron", isAdmin: true },
-  { id: "hm-002", name: "Katie", isAdmin: true },
-  { id: "hm-003", name: "Lizzie", isAdmin: false },
-  { id: "hm-004", name: "Ethan", isAdmin: false },
-  { id: "hm-005", name: "Elijah", isAdmin: false },
-];
-
-const sampleTonightMeal: PlannedMealSummary = {
-  id: "pm-001",
-  mealName: "One-Pan Chicken & Peppers",
-  effortTier: "super-easy",
-  prepTime: 10,
-  cookTime: 25,
-  cleanupRating: "low",
-  ingredients: ["Chicken thighs", "Bell peppers", "Olive oil", "Garlic", "Italian seasoning"],
-  briefInstructions: "Season chicken, toss peppers in oil, roast together at 425F for 25 min.",
-  isFlexMeal: false,
-  assignedCookId: "hm-001",
-};
-
-// Sample week meals for the swap list
-const sampleWeekMeals: Array<PlannedMealSummary & { dayLabel: string }> = [
-  {
-    ...sampleTonightMeal,
-    dayLabel: "Tonight",
-  },
-  {
-    id: "pm-002",
-    mealName: "Taco Tuesday",
-    effortTier: "super-easy",
-    prepTime: 15,
-    cookTime: 10,
-    cleanupRating: "medium",
-    ingredients: ["Ground beef", "Taco seasoning", "Tortillas", "Cheese", "Lettuce", "Tomatoes"],
-    briefInstructions: "Brown beef with seasoning, warm tortillas, set up toppings bar.",
-    isFlexMeal: false,
-    assignedCookId: "hm-002",
-    dayLabel: "Tuesday",
-  },
-  {
-    id: "pm-003",
-    mealName: "Veggie Stir Fry",
-    effortTier: "middle",
-    prepTime: 20,
-    cookTime: 15,
-    cleanupRating: "medium",
-    ingredients: ["Tofu", "Broccoli", "Snap peas", "Soy sauce", "Ginger", "Rice"],
-    briefInstructions: "Press tofu, prep veggies, stir fry in batches, serve over rice.",
-    isFlexMeal: true,
-    assignedCookId: "hm-001",
-    dayLabel: "Wednesday",
-  },
-  {
-    id: "pm-004",
-    mealName: "Sheet Pan Salmon",
-    effortTier: "middle",
-    prepTime: 10,
-    cookTime: 20,
-    cleanupRating: "low",
-    ingredients: ["Salmon fillets", "Asparagus", "Lemon", "Olive oil", "Dill"],
-    briefInstructions: "Season salmon and asparagus, roast at 400F for 20 min.",
-    isFlexMeal: false,
-    assignedCookId: "hm-002",
-    dayLabel: "Thursday",
-  },
-  {
-    id: "pm-005",
-    mealName: "Pizza Night",
-    effortTier: "super-easy",
-    prepTime: 5,
-    cookTime: 15,
-    cleanupRating: "low",
-    ingredients: ["Pizza dough", "Marinara", "Mozzarella", "Pepperoni", "Veggies"],
-    briefInstructions: "Roll dough, add toppings, bake at 450F until golden.",
-    isFlexMeal: false,
-    assignedCookId: "hm-001",
-    dayLabel: "Friday",
-  },
-];
-
-// Start with empty messages to show the welcome state
-const sampleMessages: ChatMessage[] = [];
 
 export default function Home() {
   const { isAuthenticated, isLoading } = useConvexAuth();
 
-  // All hooks must be called before any conditional returns
-  const currentUser = sampleHouseholdMembers[0]; // Aaron for now
+  // Get today's date for queries
+  const today = getTodayDateString();
+
+  // Fetch real data from Convex
+  const householdMembersData = useQuery(api.householdMembers.list);
+  const weekData = useQuery(api.weekPlans.getCurrentWeekWithMeals, { today });
+
+  // Mutation for swapping meals
+  const swapMealsMutation = useMutation(api.weekPlans.swapMeals);
+
+  // Convert Convex data to UI types
+  const householdMembers = useMemo(() => {
+    if (!householdMembersData || householdMembersData.length === 0) {
+      return []; // No fallback - show empty state
+    }
+    return householdMembersData.map(toHouseholdMember);
+  }, [householdMembersData]);
+
+  // Convert meals data
+  const { tonightMeal, weekMeals } = useMemo(() => {
+    if (!weekData || !weekData.meals || weekData.meals.length === 0) {
+      return { tonightMeal: null, weekMeals: [] };
+    }
+
+    const todayStr = today;
+    const convertedMeals = weekData.meals.map((meal) => {
+      const isToday = meal.date === todayStr;
+      const dayLabel = getDayLabel(meal.date, isToday);
+      return toPlannedMealSummary(meal, dayLabel);
+    });
+
+    // Sort by date
+    convertedMeals.sort((a, b) => {
+      // Find original meals to get dates
+      const mealA = weekData.meals.find((m) => m._id === a.id);
+      const mealB = weekData.meals.find((m) => m._id === b.id);
+      if (!mealA || !mealB) return 0;
+      return mealA.date.localeCompare(mealB.date);
+    });
+
+    const tonight = convertedMeals.find((m) => m.dayLabel === "Tonight") ?? null;
+
+    return { tonightMeal: tonight, weekMeals: convertedMeals };
+  }, [weekData, today]);
+
+  // Current user (first admin, or first member)
+  const currentUser = useMemo(() => {
+    if (householdMembers.length === 0) {
+      return { id: "unknown", name: "User", isAdmin: false };
+    }
+    return householdMembers.find((m) => m.isAdmin) ?? householdMembers[0];
+  }, [householdMembers]);
 
   // View state management
   const [currentView, setCurrentView] = useState<ViewState>("home");
 
-  // Tonight's meal state (allows swapping)
-  const [tonightMeal, setTonightMeal] = useState<PlannedMealSummary & { dayLabel?: string }>(
-    { ...sampleTonightMeal, dayLabel: "Tonight" }
-  );
-
-  // Week meals state (updates when swapped)
-  const [weekMeals, setWeekMeals] = useState<Array<PlannedMealSummary & { dayLabel: string }>>(
-    sampleWeekMeals
-  );
-
   // Chat messages state for feedback
-  const [messages, setMessages] = useState<ChatMessage[]>(sampleMessages);
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
 
   // Meal confirmed state
   const [isConfirmed, setIsConfirmed] = useState(false);
@@ -173,6 +135,7 @@ export default function Home() {
 
   // MealOptionDetails handlers
   const handleCookThis = () => {
+    if (!tonightMeal) return;
     setIsConfirmed(true);
     addZyloMessage(`You're all set! "${tonightMeal.mealName}" is locked in for tonight. You got this!`);
     setCurrentView("home");
@@ -202,6 +165,7 @@ export default function Home() {
   };
 
   const handleIngredientsMissingSome = () => {
+    if (!tonightMeal) return;
     // Calculate which ingredients are missing
     const missing = tonightMeal.ingredients.filter(
       (ingredient) => !checkedIngredients[ingredient]
@@ -238,30 +202,27 @@ export default function Home() {
   };
 
   // Confirm swap after ingredient check
-  const handleConfirmSwap = () => {
-    if (!pendingSwapMeal) return;
+  const handleConfirmSwap = async () => {
+    if (!pendingSwapMeal || !tonightMeal) return;
 
-    const oldTonightMeal = tonightMeal;
     const selectedDayLabel = pendingSwapMeal.dayLabel;
+    const oldMealName = tonightMeal.mealName;
+    const newMealName = pendingSwapMeal.mealName;
 
-    // Update tonight's meal
-    setTonightMeal({ ...pendingSwapMeal, dayLabel: "Tonight" });
+    try {
+      // Call the Convex mutation to swap meals in the database
+      await swapMealsMutation({
+        mealId1: tonightMeal.id as Id<"plannedMeals">,
+        mealId2: pendingSwapMeal.id as Id<"plannedMeals">,
+      });
 
-    // Update week meals - swap the day labels
-    setWeekMeals((prev) =>
-      prev.map((m) => {
-        if (m.id === pendingSwapMeal.id) {
-          return { ...oldTonightMeal, dayLabel: selectedDayLabel };
-        }
-        if (m.id === oldTonightMeal.id) {
-          return { ...pendingSwapMeal, dayLabel: "Tonight" };
-        }
-        return m;
-      })
-    );
+      setIsConfirmed(false);
+      addZyloMessage(`Swapped! Tonight is now "${newMealName}". "${oldMealName}" moved to ${selectedDayLabel}.`);
+    } catch (error) {
+      console.error("Swap error:", error);
+      addZyloMessage("Oops, couldn't swap the meals. Try again?");
+    }
 
-    setIsConfirmed(false);
-    addZyloMessage(`Swapped! Tonight is now "${pendingSwapMeal.mealName}". "${oldTonightMeal.mealName}" moved to ${selectedDayLabel}.`);
     setPendingSwapMeal(null);
     setCheckedIngredients({});
     setCurrentView("home");
@@ -303,11 +264,15 @@ export default function Home() {
     setIsAiLoading(true);
 
     try {
+      const mealContext = tonightMeal
+        ? `Tonight's planned meal is "${tonightMeal.mealName}" - if their ingredients work for that, mention it!`
+        : "There's no planned meal for tonight yet.";
+
       const systemPrompt = `You are Zylo, a warm meal planning assistant. The user just told you what ingredients they have on hand. Suggest 2-3 quick meal ideas they could make with those ingredients.
 
 Be concise (2-3 sentences per suggestion). Focus on simple, family-friendly meals. If they're missing key ingredients, mention easy substitutions.
 
-Tonight's planned meal is "${tonightMeal.mealName}" - if their ingredients work for that, mention it!`;
+${mealContext}`;
 
       const result = await chatWithAi({
         messages: [
@@ -345,6 +310,14 @@ Tonight's planned meal is "${tonightMeal.mealName}" - if their ingredients work 
 
     try {
       // Build system prompt with context
+      const mealInfo = tonightMeal
+        ? `Current context:
+- Tonight's planned meal: ${tonightMeal.mealName}
+- Effort level: ${tonightMeal.effortTier}
+- Ingredients needed: ${tonightMeal.ingredients.join(", ")}
+- Cook time: ${tonightMeal.prepTime + tonightMeal.cookTime} minutes total`
+        : "Current context: No meal is planned for tonight yet.";
+
       const systemPrompt = `You are Zylo, a warm and supportive meal planning assistant for the DinnDone app. You help exhausted caregivers with dinner decisions.
 
 Your personality:
@@ -354,11 +327,7 @@ Your personality:
 - Use casual, friendly language
 - No guilt or pressure about meal choices
 
-Current context:
-- Tonight's planned meal: ${tonightMeal.mealName}
-- Effort level: ${tonightMeal.effortTier}
-- Ingredients needed: ${tonightMeal.ingredients.join(", ")}
-- Cook time: ${tonightMeal.prepTime + tonightMeal.cookTime} minutes total
+${mealInfo}
 
 You can help with:
 - Quick meal suggestions based on what they have
@@ -398,8 +367,9 @@ If they ask about something outside meal planning, gently redirect to food topic
     addZyloMessage("Voice input coming soon! For now, type your message or use the buttons above.");
   };
 
-  // Show loading state
-  if (isLoading) {
+  // Show loading state (auth loading or data loading)
+  const isDataLoading = householdMembersData === undefined || weekData === undefined;
+  if (isLoading || (isAuthenticated && isDataLoading)) {
     return (
       <div
         className="flex min-h-[calc(100vh-120px)] flex-col items-center justify-center font-sans"
@@ -444,11 +414,11 @@ If they ask about something outside meal planning, gently redirect to food topic
   }
 
   // Render appropriate view based on state
-  if (currentView === "details") {
+  if (currentView === "details" && tonightMeal) {
     return (
       <MealOptionDetails
         meal={tonightMeal}
-        householdMembers={sampleHouseholdMembers}
+        householdMembers={householdMembers}
         onBack={handleBack}
         onCookThis={handleCookThis}
         onIngredientCheck={handleIngredientCheck}
@@ -460,7 +430,7 @@ If they ask about something outside meal planning, gently redirect to food topic
     return (
       <WeekSwapList
         meals={weekMeals}
-        currentMealId={tonightMeal.id}
+        currentMealId={tonightMeal?.id ?? ""}
         onSelect={handleSwapSelect}
         onBack={handleBack}
       />
@@ -531,7 +501,7 @@ If they ask about something outside meal planning, gently redirect to food topic
     );
   }
 
-  if (currentView === "ingredients-check") {
+  if (currentView === "ingredients-check" && tonightMeal) {
     return (
       <div
         className="min-h-[calc(100vh-120px)] px-4 py-4"
@@ -637,7 +607,7 @@ If they ask about something outside meal planning, gently redirect to food topic
     <MealHelperHome
       currentUser={currentUser}
       tonightMeal={tonightMeal}
-      householdMembers={sampleHouseholdMembers}
+      householdMembers={householdMembers}
       messages={messages}
       onThisWorks={handleThisWorks}
       onNewPlan={handleNewPlan}
