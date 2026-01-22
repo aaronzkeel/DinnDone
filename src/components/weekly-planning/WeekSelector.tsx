@@ -70,7 +70,7 @@ export function WeekSelector({
                 flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-colors flex-shrink-0
                 ${
                   isSelected
-                    ? "bg-[var(--color-primary)] bg-opacity-20 text-[var(--color-primary)]"
+                    ? "bg-[var(--color-primary)] text-[var(--color-bg)]"
                     : "bg-[var(--color-border)] text-[var(--color-muted)] hover:bg-opacity-80"
                 }
               `}

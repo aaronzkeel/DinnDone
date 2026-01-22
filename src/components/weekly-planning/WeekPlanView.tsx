@@ -43,14 +43,11 @@ export function WeekPlanView({
       {/* Status badge - increased padding on tablet */}
       <div className="px-4 py-2 md:py-3 md:px-6 flex items-center justify-between">
         <div
-          className={`
-            text-xs font-medium px-2 py-1 rounded-full
-            ${
-              isDraft
-                ? "bg-[var(--color-border)] text-[var(--color-muted)]"
-                : "bg-[var(--color-secondary)] bg-opacity-20 text-[var(--color-secondary)]"
-            }
-          `}
+          className="text-xs font-medium px-2 py-1 rounded-full"
+          style={{
+            backgroundColor: isDraft ? "var(--color-border)" : "var(--color-secondary)",
+            color: isDraft ? "var(--color-muted)" : "white",
+          }}
         >
           {selectedWeekPlan.status === "draft" && "Draft"}
           {selectedWeekPlan.status === "approved" && "Approved"}
@@ -76,7 +73,7 @@ export function WeekPlanView({
             <button
               onClick={onApprovePlan}
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-white text-sm font-medium transition-colors"
-              style={{ backgroundColor: "var(--color-primary)" }}
+              style={{ backgroundColor: "var(--color-secondary)" }}
             >
               <Check size={14} />
               Looks good
@@ -115,7 +112,7 @@ export function WeekPlanView({
               onClick={onGeneratePlan}
               disabled={isGenerating}
               className="flex items-center gap-2 px-6 py-3 rounded-lg text-white font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-              style={{ backgroundColor: "var(--color-primary)" }}
+              style={{ backgroundColor: "var(--color-secondary)" }}
             >
               {isGenerating ? (
                 <>
