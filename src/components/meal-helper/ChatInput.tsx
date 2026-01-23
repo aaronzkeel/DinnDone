@@ -55,7 +55,7 @@ export function ChatInput({ onSendMessage, onVoiceInput, disabled }: ChatInputPr
         borderTop: "1px solid var(--color-border)",
       }}
     >
-      <form onSubmit={handleSubmit} className="flex items-end gap-2 max-w-lg mx-auto">
+      <form onSubmit={handleSubmit} className="flex items-end gap-2 max-w-2xl mx-auto">
         {/* Voice input button */}
         <button
           type="button"

@@ -74,7 +74,9 @@ export function MealHelperHome({
         className="flex flex-col h-full min-h-[calc(100vh-120px)]"
         style={{ backgroundColor: "var(--color-bg)" }}
       >
-        <div className="px-4 pt-4 pb-3 space-y-4">
+        {/* Centered container - matches Plan page pattern */}
+        <div className="w-full max-w-2xl mx-auto flex flex-col h-full">
+        <div className="px-4 pt-4 pb-3 space-y-4 md:px-6">
           {/* Empty state card */}
           <div
             className="rounded-2xl p-6 text-center"
@@ -129,7 +131,7 @@ export function MealHelperHome({
         </div>
 
         {/* Chat area for Zylo interactions */}
-        <div className="flex-1 overflow-auto px-4 pb-32">
+        <div className="flex-1 overflow-auto px-4 pb-32 md:px-6">
           {messages.length === 0 ? (
             <div className="py-10 text-center">
               <p className="font-medium" style={{ color: "var(--color-text)" }}>
@@ -210,6 +212,7 @@ export function MealHelperHome({
           )}
         </div>
 
+        </div>{/* End centered container */}
         <ChatInput onSendMessage={onSendMessage} onVoiceInput={onVoiceInput} disabled={isLoading} />
       </div>
     );
@@ -220,7 +223,9 @@ export function MealHelperHome({
       className="flex flex-col h-full min-h-[calc(100vh-120px)]"
       style={{ backgroundColor: "var(--color-bg)" }}
     >
-      <div className="px-4 pt-4 pb-3 space-y-3 max-w-lg mx-auto w-full">
+      {/* Centered container - matches Plan page pattern */}
+      <div className="w-full max-w-2xl mx-auto flex flex-col h-full">
+      <div className="px-4 pt-4 pb-3 space-y-3 md:px-6">
         <TonightPlanCard meal={tonightMeal} householdMembers={householdMembers} onView={onViewMeal} />
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
@@ -323,7 +328,7 @@ export function MealHelperHome({
         {panel}
       </div>
 
-      <div className="flex-1 overflow-auto px-4 pb-32 max-w-lg mx-auto w-full">
+      <div className="flex-1 overflow-auto px-4 pb-32 md:px-6">
         {messages.length === 0 ? (
           <div className="py-10 text-center">
             <p className="font-medium" style={{ color: "var(--color-text)" }}>
@@ -417,6 +422,7 @@ export function MealHelperHome({
           </div>
         )}
       </div>
+      </div>{/* End centered container */}
 
       <ChatInput onSendMessage={onSendMessage} onVoiceInput={onVoiceInput} disabled={isLoading} />
     </div>
