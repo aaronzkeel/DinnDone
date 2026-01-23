@@ -77,6 +77,7 @@ export default function WeeklyPlanningPage() {
   const updateMealFromChat = useAction(api.ai.updateMealFromChat);
   const aiChat = useAction(api.ai.chat);
   const analyzePantry = useAction(api.ai.analyzePantry);
+  const removeGroceryItemByName = useMutation(api.groceryItems.removeByName);
 
   // Convert Convex data to UI types
   const householdMembers = useMemo(() => {
@@ -578,7 +579,7 @@ export default function WeeklyPlanningPage() {
     } else if (actionId === "have-more") {
       addMessage("zylo", "No problem! What else do you have on hand?");
     } else if (actionId === "view-grocery-list") {
-      router.push("/grocery");
+      router.push("/grocery-list");
     } else if (actionId === "done-pantry") {
       handleCloseDrawer();
     }
@@ -793,11 +794,51 @@ export default function WeeklyPlanningPage() {
   const handleSendMessage = async (content: string) => {
     addMessage("user", content);
 
-    // If in pantry mode, analyze what they have against needed ingredients
+    // If in pantry mode, check if user is saying they HAVE something on the list
     if (planningMode === "pantry" && selectedWeekPlan) {
       setIsAiThinking(true);
 
       try {
+        // Check if user is saying they have something (to remove from grocery list)
+        const havePattern = /(?:i (?:have|got|do have|actually have)|take off|remove|got some)(.*)/i;
+        const haveMatch = content.match(havePattern);
+        const uncheckedGroceryItems = (groceryItemsData || []).filter((item) => !item.isChecked);
+
+        if (haveMatch && uncheckedGroceryItems.length > 0) {
+          const userMentionedItems = haveMatch[1].toLowerCase();
+          const itemsToRemove: string[] = [];
+
+          // Check each grocery item to see if user mentioned having it
+          for (const groceryItem of uncheckedGroceryItems) {
+            const itemNameLower = groceryItem.name.toLowerCase();
+            // Check for partial match - item name words in user text
+            const itemWords = itemNameLower.split(/\s+/);
+            const hasMatch = itemWords.some((word) =>
+              word.length > 2 && userMentionedItems.includes(word)
+            );
+
+            if (hasMatch || userMentionedItems.includes(itemNameLower)) {
+              itemsToRemove.push(groceryItem.name);
+            }
+          }
+
+          if (itemsToRemove.length > 0) {
+            // Remove the items from grocery list
+            for (const itemName of itemsToRemove) {
+              await removeGroceryItemByName({ name: itemName });
+            }
+
+            const remainingCount = uncheckedGroceryItems.length - itemsToRemove.length;
+            addMessage(
+              "zylo",
+              `Got it! Removed ${itemsToRemove.join(", ")} from your grocery list. ${remainingCount > 0 ? `${remainingCount} item${remainingCount > 1 ? "s" : ""} remaining.` : "Your list is all set!"}`
+            );
+            setIsAiThinking(false);
+            return;
+          }
+        }
+
+        // Otherwise, do normal pantry analysis
         // Get unique ingredients from meal plan
         const allIngredients = selectedWeekPlan.meals.flatMap((meal) => meal.ingredients);
         const uniqueIngredients = [...new Set(allIngredients)];
