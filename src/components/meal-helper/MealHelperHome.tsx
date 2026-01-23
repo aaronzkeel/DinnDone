@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useRef, useEffect } from "react";
 import Link from "next/link";
 import { Calendar, Sparkles, Search, ArrowRightLeft, ChevronRight } from "lucide-react";
 import type { MealHelperHomeProps } from "@/types/meal-helper";
@@ -56,6 +56,16 @@ export function MealHelperHome({
 }: MealHelperHomeProps) {
   // Get today's motivational quote (memoized to be stable during render)
   const motivationalQuote = useMemo(() => getMotivationalQuote(), []);
+
+  // Ref for auto-scrolling chat
+  const chatEndRef = useRef<HTMLDivElement>(null);
+
+  // Auto-scroll to bottom when messages change
+  useEffect(() => {
+    if (chatEndRef.current) {
+      chatEndRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [messages, isLoading]);
 
   // Empty state when no plan exists
   if (!tonightMeal) {
@@ -119,7 +129,7 @@ export function MealHelperHome({
         </div>
 
         {/* Chat area for Zylo interactions */}
-        <div className="flex-1 overflow-auto px-4 pb-24">
+        <div className="flex-1 overflow-auto px-4 pb-32">
           {messages.length === 0 ? (
             <div className="py-10 text-center">
               <p className="font-medium" style={{ color: "var(--color-text)" }}>
@@ -194,6 +204,8 @@ export function MealHelperHome({
                   </div>
                 </div>
               )}
+              {/* Scroll anchor */}
+              <div ref={chatEndRef} />
             </div>
           )}
         </div>
@@ -208,7 +220,7 @@ export function MealHelperHome({
       className="flex flex-col h-full min-h-[calc(100vh-120px)]"
       style={{ backgroundColor: "var(--color-bg)" }}
     >
-      <div className="px-4 pt-4 pb-3 space-y-3">
+      <div className="px-4 pt-4 pb-3 space-y-3 max-w-lg mx-auto w-full">
         <TonightPlanCard meal={tonightMeal} householdMembers={householdMembers} onView={onViewMeal} />
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
@@ -311,7 +323,7 @@ export function MealHelperHome({
         {panel}
       </div>
 
-      <div className="flex-1 overflow-auto px-4 pb-24">
+      <div className="flex-1 overflow-auto px-4 pb-32 max-w-lg mx-auto w-full">
         {messages.length === 0 ? (
           <div className="py-10 text-center">
             <p className="font-medium" style={{ color: "var(--color-text)" }}>
@@ -400,6 +412,8 @@ export function MealHelperHome({
                 </div>
               </div>
             )}
+            {/* Scroll anchor */}
+            <div ref={chatEndRef} />
           </div>
         )}
       </div>

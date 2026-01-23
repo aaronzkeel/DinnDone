@@ -470,33 +470,40 @@ Be concise (2-3 sentences per suggestion). Focus on simple, family-friendly meal
     setIsAiLoading(true);
 
     try {
-      // Build system prompt with context
+      // Build comprehensive context from real data
       const mealInfo = tonightMeal
-        ? `Current context:
-- Tonight's planned meal: ${tonightMeal.mealName}
-- Effort level: ${tonightMeal.effortTier}
-- Ingredients needed: ${tonightMeal.ingredients.join(", ")}
-- Cook time: ${tonightMeal.prepTime + tonightMeal.cookTime} minutes total`
-        : "Current context: No meal is planned for tonight yet.";
+        ? `Tonight's meal: ${tonightMeal.mealName} (${tonightMeal.effortTier}, ${tonightMeal.prepTime + tonightMeal.cookTime} min)
+Ingredients: ${tonightMeal.ingredients.join(", ")}`
+        : "No meal planned for tonight.";
 
-      const systemPrompt = `You are Zylo, a warm and supportive meal planning assistant for the DinnDone app. You help exhausted caregivers with dinner decisions.
+      // Build week meals context
+      const weekMealsContext = weekMeals.length > 0
+        ? `\nThis week's meals:\n${weekMeals.map((m) => `- ${m.dayLabel}: ${m.mealName}`).join("\n")}`
+        : "";
+
+      // Build grocery list context
+      const uncheckedGroceryItems = (groceryListData || []).filter((item) => !item.isChecked);
+      const groceryContext = uncheckedGroceryItems.length > 0
+        ? `\nGrocery list (${uncheckedGroceryItems.length} items): ${uncheckedGroceryItems.slice(0, 15).map((i) => i.name).join(", ")}${uncheckedGroceryItems.length > 15 ? "..." : ""}`
+        : "\nGrocery list is empty.";
+
+      const systemPrompt = `You are Zylo, a warm and supportive meal planning assistant for the DinnDone app.
+
+IMPORTANT: Only reference information provided below. NEVER make up ingredients, meals, or data you don't have.
+
+${mealInfo}${weekMealsContext}${groceryContext}
 
 Your personality:
-- Warm, empathetic, never judgmental
-- Concise - keep responses to 1-3 sentences
+- Warm, empathetic, concise (1-3 sentences)
 - Practical and solution-focused
-- Use casual, friendly language
 - No guilt or pressure about meal choices
 
-${mealInfo}
-
 You can help with:
-- Quick meal suggestions based on what they have
-- Substitution ideas for missing ingredients
+- Answering questions about the meal plan shown above
+- Suggesting substitutions for ingredients
 - Simpler alternatives if they're tired
-- Encouragement and meal planning tips
 
-If they ask about something outside meal planning, gently redirect to food topics.`;
+If asked about something not in the data above, say you don't have that information.`;
 
       // Build conversation history for AI (last 10 messages for context)
       const recentMessages = messages.slice(-10);
