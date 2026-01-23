@@ -93,11 +93,20 @@ export function getDayLabel(dateString: string, isToday: boolean): string {
 }
 
 /**
+ * Format a Date as YYYY-MM-DD in local timezone (avoids UTC shift from toISOString)
+ */
+function formatDateLocal(date: Date): string {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
+/**
  * Get today's date as YYYY-MM-DD string
  */
 export function getTodayDateString(): string {
-  const now = new Date();
-  return now.toISOString().split("T")[0];
+  return formatDateLocal(new Date());
 }
 
 /**
@@ -108,7 +117,7 @@ export function getCurrentWeekStart(): string {
   const dayOfWeek = now.getDay();
   const monday = new Date(now);
   monday.setDate(now.getDate() - ((dayOfWeek + 6) % 7));
-  return monday.toISOString().split("T")[0];
+  return formatDateLocal(monday);
 }
 
 // Re-export reverse maps for mutations

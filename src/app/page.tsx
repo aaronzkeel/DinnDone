@@ -32,6 +32,7 @@ export default function Home() {
   // Fetch real data from Convex
   const householdMembersData = useQuery(api.householdMembers.list);
   const weekData = useQuery(api.weekPlans.getCurrentWeekWithMeals, { today });
+  const groceryListData = useQuery(api.groceryItems.list);
 
   // Mutation for swapping meals
   const swapMealsMutation = useMutation(api.weekPlans.swapMeals);
@@ -44,10 +45,20 @@ export default function Home() {
     return householdMembersData.map(toHouseholdMember);
   }, [householdMembersData]);
 
+  // Calculate tomorrow's date string
+  const tomorrow = useMemo(() => {
+    const d = new Date();
+    d.setDate(d.getDate() + 1);
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  }, []);
+
   // Convert meals data
-  const { tonightMeal, weekMeals } = useMemo(() => {
+  const { tonightMeal, tomorrowMeal, weekMeals } = useMemo(() => {
     if (!weekData || !weekData.meals || weekData.meals.length === 0) {
-      return { tonightMeal: null, weekMeals: [] };
+      return { tonightMeal: null, tomorrowMeal: null, weekMeals: [] };
     }
 
     const todayStr = today;
@@ -68,8 +79,14 @@ export default function Home() {
 
     const tonight = convertedMeals.find((m) => m.dayLabel === "Tonight") ?? null;
 
-    return { tonightMeal: tonight, weekMeals: convertedMeals };
-  }, [weekData, today]);
+    // Find tomorrow's meal
+    const tomorrowMealData = weekData.meals.find((m) => m.date === tomorrow);
+    const tomorrowConverted = tomorrowMealData
+      ? toPlannedMealSummary(tomorrowMealData, "Tomorrow")
+      : null;
+
+    return { tonightMeal: tonight, tomorrowMeal: tomorrowConverted, weekMeals: convertedMeals };
+  }, [weekData, today, tomorrow]);
 
   // Current user (first admin, or first member)
   const currentUser = useMemo(() => {
@@ -98,8 +115,16 @@ export default function Home() {
   // Pending swap meal (selected but not yet confirmed)
   const [pendingSwapMeal, setPendingSwapMeal] = useState<(PlannedMealSummary & { dayLabel: string }) | null>(null);
 
-  // Convex AI chat action
+  // Pantry audit state for Home page
+  const [pantryMissingItems, setPantryMissingItems] = useState<string[]>([]);
+
+  // Convex AI chat actions
   const chatWithAi = useAction(api.ai.chat);
+  const analyzePantry = useAction(api.ai.analyzePantry);
+
+  // Grocery item mutations
+  const addGroceryItem = useMutation(api.groceryItems.add);
+  const removeGroceryItemByName = useMutation(api.groceryItems.removeByName);
 
   // Helper to add a Zylo message
   const addZyloMessage = (content: string) => {
@@ -251,6 +276,33 @@ export default function Home() {
     setCurrentView("inventory");
   };
 
+  // Tomorrow meal actions
+  const handleSwapTomorrow = async () => {
+    if (!tonightMeal || !tomorrowMeal) return;
+
+    const oldMealName = tonightMeal.mealName;
+    const newMealName = tomorrowMeal.mealName;
+
+    try {
+      await swapMealsMutation({
+        mealId1: tonightMeal.id as Id<"plannedMeals">,
+        mealId2: tomorrowMeal.id as Id<"plannedMeals">,
+      });
+
+      addZyloMessage(`Swapped! Tonight is now "${newMealName}". "${oldMealName}" moved to tomorrow.`);
+    } catch (error) {
+      console.error("Swap error:", error);
+      addZyloMessage("Oops, couldn't swap the meals. Try again?");
+    }
+  };
+
+  const handleViewTomorrow = () => {
+    // For now, just show a message. Could navigate to details view later.
+    if (tomorrowMeal) {
+      addZyloMessage(`Tomorrow: ${tomorrowMeal.mealName} - ${tomorrowMeal.prepTime + tomorrowMeal.cookTime} min total. Ingredients: ${tomorrowMeal.ingredients.slice(0, 4).join(", ")}${tomorrowMeal.ingredients.length > 4 ? "..." : ""}`);
+    }
+  };
+
   const handleInventorySubmit = async (notes: string) => {
     // Add user message showing what they have
     const userMessage: ChatMessage = {
@@ -264,28 +316,65 @@ export default function Home() {
     setIsAiLoading(true);
 
     try {
-      const mealContext = tonightMeal
-        ? `Tonight's planned meal is "${tonightMeal.mealName}" - if their ingredients work for that, mention it!`
-        : "There's no planned meal for tonight yet.";
+      // If we have a meal plan, do pantry analysis to find missing ingredients
+      if (weekMeals.length > 0) {
+        // Get unique ingredients from all week's meals
+        const allIngredients = weekMeals.flatMap((meal) => meal.ingredients);
+        const uniqueIngredients = [...new Set(allIngredients)];
 
-      const systemPrompt = `You are Zylo, a warm meal planning assistant. The user just told you what ingredients they have on hand. Suggest 2-3 quick meal ideas they could make with those ingredients.
+        const result = await analyzePantry({
+          userHasOnHand: notes,
+          neededIngredients: uniqueIngredients,
+        });
 
-Be concise (2-3 sentences per suggestion). Focus on simple, family-friendly meals. If they're missing key ingredients, mention easy substitutions.
+        if (result.success) {
+          // Filter out items that are already on the grocery list
+          const existingGroceryNames = (groceryListData || [])
+            .filter((item) => !item.isChecked)
+            .map((item) => item.name.toLowerCase());
 
-${mealContext}`;
+          const trulyMissing = (result.missingItems || []).filter(
+            (item) => !existingGroceryNames.some((existing) =>
+              existing.includes(item.toLowerCase()) || item.toLowerCase().includes(existing)
+            )
+          );
 
-      const result = await chatWithAi({
-        messages: [
-          { role: "system", content: systemPrompt },
-          { role: "user", content: `Here's what I have: ${notes}` },
-        ],
-        maxTokens: 400,
-      });
+          setPantryMissingItems(trulyMissing);
 
-      if (result.success && result.content) {
-        addZyloMessage(result.content);
+          if (trulyMissing.length > 0) {
+            addZyloMessage(
+              `${result.zyloResponse || "Got it!"} Missing ${trulyMissing.length} item${trulyMissing.length > 1 ? "s" : ""}: ${trulyMissing.slice(0, 5).join(", ")}${trulyMissing.length > 5 ? "..." : ""}. Want me to add them to your grocery list?`
+            );
+          } else if ((result.missingItems || []).length > 0) {
+            // Items were identified as missing but they're already on the list
+            addZyloMessage(`${result.zyloResponse || "Got it!"} The items you're missing are already on your grocery list. You're all set!`);
+            setPantryMissingItems([]);
+          } else {
+            addZyloMessage(result.zyloResponse || "Looks like you have everything you need for this week's meals!");
+            setPantryMissingItems([]);
+          }
+        } else {
+          addZyloMessage("I had trouble checking your pantry. Let me know if you need help!");
+        }
       } else {
-        addZyloMessage("I see what you've got! Based on tonight's plan, you should be good to go. Let me know if you need suggestions!");
+        // No meal plan - suggest meals based on what they have (existing behavior)
+        const systemPrompt = `You are Zylo, a warm meal planning assistant. The user just told you what ingredients they have on hand. Suggest 2-3 quick meal ideas they could make with those ingredients.
+
+Be concise (2-3 sentences per suggestion). Focus on simple, family-friendly meals. If they're missing key ingredients, mention easy substitutions.`;
+
+        const result = await chatWithAi({
+          messages: [
+            { role: "system", content: systemPrompt },
+            { role: "user", content: `Here's what I have: ${notes}` },
+          ],
+          maxTokens: 400,
+        });
+
+        if (result.success && result.content) {
+          addZyloMessage(result.content);
+        } else {
+          addZyloMessage("I see what you've got! Let me know if you want some meal ideas based on those ingredients.");
+        }
       }
     } catch (error) {
       console.error("Inventory AI error:", error);
@@ -304,6 +393,78 @@ ${mealContext}`;
       timestamp: new Date().toISOString(),
     };
     setMessages((prev) => [...prev, userMessage]);
+
+    // Check if user is responding to add missing items to grocery list
+    const addToListPatterns = /^(yes|yeah|yep|sure|add|add them|add to list|please|ok|okay)$/i;
+    if (pantryMissingItems.length > 0 && addToListPatterns.test(content.trim())) {
+      setIsAiLoading(true);
+      try {
+        for (const item of pantryMissingItems) {
+          await addGroceryItem({
+            name: item,
+            category: "From Meal Plan",
+            isOrganic: false,
+          });
+        }
+        addZyloMessage(
+          `Done! Added ${pantryMissingItems.length} item${pantryMissingItems.length > 1 ? "s" : ""} to your grocery list. You're all set!`
+        );
+        setPantryMissingItems([]);
+      } catch (error) {
+        console.error("Failed to add grocery items:", error);
+        addZyloMessage("Hmm, I had trouble adding those items. Try again?");
+      } finally {
+        setIsAiLoading(false);
+      }
+      return;
+    }
+
+    // Check if user is saying they have something that's on the grocery list
+    // Patterns like "I have spinach", "I actually have...", "take off spinach", "remove spinach"
+    const haveItemPattern = /(?:i (?:have|got|actually have)|take off|remove|take .* off)(.*)/i;
+    const haveMatch = content.match(haveItemPattern);
+    const uncheckedGroceryItems = (groceryListData || []).filter((item) => !item.isChecked);
+
+    if (haveMatch && uncheckedGroceryItems.length > 0) {
+      const userMentionedItems = haveMatch[1].toLowerCase();
+      const itemsToRemove: string[] = [];
+
+      // Check each grocery item to see if user mentioned having it
+      for (const groceryItem of uncheckedGroceryItems) {
+        const itemNameLower = groceryItem.name.toLowerCase();
+        // Check for partial match
+        if (userMentionedItems.includes(itemNameLower) ||
+            itemNameLower.split(" ").some((word) => userMentionedItems.includes(word) && word.length > 3)) {
+          itemsToRemove.push(groceryItem.name);
+        }
+      }
+
+      if (itemsToRemove.length > 0) {
+        setIsAiLoading(true);
+        try {
+          for (const itemName of itemsToRemove) {
+            await removeGroceryItemByName({ name: itemName });
+          }
+          const remainingCount = uncheckedGroceryItems.length - itemsToRemove.length;
+          addZyloMessage(
+            `Got it! Removed ${itemsToRemove.join(", ")} from your grocery list. ${remainingCount > 0 ? `${remainingCount} item${remainingCount > 1 ? "s" : ""} left.` : "List is looking good!"}`
+          );
+          // Update pantry missing items if any of them were removed
+          if (pantryMissingItems.length > 0) {
+            const updatedMissing = pantryMissingItems.filter(
+              (item) => !itemsToRemove.some((removed) => removed.toLowerCase() === item.toLowerCase())
+            );
+            setPantryMissingItems(updatedMissing);
+          }
+        } catch (error) {
+          console.error("Failed to remove grocery items:", error);
+          addZyloMessage("Hmm, I had trouble removing that. Try again?");
+        } finally {
+          setIsAiLoading(false);
+        }
+        return;
+      }
+    }
 
     // Set loading state
     setIsAiLoading(true);
@@ -607,12 +768,15 @@ If they ask about something outside meal planning, gently redirect to food topic
     <MealHelperHome
       currentUser={currentUser}
       tonightMeal={tonightMeal}
+      tomorrowMeal={tomorrowMeal}
       householdMembers={householdMembers}
       messages={messages}
       onThisWorks={handleThisWorks}
       onNewPlan={handleNewPlan}
       onImWiped={handleImWiped}
       onViewMeal={handleViewMeal}
+      onSwapTomorrow={handleSwapTomorrow}
+      onViewTomorrow={handleViewTomorrow}
       onOpenInventoryCheck={handleOpenInventoryCheck}
       onSendMessage={handleSendMessage}
       onVoiceInput={handleVoiceInput}

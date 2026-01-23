@@ -2,7 +2,7 @@
 
 import { useMemo } from "react";
 import Link from "next/link";
-import { Calendar, Sparkles } from "lucide-react";
+import { Calendar, Sparkles, Search, ArrowRightLeft, ChevronRight } from "lucide-react";
 import type { MealHelperHomeProps } from "@/types/meal-helper";
 import { ChatMessage } from "./ChatMessage";
 import { ChatInput } from "./ChatInput";
@@ -35,6 +35,7 @@ function getMotivationalQuote(): string {
 export function MealHelperHome({
   currentUser,
   tonightMeal,
+  tomorrowMeal,
   householdMembers,
   messages,
   mealSuggestions = [],
@@ -45,6 +46,8 @@ export function MealHelperHome({
   onNewPlan,
   onImWiped,
   onViewMeal,
+  onSwapTomorrow,
+  onViewTomorrow,
   onOpenInventoryCheck,
   panel,
   onSendMessage,
@@ -236,14 +239,74 @@ export function MealHelperHome({
           </button>
         </div>
 
+        {/* Pantry Check button - brick red accent */}
         <button
           type="button"
           onClick={onOpenInventoryCheck}
-          className="w-full text-left text-sm font-semibold hover:opacity-80"
-          style={{ color: "var(--color-muted)" }}
+          className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all hover:brightness-95 active:scale-[0.98]"
+          style={{
+            backgroundColor: "var(--color-danger-tint)",
+            color: "var(--color-danger)",
+          }}
         >
-          Check what we&apos;ve got
+          <Search size={20} />
+          <span>What&apos;s in my pantry?</span>
         </button>
+
+        {/* Tomorrow's meal - on deck with actions */}
+        {tomorrowMeal && (
+          <div
+            className="rounded-xl overflow-hidden"
+            style={{
+              backgroundColor: "var(--color-card)",
+              border: "1px solid var(--color-border)",
+            }}
+          >
+            <div className="p-4">
+              <p
+                className="text-xs font-semibold uppercase tracking-wide mb-1"
+                style={{ color: "var(--color-muted)" }}
+              >
+                On Deck · Tomorrow
+              </p>
+              <p
+                className="font-semibold text-lg"
+                style={{ color: "var(--color-text)" }}
+              >
+                {tomorrowMeal.mealName}
+              </p>
+              <p
+                className="text-sm mt-1"
+                style={{ color: "var(--color-muted)" }}
+              >
+                {tomorrowMeal.prepTime + tomorrowMeal.cookTime} min · {tomorrowMeal.effortTier.replace("-", " ")}
+              </p>
+            </div>
+            {/* Action buttons */}
+            <div
+              className="flex border-t"
+              style={{ borderColor: "var(--color-border)" }}
+            >
+              <button
+                onClick={onSwapTomorrow}
+                className="flex-1 flex items-center justify-center gap-2 py-3 text-sm font-medium transition-all hover:bg-black/5 active:bg-black/10"
+                style={{ color: "var(--color-primary)" }}
+              >
+                <ArrowRightLeft size={16} />
+                Swap to tonight
+              </button>
+              <div style={{ width: 1, backgroundColor: "var(--color-border)" }} />
+              <button
+                onClick={onViewTomorrow}
+                className="flex-1 flex items-center justify-center gap-2 py-3 text-sm font-medium transition-all hover:bg-black/5 active:bg-black/10"
+                style={{ color: "var(--color-muted)" }}
+              >
+                View details
+                <ChevronRight size={16} />
+              </button>
+            </div>
+          </div>
+        )}
 
         {panel}
       </div>

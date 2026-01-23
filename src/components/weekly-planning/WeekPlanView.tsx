@@ -1,6 +1,6 @@
 "use client";
 
-import { Check, ClipboardList, Sparkles, Loader2 } from "lucide-react";
+import { Check, ClipboardList, Sparkles, Loader2, Trash2 } from "lucide-react";
 import type { WeekPlanViewProps } from "@/types/weekly-planning";
 import { WeekSelector } from "./WeekSelector";
 import { DayCard } from "./DayCard";
@@ -18,6 +18,7 @@ export function WeekPlanView({
   onPantryAudit,
   onGeneratePlan,
   isGenerating,
+  onDeleteWeek,
 }: WeekPlanViewProps) {
   // Check if today is in this week
   const today = new Date().toISOString().split("T")[0];
@@ -42,17 +43,36 @@ export function WeekPlanView({
 
       {/* Status badge - increased padding on tablet */}
       <div className="px-4 py-2 md:py-3 md:px-6 flex items-center justify-between">
-        <div
-          className="text-xs font-medium px-2 py-1 rounded-full"
-          style={{
-            backgroundColor: isDraft ? "var(--color-border)" : "var(--color-secondary)",
-            color: isDraft ? "var(--color-muted)" : "white",
-          }}
-        >
-          {selectedWeekPlan.status === "draft" && "Draft"}
-          {selectedWeekPlan.status === "approved" && "Approved"}
-          {selectedWeekPlan.status === "in-progress" && "In Progress"}
-          {selectedWeekPlan.status === "completed" && "Completed"}
+        <div className="flex items-center gap-2">
+          <div
+            className="text-xs font-medium px-2 py-1 rounded-full"
+            style={{
+              backgroundColor: isDraft ? "var(--color-border)" : "var(--color-secondary)",
+              color: isDraft ? "var(--color-muted)" : "white",
+            }}
+          >
+            {selectedWeekPlan.status === "draft" && "Draft"}
+            {selectedWeekPlan.status === "approved" && "Approved"}
+            {selectedWeekPlan.status === "in-progress" && "In Progress"}
+            {selectedWeekPlan.status === "completed" && "Completed"}
+          </div>
+
+          {/* Delete Week button - only show for drafts */}
+          {isDraft && onDeleteWeek && (
+            <button
+              onClick={() => {
+                if (window.confirm("Delete this week plan? This cannot be undone.")) {
+                  onDeleteWeek();
+                }
+              }}
+              className="flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-medium transition-colors hover:bg-[var(--color-danger-tint)]"
+              style={{ color: "var(--color-danger)" }}
+              aria-label="Delete week"
+            >
+              <Trash2 size={14} />
+              Delete
+            </button>
+          )}
         </div>
 
         <div className="flex items-center gap-2">
@@ -117,12 +137,12 @@ export function WeekPlanView({
               {isGenerating ? (
                 <>
                   <Loader2 size={18} className="animate-spin" />
-                  Generating plan...
+                  Planning...
                 </>
               ) : (
                 <>
                   <Sparkles size={18} />
-                  Generate plan
+                  Plan with Zylo
                 </>
               )}
             </button>

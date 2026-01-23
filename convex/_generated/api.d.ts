@@ -16,6 +16,7 @@ import type * as http from "../http.js";
 import type * as notificationPreferences from "../notificationPreferences.js";
 import type * as notifications from "../notifications.js";
 import type * as pushSubscriptions from "../pushSubscriptions.js";
+import type * as recipes from "../recipes.js";
 import type * as stores from "../stores.js";
 import type * as weekPlans from "../weekPlans.js";
 
@@ -34,6 +35,7 @@ declare const fullApi: ApiFromModules<{
   notificationPreferences: typeof notificationPreferences;
   notifications: typeof notifications;
   pushSubscriptions: typeof pushSubscriptions;
+  recipes: typeof recipes;
   stores: typeof stores;
   weekPlans: typeof weekPlans;
 }>;

@@ -128,7 +128,7 @@ const schema = defineSchema({
     ),
     steps: v.array(v.string()),
     isFlexMeal: v.optional(v.boolean()),
-  }),
+  }).index("by_name", ["name"]),
 
   // GroceryItem - items on the shopping list
   groceryItems: defineTable({

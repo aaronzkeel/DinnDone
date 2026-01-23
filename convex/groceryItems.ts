@@ -243,6 +243,27 @@ export const remove = mutation({
   },
 });
 
+// Remove grocery items by name (case-insensitive, for pantry feature)
+// Returns count of items removed
+export const removeByName = mutation({
+  args: { name: v.string() },
+  handler: async (ctx, args) => {
+    const normalizedName = args.name.toLowerCase().trim();
+    const items = await ctx.db.query("groceryItems").collect();
+
+    // Find unchecked items with matching name
+    const matchingItems = items.filter(
+      (item) => item.name.toLowerCase().trim() === normalizedName && !item.isChecked
+    );
+
+    for (const item of matchingItems) {
+      await ctx.db.delete(item._id);
+    }
+
+    return { removedCount: matchingItems.length };
+  },
+});
+
 // Delete all checked items
 export const clearChecked = mutation({
   args: {},

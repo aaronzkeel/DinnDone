@@ -26,7 +26,7 @@ export function BottomNav() {
       style={{
         backgroundColor: "var(--color-card)",
         borderTop: "1px solid var(--color-border)",
-        paddingBottom: "env(safe-area-inset-bottom)",
+        paddingBottom: "var(--safe-area-bottom)",
       }}
     >
       <ul className="flex justify-around items-center max-w-md mx-auto py-2">

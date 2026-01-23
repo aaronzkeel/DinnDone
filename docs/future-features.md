@@ -85,4 +85,43 @@ Digitize physical recipe cards and create a searchable recipe library. Users can
 
 ---
 
+## Admin Settings for AI Prompts
+
+**Status**: Backlog
+**Priority**: Medium
+**Current**: AI prompts are hardcoded in the codebase
+
+### Overview
+
+Create an admin settings area where prompts and AI interaction modes can be quickly tweaked without code changes. This allows for rapid iteration on Zylo's personality, conversation style, and behavior.
+
+### Key Features
+
+1. **Prompt Editor** - Edit system prompts for different AI interactions:
+   - Zylo greeting/opening message
+   - Discussion mode conversation style
+   - Plan generation instructions
+   - Post-generation change handling
+2. **Personality Settings** - Adjustable sliders/toggles for:
+   - Response length (brief vs. detailed)
+   - Warmth/formality level
+   - How proactive Zylo is with suggestions
+3. **Model Selection** - Choose which AI model to use (if multiple available)
+4. **Test Mode** - Preview prompt changes before deploying
+
+### Implementation Notes
+
+- Store prompts in Convex database (new `adminSettings` table)
+- Admin-only access (check `isAdmin` on household member)
+- Could use feature flags to A/B test different prompt styles
+- Consider versioning prompts so you can roll back
+
+### Files to Create
+
+- `src/app/admin/` - Admin settings pages
+- `convex/adminSettings.ts` - Schema and mutations
+- `src/components/admin/PromptEditor.tsx`
+
+---
+
 *Add more future features below as needed*

@@ -6,6 +6,12 @@
    ========================================================================== */
 
 :root {
+  /* App Shell Layout */
+  --header-height: 60px;
+  --bottom-nav-height: 76px;
+  --safe-area-bottom: env(safe-area-inset-bottom, 0px);
+  --bottom-nav-total: calc(var(--bottom-nav-height) + var(--safe-area-bottom));
+
   /* Fonts */
   --font-heading: 'Lora', Georgia, serif;
   --font-sans: 'Plus Jakarta Sans', system-ui, sans-serif;

@@ -78,6 +78,8 @@ export interface MealHelperHomeProps {
   currentUser: HouseholdMember;
   /** Tonight's planned meal (pulled from weekly plan in the real app) - null/undefined if no plan exists */
   tonightMeal?: PlannedMealSummary | null;
+  /** Tomorrow's planned meal (on-deck) */
+  tomorrowMeal?: PlannedMealSummary | null;
   /** Household members (used to display assigned cook / eaters) */
   householdMembers: HouseholdMember[];
   /** Chat message history */
@@ -94,6 +96,9 @@ export interface MealHelperHomeProps {
   onImWiped?: () => void;
   /** View meal details */
   onViewMeal?: () => void;
+  /** Tomorrow meal actions */
+  onSwapTomorrow?: () => void;
+  onViewTomorrow?: () => void;
   /** Secondary actions */
   onOpenInventoryCheck?: () => void;
   /** Optional rails-first panel (swap list, ingredient check, etc.) */

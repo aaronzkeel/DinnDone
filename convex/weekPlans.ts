@@ -280,15 +280,41 @@ export const getCurrentWeekWithMeals = query({
     const dayOfWeek = todayDate.getDay();
     const monday = new Date(todayDate);
     monday.setDate(todayDate.getDate() - ((dayOfWeek + 6) % 7));
-    const weekStart = monday.toISOString().split("T")[0];
+    // Format in local timezone (avoid UTC shift from toISOString)
+    const year = monday.getFullYear();
+    const month = String(monday.getMonth() + 1).padStart(2, "0");
+    const day = String(monday.getDate()).padStart(2, "0");
+    const weekStart = `${year}-${month}-${day}`;
 
-    // Get the week plan
-    const weekPlan = await ctx.db
+    console.log("[getCurrentWeekWithMeals] today:", args.today, "calculated weekStart:", weekStart);
+
+    // Get the week plan by exact match first
+    let weekPlan = await ctx.db
       .query("weekPlans")
       .withIndex("by_week_start", (q) => q.eq("weekStart", weekStart))
       .first();
 
+    // If not found, list all week plans for debugging
     if (!weekPlan) {
+      const allPlans = await ctx.db.query("weekPlans").collect();
+      console.log("[getCurrentWeekWithMeals] No exact match. All weekPlans:", allPlans.map(p => ({ id: p._id, weekStart: p.weekStart })));
+
+      // Try to find a plan that contains today's date (fallback)
+      for (const plan of allPlans) {
+        const planStart = new Date(plan.weekStart + "T12:00:00");
+        const planEnd = new Date(planStart);
+        planEnd.setDate(planStart.getDate() + 6);
+        const todayD = new Date(args.today + "T12:00:00");
+        if (todayD >= planStart && todayD <= planEnd) {
+          console.log("[getCurrentWeekWithMeals] Found fallback plan:", plan.weekStart);
+          weekPlan = plan;
+          break;
+        }
+      }
+    }
+
+    if (!weekPlan) {
+      console.log("[getCurrentWeekWithMeals] No week plan found for this week");
       return null;
     }
 
@@ -298,8 +324,11 @@ export const getCurrentWeekWithMeals = query({
       .withIndex("by_week_plan", (q) => q.eq("weekPlanId", weekPlan._id))
       .collect();
 
+    console.log("[getCurrentWeekWithMeals] Found", meals.length, "meals. Dates:", meals.map(m => m.date));
+
     // Find today's meal
     const todayMeal = meals.find((m) => m.date === args.today);
+    console.log("[getCurrentWeekWithMeals] Today meal found:", todayMeal ? todayMeal.name : "NONE");
 
     return {
       weekPlan,
@@ -307,6 +336,32 @@ export const getCurrentWeekWithMeals = query({
       todayMealId: todayMeal?._id ?? null,
       weekStart,
     };
+  },
+});
+
+// Get recent meals for variety checking (past N days)
+export const getRecentMeals = query({
+  args: { daysBack: v.number() },
+  handler: async (ctx, args) => {
+    const today = new Date();
+    const cutoffDate = new Date(today);
+    cutoffDate.setDate(today.getDate() - args.daysBack);
+    // Format in local timezone (avoid UTC shift)
+    const year = cutoffDate.getFullYear();
+    const month = String(cutoffDate.getMonth() + 1).padStart(2, "0");
+    const day = String(cutoffDate.getDate()).padStart(2, "0");
+    const cutoffDateStr = `${year}-${month}-${day}`;
+
+    // Get all meals and filter by date
+    const allMeals = await ctx.db.query("plannedMeals").collect();
+
+    const recentMeals = allMeals.filter((meal) => meal.date >= cutoffDateStr);
+
+    // Return just the names and dates for variety checking
+    return recentMeals.map((meal) => ({
+      name: meal.name,
+      date: meal.date,
+    }));
   },
 });
 
@@ -342,7 +397,11 @@ export const seedSampleWeekPlan = mutation({
     const dayOfWeek = today.getDay();
     const monday = new Date(today);
     monday.setDate(today.getDate() - ((dayOfWeek + 6) % 7));
-    const weekStart = monday.toISOString().split("T")[0];
+    // Format in local timezone (avoid UTC shift)
+    const wsYear = monday.getFullYear();
+    const wsMonth = String(monday.getMonth() + 1).padStart(2, "0");
+    const wsDay = String(monday.getDate()).padStart(2, "0");
+    const weekStart = `${wsYear}-${wsMonth}-${wsDay}`;
 
     // Create week plan if needed
     let weekPlanId;
@@ -416,7 +475,11 @@ export const seedSampleWeekPlan = mutation({
       const meal = sampleMeals[i];
       const date = new Date(monday);
       date.setDate(monday.getDate() + i);
-      const dateStr = date.toISOString().split("T")[0];
+      // Format in local timezone (avoid UTC shift)
+      const dYear = date.getFullYear();
+      const dMonth = String(date.getMonth() + 1).padStart(2, "0");
+      const dDay = String(date.getDate()).padStart(2, "0");
+      const dateStr = `${dYear}-${dMonth}-${dDay}`;
 
       const mealId = await ctx.db.insert("plannedMeals", {
         weekPlanId,

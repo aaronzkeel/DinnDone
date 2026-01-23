@@ -95,6 +95,8 @@ export interface WeekPlanViewProps {
   onGeneratePlan?: () => void;
   /** Whether AI is currently generating a plan */
   isGenerating?: boolean;
+  /** Called when user wants to delete the current week */
+  onDeleteWeek?: () => void;
 }
 
 export interface DayCardProps {

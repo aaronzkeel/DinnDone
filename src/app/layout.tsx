@@ -54,7 +54,7 @@ export default function RootLayout({
           <ConvexClientProvider>
             <ServiceWorkerRegistration />
             <Header />
-            <main className="pb-20">
+            <main style={{ paddingBottom: "var(--bottom-nav-total)" }}>
               <div className="mx-auto w-full max-w-[1440px]">{children}</div>
             </main>
             <BottomNav />
