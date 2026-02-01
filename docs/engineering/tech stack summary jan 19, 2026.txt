@@ -1,0 +1,42 @@
+Dev Stack Summary (Aaron)
+Main machine
+	•	MacBook Pro 16-inch (Nov 2024)
+	•	Chip: Apple M4 Max
+	•	Memory: 64 GB
+	•	macOS: Sequoia 15.7.3
+	•	(Leaving serial number out of notes)
+Primary workspace
+	•	Cursor (free) is the main “home base” for editing repos + thinking through product/code.
+	•	Uses Claude Code CLI inside Cursor (not the VS Code Claude extension).
+	•	Uses the Codex VS Code extension inside Cursor.
+Two Cursor instances (separate accounts)
+	•	Runs two Cursor apps:
+	◦	Cursor – Work (work Codex login)
+	◦	Stock Cursor (personal Codex login)
+	•	Separation approach: keep Codex auth isolated by using different CODEX_HOME directories per app:
+	◦	Work: ~/.codex-work/auth.json
+	◦	Personal: ~/.codex-personal/auth.json
+	◦	Default shared path: ~/.codex/auth.json (avoid relying on this to prevent account bleed)
+Terminal
+	•	Warp is the default terminal app (preferred UX: tabs, panes, file tree, natural typing).
+	•	Ghostty is installed but only kept as an optional backup.
+Autocoder UI launcher
+	•	Autocoder repo path: /Users/aaronzink/DEVS-AZ/autocoder-master
+	•	Start script: /Users/aaronzink/DEVS-AZ/autocoder-master/start_ui.sh
+	•	Launch method: Keyboard Maestro hotkey that:
+	◦	Activates Warp
+	◦	Opens a new tab
+	◦	Clears the input line
+	◦	Pastes + runs:
+
+cd "/Users/aaronzink/DEVS-AZ/autocoder-master" && /usr/bin/env bash "./start_ui.sh"
+Folder / path conventions
+	•	Main dev root folder is:
+	◦	Real folder: /Users/aaronzink/DEVS-AZ
+	◦	Compatibility symlink: /Users/aaronzink/DEVS AZ → /Users/aaronzink/DEVS-AZ
+	•	Backup moved to Desktop for safety:
+	◦	~/Desktop/delete autocoder stuff later (contains the old renamed folder)
+Subscriptions / cost posture
+	•	Pays for Claude Code Max ($100/mo).
+	•	Also has ChatGPT Plus ($20/mo) and Gemini via Google One (~$10/mo).
+	•	Goal: keep any additional tooling spend under $10/mo until projects generate revenue.

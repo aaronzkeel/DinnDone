@@ -2,7 +2,7 @@
 
 ## Overview
 
-Fed Up Feeder uses a mobile-first shell with a minimal header and bottom tab bar navigation. The design prioritizes low-stimulation, thumb-friendly interaction for exhausted caregivers using the app on their phones.
+DinnDone uses a mobile-first shell with a minimal header and bottom tab bar navigation. The design prioritizes low-stimulation, thumb-friendly interaction for exhausted caregivers using the app on their phones.
 
 ## Navigation Structure
 

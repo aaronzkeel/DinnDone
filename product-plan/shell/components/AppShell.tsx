@@ -34,7 +34,7 @@ export function AppShell({
       <header className="flex items-center justify-between px-4 py-3 bg-white dark:bg-stone-800 border-b border-stone-200 dark:border-stone-700">
         <div className="flex items-center gap-2">
           <span className="text-xl font-bold text-yellow-600 dark:text-yellow-500">
-            Fed Up Feeder
+            DinnDone
           </span>
         </div>
         {user && (

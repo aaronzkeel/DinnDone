@@ -1,4 +1,4 @@
-// Fed Up Feeder - Core Data Types
+// DinnDone - Core Data Types
 
 export interface HouseholdMember {
   id: string

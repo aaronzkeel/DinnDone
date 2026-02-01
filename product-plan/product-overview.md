@@ -50,7 +50,7 @@ An AI-powered meal planning companion for exhausted caregivers. It handles the m
 - **Framework:** Next.js
 - **Database:** Convex (with MCP for agent access)
 - **Auth:** Convex Auth + Google OAuth
-- **AI:** OpenRouter (Gemini 3 Flash for Zylo and plan generation)
+- **AI:** OpenRouter (Gemini 2.0 Flash for Zylo and plan generation)
 - **Styling:** Tailwind CSS
 - **PWA:** Offline-capable grocery list
 

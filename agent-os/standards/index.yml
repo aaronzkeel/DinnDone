@@ -22,6 +22,8 @@ css:
 global:
   locked-files:
     description: Files requiring approval before modification
+  time-formatting:
+    description: Convert timestamps to relative time ("5m ago")
 
 nextjs:
   app-shell:
@@ -34,7 +36,19 @@ nextjs:
 react:
   accessibility:
     description: Touch targets, aria labels, keyboard support
+  auto-resize-textarea:
+    description: Text input that grows with content up to max height
   client-components:
     description: When to use "use client" directive
+  effort-dots:
+    description: Visual 1-3 dot indicator for effort level
+  empty-state:
+    description: Centered icon + heading + CTA for empty lists
+  focus-trap-modal:
+    description: Keep keyboard focus inside modals
+  loading-dots:
+    description: Bouncing dots animation for AI thinking state
   props-types:
     description: Shared types in src/types/ folder
+  toast-notifications:
+    description: Auto-dismiss temporary messages
