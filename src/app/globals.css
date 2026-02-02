@@ -18,10 +18,17 @@
 
   /* Light Mode Colors (default) */
   --color-primary: #E2A93B;      /* Gold — secondary buttons, accents */
+  --color-primary-tint: rgba(226, 169, 59, 0.1); /* Gold tint for highlighted cards */
   --color-secondary: #4F6E44;    /* Sage Green — primary "go" actions */
   --color-danger: #B94A34;       /* Brick Red — alerts, destructive */
   --color-danger-deep: #8E3524;
   --color-danger-tint: #F1D1C7;
+  --color-danger-light: #ef4444; /* Red for missing/error states */
+  --color-danger-light-tint: rgba(239, 68, 68, 0.15); /* Light red background */
+  --color-success: #4caf50;      /* Green for positive/available states */
+  --color-success-tint: rgba(76, 175, 80, 0.15); /* Light green background */
+  --color-warning: #ff9800;      /* Orange for medium effort states */
+  --color-warning-tint: rgba(255, 152, 0, 0.2); /* Light orange background */
   --color-bg: #FAF3E6;           /* Page background */
   --color-card: #F3E8D6;         /* Card backgrounds */
   --color-text: #2B221A;         /* Primary text */
@@ -35,8 +42,15 @@
 
 /* Dark mode via class (for manual toggle) */
 .dark {
+  --color-primary-tint: rgba(226, 169, 59, 0.15); /* Gold tint adjusted for dark */
   --color-secondary: #6F8F5E;    /* Sage Green (lighter for dark bg) */
   --color-danger-tint: #3A1B1B;
+  --color-danger-light: #f87171; /* Red-400 for better dark mode contrast */
+  --color-danger-light-tint: rgba(248, 113, 113, 0.2); /* Light red for dark mode */
+  --color-success: #4ade80;      /* Green-400 for better dark mode contrast */
+  --color-success-tint: rgba(74, 222, 128, 0.15); /* Light green for dark mode */
+  --color-warning: #fb923c;      /* Orange-400 for better dark mode contrast */
+  --color-warning-tint: rgba(251, 146, 60, 0.2); /* Light orange for dark mode */
   --color-bg: #17120E;           /* Page background */
   --color-card: #221A14;         /* Card backgrounds */
   --color-text: #F6EDE0;         /* Primary text */
@@ -50,8 +64,15 @@
 /* Also respect system preference when no explicit class */
 @media (prefers-color-scheme: dark) {
   :root:not(.light) {
+    --color-primary-tint: rgba(226, 169, 59, 0.15);
     --color-secondary: #6F8F5E;
     --color-danger-tint: #3A1B1B;
+    --color-danger-light: #f87171;
+    --color-danger-light-tint: rgba(248, 113, 113, 0.2);
+    --color-success: #4ade80;
+    --color-success-tint: rgba(74, 222, 128, 0.15);
+    --color-warning: #fb923c;
+    --color-warning-tint: rgba(251, 146, 60, 0.2);
     --color-bg: #17120E;
     --color-card: #221A14;
     --color-text: #F6EDE0;
@@ -71,10 +92,17 @@
 
   /* Custom colors for Tailwind */
   --color-primary: var(--color-primary);
+  --color-primary-tint: var(--color-primary-tint);
   --color-secondary: var(--color-secondary);
   --color-danger: var(--color-danger);
   --color-danger-deep: var(--color-danger-deep);
   --color-danger-tint: var(--color-danger-tint);
+  --color-danger-light: var(--color-danger-light);
+  --color-danger-light-tint: var(--color-danger-light-tint);
+  --color-success: var(--color-success);
+  --color-success-tint: var(--color-success-tint);
+  --color-warning: var(--color-warning);
+  --color-warning-tint: var(--color-warning-tint);
   --color-harvest-bg: var(--color-bg);
   --color-harvest-card: var(--color-card);
   --color-harvest-text: var(--color-text);

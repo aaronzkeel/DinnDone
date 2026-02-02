@@ -11,20 +11,6 @@ import type {
   PlanStatus,
 } from "@/types/weekly-planning";
 
-// Convex uses "easy" | "medium" | "involved"
-// UI uses "super-easy" | "middle" | "more-prep"
-const effortTierMap: Record<"easy" | "medium" | "involved", EffortTier> = {
-  easy: "super-easy",
-  medium: "middle",
-  involved: "more-prep",
-};
-
-const effortTierReverseMap: Record<EffortTier, "easy" | "medium" | "involved"> = {
-  "super-easy": "easy",
-  middle: "medium",
-  "more-prep": "involved",
-};
-
 // Convex uses 1 | 2 | 3
 // UI uses "low" | "medium" | "high"
 const cleanupRatingMap: Record<1 | 2 | 3, CleanupRating> = {
@@ -57,7 +43,7 @@ export function toPlannedMealSummary(
   return {
     id: meal._id,
     mealName: meal.name,
-    effortTier: effortTierMap[meal.effortTier],
+    effortTier: meal.effortTier,
     prepTime: meal.prepTime,
     cookTime: meal.cookTime,
     cleanupRating: cleanupRatingMap[meal.cleanupRating],
@@ -120,8 +106,8 @@ export function getCurrentWeekStart(): string {
   return formatDateLocal(monday);
 }
 
-// Re-export reverse maps for mutations
-export { effortTierReverseMap, cleanupRatingReverseMap };
+// Re-export reverse map for mutations
+export { cleanupRatingReverseMap };
 
 // =============================================================================
 // Weekly Planning Adapters
@@ -137,7 +123,7 @@ export function toWeeklyPlannedMeal(meal: Doc<"plannedMeals">): WeeklyPlannedMea
     dayOfWeek: meal.dayOfWeek,
     recipeId: meal.recipeId,
     mealName: meal.name,
-    effortTier: effortTierMap[meal.effortTier],
+    effortTier: meal.effortTier,
     prepTime: meal.prepTime,
     cookTime: meal.cookTime,
     cleanupRating: cleanupRatingMap[meal.cleanupRating],

@@ -2,12 +2,7 @@
 
 import { Clock, Sparkles, ChefHat, Baby } from "lucide-react";
 import type { TonightPlanCardProps, EffortTier, CleanupRating } from "@/types/meal-helper";
-
-const effortLabels: Record<EffortTier, string> = {
-  "super-easy": "Super Easy",
-  "middle": "Medium",
-  "more-prep": "More Prep",
-};
+import { EFFORT_LABELS } from "@/lib/effort-tiers";
 
 const effortColors: Record<EffortTier, string> = {
   "super-easy": "bg-lime-100 text-lime-800 dark:bg-lime-900/40 dark:text-lime-200",
@@ -58,7 +53,7 @@ export function TonightPlanCard({ meal, householdMembers, onView }: TonightPlanC
         </div>
         <div className="flex items-center gap-2 flex-shrink-0">
           <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${effortColors[meal.effortTier]}`}>
-            {effortLabels[meal.effortTier]}
+            {EFFORT_LABELS[meal.effortTier]}
           </span>
           {meal.isFlexMeal && (
             <span className="inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-full bg-lime-100 text-lime-800 dark:bg-lime-900/40 dark:text-lime-200">

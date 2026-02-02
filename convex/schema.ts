@@ -3,10 +3,11 @@ import { v } from "convex/values";
 import { authTables } from "@convex-dev/auth/server";
 
 // Reusable validators
+// User-friendly effort tier values
 const effortTier = v.union(
-  v.literal("easy"),
-  v.literal("medium"),
-  v.literal("involved")
+  v.literal("super-easy"),
+  v.literal("middle"),
+  v.literal("more-prep")
 );
 
 const cleanupRating = v.union(v.literal(1), v.literal(2), v.literal(3));

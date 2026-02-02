@@ -635,9 +635,9 @@ export const quickGeneratePlan = action({
       v.object({
         name: v.string(),
         effortTier: v.union(
-          v.literal("easy"),
-          v.literal("medium"),
-          v.literal("involved")
+          v.literal("super-easy"),
+          v.literal("middle"),
+          v.literal("more-prep")
         ),
       })
     ),
@@ -871,9 +871,9 @@ export const generatePlanWithConversation = action({
       v.object({
         name: v.string(),
         effortTier: v.union(
-          v.literal("easy"),
-          v.literal("medium"),
-          v.literal("involved")
+          v.literal("super-easy"),
+          v.literal("middle"),
+          v.literal("more-prep")
         ),
       })
     ),
@@ -1238,9 +1238,9 @@ export const updateMealFromChat = action({
       v.object({
         name: v.string(),
         effortTier: v.union(
-          v.literal("easy"),
-          v.literal("medium"),
-          v.literal("involved")
+          v.literal("super-easy"),
+          v.literal("middle"),
+          v.literal("more-prep")
         ),
       })
     ),

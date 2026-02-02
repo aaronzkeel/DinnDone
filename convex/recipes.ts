@@ -42,7 +42,7 @@ export const get = query({
 export const create = mutation({
   args: {
     name: v.string(),
-    effortTier: v.union(v.literal("easy"), v.literal("medium"), v.literal("involved")),
+    effortTier: v.union(v.literal("super-easy"), v.literal("middle"), v.literal("more-prep")),
     prepTime: v.number(),
     cookTime: v.number(),
     cleanupRating: v.union(v.literal(1), v.literal(2), v.literal(3)),
@@ -86,7 +86,7 @@ export const update = mutation({
   args: {
     id: v.id("recipes"),
     name: v.optional(v.string()),
-    effortTier: v.optional(v.union(v.literal("easy"), v.literal("medium"), v.literal("involved"))),
+    effortTier: v.optional(v.union(v.literal("super-easy"), v.literal("middle"), v.literal("more-prep"))),
     prepTime: v.optional(v.number()),
     cookTime: v.optional(v.number()),
     cleanupRating: v.optional(v.union(v.literal(1), v.literal(2), v.literal(3))),

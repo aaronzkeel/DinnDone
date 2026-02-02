@@ -2,6 +2,7 @@
 
 import { ArrowLeft, Clock, ChefHat, Sparkles, Droplets } from "lucide-react";
 import type { PlannedMealSummary, HouseholdMember } from "@/types/meal-helper";
+import { EFFORT_LABELS } from "@/lib/effort-tiers";
 
 export interface MealOptionDetailsProps {
   meal: PlannedMealSummary;
@@ -10,12 +11,6 @@ export interface MealOptionDetailsProps {
   onBack?: () => void;
   onIngredientCheck?: (response: "yes" | "not-sure" | "no") => void;
 }
-
-const effortLabels = {
-  "super-easy": "Super Easy",
-  middle: "Medium",
-  "more-prep": "More Prep",
-} as const;
 
 const cleanupLabels = {
   low: "Low cleanup",
@@ -75,26 +70,26 @@ export function MealOptionDetails({
                 style={{
                   backgroundColor:
                     meal.effortTier === "super-easy"
-                      ? "rgba(76, 175, 80, 0.2)"
+                      ? "var(--color-success-tint)"
                       : meal.effortTier === "middle"
-                        ? "rgba(226, 169, 59, 0.2)"
-                        : "rgba(255, 152, 0, 0.2)",
+                        ? "var(--color-primary-tint)"
+                        : "var(--color-warning-tint)",
                   color:
                     meal.effortTier === "super-easy"
-                      ? "#4caf50"
+                      ? "var(--color-success)"
                       : meal.effortTier === "middle"
                         ? "var(--color-primary)"
-                        : "#ff9800",
+                        : "var(--color-warning)",
                 }}
               >
-                {effortLabels[meal.effortTier]}
+                {EFFORT_LABELS[meal.effortTier]}
               </span>
               {meal.isFlexMeal && (
                 <span
                   className="inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-full"
                   style={{
-                    backgroundColor: "rgba(76, 175, 80, 0.2)",
-                    color: "#4caf50",
+                    backgroundColor: "var(--color-success-tint)",
+                    color: "var(--color-success)",
                   }}
                 >
                   <Sparkles size={12} />

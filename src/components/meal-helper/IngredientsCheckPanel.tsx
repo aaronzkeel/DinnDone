@@ -72,8 +72,8 @@ export function IngredientsCheckPanel({
               <span
                 className="text-xs font-medium px-2 py-0.5 rounded-full"
                 style={{
-                  backgroundColor: "rgba(239, 68, 68, 0.15)",
-                  color: "#ef4444",
+                  backgroundColor: "var(--color-danger-light-tint)",
+                  color: "var(--color-danger-light)",
                 }}
                 role="status"
                 aria-live="polite"
@@ -84,8 +84,8 @@ export function IngredientsCheckPanel({
             <span
               className="text-xs font-medium px-2 py-0.5 rounded-full"
               style={{
-                backgroundColor: allChecked ? "rgba(76, 175, 80, 0.15)" : "var(--color-border)",
-                color: allChecked ? "#4caf50" : "var(--color-muted)",
+                backgroundColor: allChecked ? "var(--color-success-tint)" : "var(--color-border)",
+                color: allChecked ? "var(--color-success)" : "var(--color-muted)",
               }}
             >
               {checkedCount}/{totalCount} checked
@@ -104,10 +104,11 @@ export function IngredientsCheckPanel({
                 <button
                   type="button"
                   onClick={() => handleToggle(ingredient)}
-                  className={`w-full flex items-start gap-3 text-left transition-colors rounded-lg px-2 py-1.5 -mx-2 ${
-                    isMissing ? "bg-red-50 dark:bg-red-950/30" : ""
-                  }`}
-                  style={{ color: "var(--color-text)" }}
+                  className="w-full flex items-start gap-3 text-left transition-colors rounded-lg px-2 py-1.5 -mx-2"
+                  style={{
+                    color: "var(--color-text)",
+                    backgroundColor: isMissing ? "var(--color-danger-light-tint)" : "transparent",
+                  }}
                   aria-pressed={isChecked}
                   aria-label={`${ingredient} - ${isChecked ? "checked, available" : "unchecked, missing"}`}
                 >
@@ -116,7 +117,7 @@ export function IngredientsCheckPanel({
                     className="mt-0.5 w-5 h-5 rounded flex items-center justify-center flex-shrink-0 transition-colors"
                     style={{
                       backgroundColor: isChecked ? "var(--color-secondary)" : "transparent",
-                      border: isChecked ? "none" : "2px solid #ef4444",
+                      border: isChecked ? "none" : "2px solid var(--color-danger-light)",
                     }}
                   >
                     {isChecked && <Check size={14} className="text-white" />}
@@ -124,13 +125,16 @@ export function IngredientsCheckPanel({
                   {/* Ingredient text */}
                   <span
                     className={isChecked ? "line-through opacity-60" : "font-medium"}
-                    style={{ color: isChecked ? "var(--color-text)" : "#ef4444" }}
+                    style={{ color: isChecked ? "var(--color-text)" : "var(--color-danger-light)" }}
                   >
                     {ingredient}
                   </span>
                   {/* Missing indicator */}
                   {isMissing && (
-                    <span className="ml-auto text-xs font-medium text-red-500 dark:text-red-400">
+                    <span
+                      className="ml-auto text-xs font-medium"
+                      style={{ color: "var(--color-danger-light)" }}
+                    >
                       needed
                     </span>
                   )}

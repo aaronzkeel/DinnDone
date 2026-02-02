@@ -121,7 +121,7 @@ export const addMeal = mutation({
     date: v.string(),
     dayOfWeek: v.string(),
     name: v.string(),
-    effortTier: v.union(v.literal("easy"), v.literal("medium"), v.literal("involved")),
+    effortTier: v.union(v.literal("super-easy"), v.literal("middle"), v.literal("more-prep")),
     prepTime: v.number(),
     cookTime: v.number(),
     cleanupRating: v.union(v.literal(1), v.literal(2), v.literal(3)),
@@ -162,7 +162,7 @@ export const updateMeal = mutation({
   args: {
     id: v.id("plannedMeals"),
     name: v.optional(v.string()),
-    effortTier: v.optional(v.union(v.literal("easy"), v.literal("medium"), v.literal("involved"))),
+    effortTier: v.optional(v.union(v.literal("super-easy"), v.literal("middle"), v.literal("more-prep"))),
     prepTime: v.optional(v.number()),
     cookTime: v.optional(v.number()),
     cleanupRating: v.optional(v.union(v.literal(1), v.literal(2), v.literal(3))),
@@ -419,7 +419,7 @@ export const seedSampleWeekPlan = mutation({
       {
         dayOfWeek: "Monday",
         name: "Chicken Stir Fry",
-        effortTier: "medium" as const,
+        effortTier: "middle" as const,
         prepTime: 20,
         cookTime: 15,
         cleanupRating: 2 as const,
@@ -436,7 +436,7 @@ export const seedSampleWeekPlan = mutation({
       {
         dayOfWeek: "Tuesday",
         name: "Taco Night",
-        effortTier: "easy" as const,
+        effortTier: "super-easy" as const,
         prepTime: 15,
         cookTime: 20,
         cleanupRating: 2 as const,
@@ -454,7 +454,7 @@ export const seedSampleWeekPlan = mutation({
       {
         dayOfWeek: "Wednesday",
         name: "Pasta Carbonara",
-        effortTier: "medium" as const,
+        effortTier: "middle" as const,
         prepTime: 10,
         cookTime: 25,
         cleanupRating: 1 as const,

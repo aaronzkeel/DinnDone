@@ -14,7 +14,6 @@ import {
   toHouseholdMember,
   toWeekSummary,
   toWeekPlan,
-  effortTierReverseMap,
   cleanupRatingReverseMap,
 } from "@/lib/meal-adapters";
 import type {
@@ -191,7 +190,7 @@ export default function WeeklyPlanningPage() {
       await updateMeal({
         id: selectedMeal.id as Id<"plannedMeals">,
         name: alternative.mealName,
-        effortTier: effortTierReverseMap[alternative.effortTier as EffortTier],
+        effortTier: alternative.effortTier as EffortTier,
         prepTime: alternative.prepTime,
         cookTime: alternative.cookTime,
         cleanupRating: cleanupRatingReverseMap[alternative.cleanupRating as CleanupRating],
@@ -264,7 +263,7 @@ export default function WeeklyPlanningPage() {
       await updateMeal({
         id: selectedMeal.id as Id<"plannedMeals">,
         name: mealName,
-        effortTier: effortTierReverseMap[effortTier as EffortTier],
+        effortTier: effortTier,
         isFlexMeal: true,
       });
       handleCloseModal();
@@ -443,7 +442,7 @@ export default function WeeklyPlanningPage() {
             date: meal.date,
             dayOfWeek: meal.dayOfWeek,
             name: meal.mealName,
-            effortTier: effortTierReverseMap[meal.effortTier],
+            effortTier: meal.effortTier,
             prepTime: meal.prepTime,
             cookTime: meal.cookTime,
             cleanupRating: cleanupRatingReverseMap[meal.cleanupRating],
@@ -599,7 +598,7 @@ export default function WeeklyPlanningPage() {
         keep: true, // Keep all existing meals by default
       }));
 
-      const savedRecipes = (recipesData || []).map((r: { name: string; effortTier: "easy" | "medium" | "involved" }) => ({
+      const savedRecipes = (recipesData || []).map((r: { name: string; effortTier: "super-easy" | "middle" | "more-prep" }) => ({
         name: r.name,
         effortTier: r.effortTier,
       }));
@@ -629,7 +628,7 @@ export default function WeeklyPlanningPage() {
             date: meal.date,
             dayOfWeek: meal.dayOfWeek,
             name: meal.mealName,
-            effortTier: effortTierReverseMap[meal.effortTier],
+            effortTier: meal.effortTier,
             prepTime: meal.prepTime,
             cookTime: meal.cookTime,
             cleanupRating: cleanupRatingReverseMap[meal.cleanupRating],
@@ -644,7 +643,7 @@ export default function WeeklyPlanningPage() {
           if (!meal.fromRecipeLibrary) {
             await createRecipe({
               name: meal.mealName,
-              effortTier: effortTierReverseMap[meal.effortTier],
+              effortTier: meal.effortTier,
               prepTime: meal.prepTime,
               cookTime: meal.cookTime,
               cleanupRating: cleanupRatingReverseMap[meal.cleanupRating],
@@ -712,7 +711,7 @@ export default function WeeklyPlanningPage() {
         keep: true,
       }));
 
-      const savedRecipes = (recipesData || []).map((r: { name: string; effortTier: "easy" | "medium" | "involved" }) => ({
+      const savedRecipes = (recipesData || []).map((r: { name: string; effortTier: "super-easy" | "middle" | "more-prep" }) => ({
         name: r.name,
         effortTier: r.effortTier,
       }));
@@ -747,7 +746,7 @@ export default function WeeklyPlanningPage() {
             date: meal.date,
             dayOfWeek: meal.dayOfWeek,
             name: meal.mealName,
-            effortTier: effortTierReverseMap[meal.effortTier],
+            effortTier: meal.effortTier,
             prepTime: meal.prepTime,
             cookTime: meal.cookTime,
             cleanupRating: cleanupRatingReverseMap[meal.cleanupRating],
@@ -762,7 +761,7 @@ export default function WeeklyPlanningPage() {
           if (!meal.fromRecipeLibrary) {
             await createRecipe({
               name: meal.mealName,
-              effortTier: effortTierReverseMap[meal.effortTier],
+              effortTier: meal.effortTier,
               prepTime: meal.prepTime,
               cookTime: meal.cookTime,
               cleanupRating: cleanupRatingReverseMap[meal.cleanupRating],
@@ -943,7 +942,7 @@ Keep responses SHORT (1-3 sentences). Be warm and empathetic. Don't suggest spec
 
       if (targetMeal) {
         try {
-          const savedRecipes = (recipesData || []).map((r: { name: string; effortTier: "easy" | "medium" | "involved" }) => ({
+          const savedRecipes = (recipesData || []).map((r: { name: string; effortTier: "super-easy" | "middle" | "more-prep" }) => ({
             name: r.name,
             effortTier: r.effortTier,
           }));
@@ -960,7 +959,7 @@ Keep responses SHORT (1-3 sentences). Be warm and empathetic. Don't suggest spec
             await updateMeal({
               id: targetMeal.id as Id<"plannedMeals">,
               name: result.updatedMeal.mealName,
-              effortTier: effortTierReverseMap[result.updatedMeal.effortTier],
+              effortTier: result.updatedMeal.effortTier,
               prepTime: result.updatedMeal.prepTime,
               cookTime: result.updatedMeal.cookTime,
               cleanupRating: cleanupRatingReverseMap[result.updatedMeal.cleanupRating],

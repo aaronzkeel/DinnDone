@@ -2,6 +2,7 @@
 
 import { Clock, Sparkles, Check, X, RefreshCw } from "lucide-react";
 import type { MealSuggestion, EffortTier, CleanupRating } from "@/types/meal-helper";
+import { EFFORT_LABELS } from "@/lib/effort-tiers";
 
 interface MealSuggestionCardProps {
   suggestion: MealSuggestion;
@@ -9,12 +10,6 @@ interface MealSuggestionCardProps {
   onReject?: () => void;
   onSomethingElse?: () => void;
 }
-
-const effortLabels: Record<EffortTier, string> = {
-  "super-easy": "Super Easy",
-  "middle": "Medium",
-  "more-prep": "More Prep",
-};
 
 const effortColors: Record<EffortTier, string> = {
   "super-easy": "bg-lime-100 text-lime-700 dark:bg-lime-900 dark:text-lime-300",
@@ -58,7 +53,7 @@ export function MealSuggestionCard({
               <span
                 className={`text-xs font-medium px-2 py-0.5 rounded-full ${effortColors[suggestion.effortTier]}`}
               >
-                {effortLabels[suggestion.effortTier]}
+                {EFFORT_LABELS[suggestion.effortTier]}
               </span>
               {suggestion.isFlexMeal && (
                 <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-lime-100 text-lime-700 dark:bg-lime-900 dark:text-lime-300 flex items-center gap-1">

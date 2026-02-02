@@ -1,7 +1,8 @@
 "use client";
 
 import { Clock, ChefHat, Users } from "lucide-react";
-import type { PlannedMeal, HouseholdMember, EffortTier } from "@/types/weekly-planning";
+import type { PlannedMeal, HouseholdMember } from "@/types/weekly-planning";
+import { EFFORT_LABELS, EFFORT_DOTS } from "@/lib/effort-tiers";
 
 interface DayCardProps {
   meal: PlannedMeal;
@@ -10,18 +11,6 @@ interface DayCardProps {
   isPast?: boolean;
   onTap?: () => void;
 }
-
-const effortDots: Record<EffortTier, number> = {
-  "super-easy": 1,
-  middle: 2,
-  "more-prep": 3,
-};
-
-const effortLabels: Record<EffortTier, string> = {
-  "super-easy": "Super Easy",
-  middle: "Medium",
-  "more-prep": "More Prep",
-};
 
 export function DayCard({
   meal,
@@ -65,12 +54,11 @@ export function DayCard({
       `}
       style={{
         backgroundColor: isToday
-          ? "var(--color-primary)"
+          ? "var(--color-primary-tint)"
           : "var(--color-card)",
         borderColor: isToday
           ? "var(--color-primary)"
           : "var(--color-border)",
-        ...(isToday && { backgroundColor: "rgba(226, 169, 59, 0.1)" }),
       }}
     >
       <div className="flex gap-3 md:gap-4">
@@ -109,7 +97,7 @@ export function DayCard({
                   className="text-xs font-medium"
                   style={{ color: "var(--color-muted)" }}
                 >
-                  {effortLabels[meal.effortTier]}
+                  {EFFORT_LABELS[meal.effortTier]}
                 </span>
                 <div className="flex gap-0.5">
                   {Array.from({ length: 3 }).map((_, i) => (
@@ -118,7 +106,7 @@ export function DayCard({
                       className="w-2 h-2 rounded-full"
                       style={{
                         backgroundColor:
-                          i < effortDots[meal.effortTier]
+                          i < EFFORT_DOTS[meal.effortTier]
                             ? "var(--color-primary)"
                             : "var(--color-border)",
                       }}

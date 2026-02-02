@@ -7,18 +7,7 @@ import type {
   MealAlternative,
   HouseholdMember,
 } from "@/types/weekly-planning";
-
-const effortLabels = {
-  "super-easy": "Super Easy",
-  middle: "Medium",
-  "more-prep": "More Prep",
-};
-
-const effortDots = {
-  "super-easy": 1,
-  middle: 2,
-  "more-prep": 3,
-};
+import { EFFORT_LABELS, EFFORT_DOTS } from "@/lib/effort-tiers";
 
 export interface EditDayModalProps {
   /** Current meal being edited */
@@ -182,7 +171,7 @@ export function EditDayModal({
             <div
               className="p-4 rounded-xl"
               style={{
-                backgroundColor: "rgba(226, 169, 59, 0.1)",
+                backgroundColor: "var(--color-primary-tint)",
                 border: "1px solid var(--color-primary)",
               }}
             >
@@ -200,7 +189,7 @@ export function EditDayModal({
                       className="w-2 h-2 rounded-full"
                       style={{
                         backgroundColor:
-                          i < effortDots[currentMeal.effortTier]
+                          i < EFFORT_DOTS[currentMeal.effortTier]
                             ? "var(--color-primary)"
                             : "var(--color-border)",
                       }}
@@ -362,7 +351,7 @@ export function EditDayModal({
                             className="flex items-center gap-3 mt-2 text-xs"
                             style={{ color: "var(--color-muted)" }}
                           >
-                            <span>{effortLabels[alt.effortTier]}</span>
+                            <span>{EFFORT_LABELS[alt.effortTier]}</span>
                             <span>•</span>
                             <span>{altTotalTime}m</span>
                           </div>
@@ -374,7 +363,7 @@ export function EditDayModal({
                               className="w-2 h-2 rounded-full"
                               style={{
                                 backgroundColor:
-                                  i < effortDots[alt.effortTier]
+                                  i < EFFORT_DOTS[alt.effortTier]
                                     ? "var(--color-primary)"
                                     : "var(--color-border)",
                               }}
@@ -475,7 +464,7 @@ export function EditDayModal({
                           border: "1px solid var(--color-border)",
                         }}
                       >
-                        {effortLabels[tier]}
+                        {EFFORT_LABELS[tier]}
                       </button>
                     ))}
                   </div>
