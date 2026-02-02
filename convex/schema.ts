@@ -64,6 +64,20 @@ const schema = defineSchema({
     isAnonymous: v.optional(v.boolean()),
   }).index("email", ["email"]),
 
+  // User preferences (onboarding, app settings)
+  userPreferences: defineTable({
+    userId: v.id("users"),
+    onboardingCompleted: v.boolean(),
+    onboardingCompletedAt: v.optional(v.string()), // ISO timestamp
+    dietaryRestrictions: v.optional(v.array(v.string())),
+    effortPreference: v.optional(v.union(
+      v.literal("super-easy"),
+      v.literal("middle"),
+      v.literal("more-prep"),
+      v.literal("mixed")
+    )),
+  }).index("by_user", ["userId"]),
+
   // HouseholdMember - a person in the household
   householdMembers: defineTable({
     userId: v.optional(v.id("users")), // links to auth user if they have an account
@@ -113,9 +127,11 @@ const schema = defineSchema({
     .index("by_week_plan", ["weekPlanId"])
     .index("by_date", ["date"]),
 
-  // Recipe - reusable meal templates
+  // Recipe - reusable meal templates (enhanced for Recipe Library feature)
   recipes: defineTable({
+    // Core fields
     name: v.string(),
+    description: v.optional(v.string()),
     effortTier: effortTier,
     prepTime: v.number(),
     cookTime: v.number(),
@@ -124,12 +140,32 @@ const schema = defineSchema({
       v.object({
         name: v.string(),
         quantity: v.string(),
+        unit: v.optional(v.string()),
         isOrganic: v.optional(v.boolean()),
       })
     ),
     steps: v.array(v.string()),
     isFlexMeal: v.optional(v.boolean()),
-  }).index("by_name", ["name"]),
+    // Extended fields for Recipe Library
+    cuisineTags: v.optional(v.array(v.string())),
+    photoUrl: v.optional(v.string()),
+    source: v.optional(v.union(
+      v.literal("ai"),
+      v.literal("manual"),
+      v.literal("scanned")
+    )),
+    sourceConfidence: v.optional(v.object({
+      title: v.number(),
+      ingredients: v.number(),
+      steps: v.number(),
+    })),
+    notes: v.optional(v.string()),
+    createdAt: v.optional(v.number()),
+    updatedAt: v.optional(v.number()),
+  })
+    .index("by_name", ["name"])
+    .index("by_source", ["source"])
+    .index("by_effort", ["effortTier"]),
 
   // GroceryItem - items on the shopping list
   groceryItems: defineTable({

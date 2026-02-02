@@ -21,8 +21,8 @@ Terminal
 	•	Warp is the default terminal app (preferred UX: tabs, panes, file tree, natural typing).
 	•	Ghostty is installed but only kept as an optional backup.
 Autocoder UI launcher
-	•	Autocoder repo path: /Users/aaronzink/DEVS-AZ/autocoder-master
-	•	Start script: /Users/aaronzink/DEVS-AZ/autocoder-master/start_ui.sh
+	•	Autocoder repo path:/Users/aaronzink/DEVS-AZ/autocoder-master
+	•	Start script:/Users/aaronzink/DEVS-AZ/autocoder-master/start_ui.sh
 	•	Launch method: Keyboard Maestro hotkey that:
 	◦	Activates Warp
 	◦	Opens a new tab

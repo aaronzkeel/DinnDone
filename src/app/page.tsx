@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useConvexAuth, useAction, useQuery, useMutation } from "convex/react";
+import { useRouter } from "next/navigation";
 import { api } from "../../convex/_generated/api";
 import type { Id } from "../../convex/_generated/dataModel";
 import { SignInButton } from "@/components/SignInButton";
@@ -24,7 +25,21 @@ import {
 type ViewState = "home" | "details" | "swap" | "emergency" | "ingredients-check" | "missing-choice" | "swap-ingredients" | "inventory";
 
 export default function Home() {
+  const router = useRouter();
   const { isAuthenticated, isLoading } = useConvexAuth();
+
+  // Check if user has completed onboarding
+  const hasCompletedOnboarding = useQuery(
+    api.userPreferences.hasCompletedOnboarding,
+    isAuthenticated ? {} : "skip"
+  );
+
+  // Redirect to onboarding if not completed
+  useEffect(() => {
+    if (isAuthenticated && hasCompletedOnboarding === false) {
+      router.push("/onboarding");
+    }
+  }, [isAuthenticated, hasCompletedOnboarding, router]);
 
   // Get today's date for queries
   const today = getTodayDateString();
@@ -535,9 +550,10 @@ If asked about something not in the data above, say you don't have that informat
     addZyloMessage("Voice input coming soon! For now, type your message or use the buttons above.");
   };
 
-  // Show loading state (auth loading or data loading)
+  // Show loading state (auth loading, onboarding check, or data loading)
   const isDataLoading = householdMembersData === undefined || weekData === undefined;
-  if (isLoading || (isAuthenticated && isDataLoading)) {
+  const isOnboardingLoading = isAuthenticated && hasCompletedOnboarding === undefined;
+  if (isLoading || isOnboardingLoading || (isAuthenticated && isDataLoading)) {
     return (
       <div
         className="flex min-h-[calc(100vh-120px)] flex-col items-center justify-center font-sans"

@@ -8,6 +8,7 @@
  * @module
  */
 
+import type * as admin from "../admin.js";
 import type * as ai from "../ai.js";
 import type * as auth from "../auth.js";
 import type * as groceryItems from "../groceryItems.js";
@@ -15,9 +16,11 @@ import type * as householdMembers from "../householdMembers.js";
 import type * as http from "../http.js";
 import type * as notificationPreferences from "../notificationPreferences.js";
 import type * as notifications from "../notifications.js";
+import type * as pantryItems from "../pantryItems.js";
 import type * as pushSubscriptions from "../pushSubscriptions.js";
 import type * as recipes from "../recipes.js";
 import type * as stores from "../stores.js";
+import type * as userPreferences from "../userPreferences.js";
 import type * as weekPlans from "../weekPlans.js";
 
 import type {
@@ -27,6 +30,7 @@ import type {
 } from "convex/server";
 
 declare const fullApi: ApiFromModules<{
+  admin: typeof admin;
   ai: typeof ai;
   auth: typeof auth;
   groceryItems: typeof groceryItems;
@@ -34,9 +38,11 @@ declare const fullApi: ApiFromModules<{
   http: typeof http;
   notificationPreferences: typeof notificationPreferences;
   notifications: typeof notifications;
+  pantryItems: typeof pantryItems;
   pushSubscriptions: typeof pushSubscriptions;
   recipes: typeof recipes;
   stores: typeof stores;
+  userPreferences: typeof userPreferences;
   weekPlans: typeof weekPlans;
 }>;
 

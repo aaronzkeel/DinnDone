@@ -4,6 +4,8 @@ import { useConvexAuth } from "convex/react";
 import { useAuthActions } from "@convex-dev/auth/react";
 import { DarkModeToggle } from "./DarkModeToggle";
 import { useState, useRef, useEffect } from "react";
+import { Settings } from "lucide-react";
+import Link from "next/link";
 
 export function Header() {
   const { isAuthenticated, isLoading } = useConvexAuth();
@@ -39,9 +41,21 @@ export function Header() {
           DinnDone
         </span>
 
-        {/* Right side: dark mode toggle + user menu */}
+        {/* Right side: dark mode toggle + settings + user menu */}
         <div className="flex items-center gap-2">
           <DarkModeToggle />
+
+          {/* Settings link when authenticated */}
+          {!isLoading && isAuthenticated && (
+            <Link
+              href="/settings"
+              className="flex items-center justify-center w-9 h-9 rounded-full transition-colors"
+              style={{ color: "var(--color-muted)" }}
+              aria-label="Settings"
+            >
+              <Settings size={20} />
+            </Link>
+          )}
 
           {/* User avatar/menu when authenticated */}
           {!isLoading && isAuthenticated && (

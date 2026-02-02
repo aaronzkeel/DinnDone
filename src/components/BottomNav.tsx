@@ -1,6 +1,6 @@
 "use client";
 
-import { Home, Calendar, ShoppingCart, Bell } from "lucide-react";
+import { Home, Calendar, ChefHat, BookOpen } from "lucide-react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 
@@ -13,8 +13,8 @@ interface NavItem {
 const navItems: NavItem[] = [
   { label: "Home", href: "/", icon: Home },
   { label: "Plan", href: "/weekly-planning", icon: Calendar },
-  { label: "List", href: "/grocery-list", icon: ShoppingCart },
-  { label: "Alerts", href: "/notifications", icon: Bell },
+  { label: "Kitchen", href: "/kitchen", icon: ChefHat },
+  { label: "Recipes", href: "/recipes", icon: BookOpen },
 ];
 
 export function BottomNav() {
@@ -32,7 +32,11 @@ export function BottomNav() {
       <ul className="flex justify-around items-center max-w-md mx-auto py-2">
         {navItems.map((item) => {
           const Icon = item.icon;
-          const isActive = pathname === item.href;
+          // Handle exact match for home, prefix match for others
+          const isActive =
+            item.href === "/"
+              ? pathname === "/"
+              : pathname === item.href || pathname.startsWith(item.href + "/");
 
           return (
             <li key={item.href}>
