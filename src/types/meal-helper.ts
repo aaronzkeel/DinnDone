@@ -1,18 +1,19 @@
+// =============================================================================
+// Meal Helper Data Types
+// =============================================================================
+// Types for the Meal Helper (home) section of the app.
+// These derive from the canonical Meal type in ./meal.ts
+// =============================================================================
+
 import type { ReactNode } from "react";
+import type { Ingredient, EffortTier, CleanupRatingDisplay } from "./meal";
+import type { HouseholdMember } from "./household";
 
-// Data Types
-export type EffortTier = "super-easy" | "middle" | "more-prep";
-
-export type CleanupRating = "low" | "medium" | "high";
+// Re-export canonical types for convenience
+export type { EffortTier, CleanupRatingDisplay as CleanupRating, Ingredient };
+export type { HouseholdMember };
 
 export type MessageRole = "user" | "zylo";
-
-export interface HouseholdMember {
-  id: string;
-  name: string;
-  isAdmin: boolean;
-  avatarUrl?: string;
-}
 
 export interface ChatMessage {
   id: string;
@@ -21,36 +22,56 @@ export interface ChatMessage {
   timestamp: string; // ISO date string
 }
 
+/**
+ * MealSuggestion - a meal suggestion from Zylo
+ */
 export interface MealSuggestion {
   id: string;
   name: string;
   effortTier: EffortTier;
   prepTime: number; // minutes
   cookTime: number; // minutes
-  cleanupRating: CleanupRating;
+  cleanupRating: CleanupRatingDisplay;
   servings: number;
-  ingredients: string[];
+  ingredients: Ingredient[];
   briefInstructions: string;
-  isFlexMeal: boolean; // vegetarian base with optional protein add-on
+  isFlexMeal: boolean;
 }
 
+/**
+ * PlannedMealSummary - summary of a planned meal for display
+ *
+ * Used in TonightPlanCard, MealOptionDetails, etc.
+ */
 export interface PlannedMealSummary {
   id: string;
   mealName: string;
   effortTier: EffortTier;
   prepTime: number; // minutes
   cookTime: number; // minutes
-  cleanupRating: CleanupRating;
-  ingredients: string[];
+  cleanupRating: CleanupRatingDisplay;
+  /**
+   * Full ingredient objects with quantities
+   * Use getIngredientNames() from meal.ts if you need just names
+   */
+  ingredients: Ingredient[];
+  /**
+   * Flattened ingredient names for simple display
+   * @deprecated Prefer using ingredients array and formatting as needed
+   */
+  ingredientNames?: string[];
   briefInstructions?: string;
-  prepSteps?: string[]; // Step-by-step cooking instructions
+  prepSteps?: string[]; // Step-by-step cooking instructions (renamed from steps for legacy compat)
   isFlexMeal: boolean;
-  isKidFriendly?: boolean;
   assignedCookId?: string;
   eaterIds?: string[];
+  dayLabel?: string; // "Tonight", "Monday", etc.
 }
 
+// =============================================================================
 // Component Props
+// =============================================================================
+
 export interface TonightPlanCardProps {
   meal: PlannedMealSummary;
   householdMembers: HouseholdMember[];

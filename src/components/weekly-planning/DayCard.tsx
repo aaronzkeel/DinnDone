@@ -1,6 +1,6 @@
 "use client";
 
-import { Clock, ChefHat, Users } from "lucide-react";
+import { Clock, ChefHat, Users, Eye } from "lucide-react";
 import type { PlannedMeal, HouseholdMember } from "@/types/weekly-planning";
 import { EFFORT_LABELS, EFFORT_DOTS } from "@/lib/effort-tiers";
 
@@ -10,6 +10,7 @@ interface DayCardProps {
   isToday: boolean;
   isPast?: boolean;
   onTap?: () => void;
+  onViewMeal?: () => void;
 }
 
 export function DayCard({
@@ -18,6 +19,7 @@ export function DayCard({
   isToday,
   isPast = false,
   onTap,
+  onViewMeal,
 }: DayCardProps) {
   const cook = householdMembers.find((m) => m.id === meal.assignedCookId);
   const eaters = householdMembers.filter((m) => meal.eaterIds.includes(m.id));
@@ -34,9 +36,7 @@ export function DayCard({
   const { day, num } = formatDate(meal.date);
 
   // Build aria-label for screen readers
-  const ariaLabel = meal.isUnplanned
-    ? `${meal.dayOfWeek}, no meal planned`
-    : `${meal.dayOfWeek}, ${meal.mealName}${isToday ? ", today" : ""}${isPast ? ", completed" : ""}`;
+  const ariaLabel = `${meal.dayOfWeek}, ${meal.mealName}${isToday ? ", today" : ""}${isPast ? ", completed" : ""}`;
 
   return (
     <button
@@ -49,7 +49,6 @@ export function DayCard({
             ? "border-2"
             : "border hover:border-[var(--color-primary)]"
         }
-        ${meal.isUnplanned ? "opacity-60" : ""}
         ${isPast ? "opacity-50" : ""}
       `}
       style={{
@@ -77,80 +76,90 @@ export function DayCard({
         <div className="flex-1 min-w-0">
           <div className="flex items-start justify-between gap-2">
             <h3
-              className={`
-                font-semibold truncate
-                ${meal.isUnplanned ? "italic" : ""}
-              `}
-              style={{
-                color: meal.isUnplanned
-                  ? "var(--color-muted)"
-                  : "var(--color-text)",
-              }}
+              className="font-semibold truncate"
+              style={{ color: "var(--color-text)" }}
             >
-              {meal.isUnplanned ? "Unplanned" : meal.mealName}
+              {meal.mealName}
             </h3>
 
             {/* Effort indicator */}
-            {!meal.isUnplanned && (
-              <div className="flex items-center gap-1.5 flex-shrink-0">
-                <span
-                  className="text-xs font-medium"
-                  style={{ color: "var(--color-muted)" }}
-                >
-                  {EFFORT_LABELS[meal.effortTier]}
-                </span>
-                <div className="flex gap-0.5">
-                  {Array.from({ length: 3 }).map((_, i) => (
-                    <div
-                      key={i}
-                      className="w-2 h-2 rounded-full"
-                      style={{
-                        backgroundColor:
-                          i < EFFORT_DOTS[meal.effortTier]
-                            ? "var(--color-primary)"
-                            : "var(--color-border)",
-                      }}
-                    />
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-
-          {!meal.isUnplanned && (
-            <div
-              className="flex items-center gap-3 mt-2 text-sm"
-              style={{ color: "var(--color-muted)" }}
-            >
-              {/* Time */}
-              <div className="flex items-center gap-1.5">
-                <Clock size={14} />
-                <span>{totalTime}m</span>
-              </div>
-
-              {/* Cook */}
-              {cook && (
-                <div className="flex items-center gap-1.5">
-                  <ChefHat size={14} />
-                  <span>{cook.name}</span>
-                </div>
-              )}
-
-              {/* Eaters - show names or initials */}
-              <div className="flex items-center gap-1.5">
-                <Users size={14} />
-                {eaters.length <= 3 ? (
-                  <span className="truncate max-w-[100px] md:max-w-[150px]">
-                    {eaters.map((e) => e.name.split(" ")[0]).join(", ")}
-                  </span>
-                ) : (
-                  <span className="truncate max-w-[100px] md:max-w-[150px]">
-                    {eaters.slice(0, 2).map((e) => e.name.split(" ")[0]).join(", ")} +{eaters.length - 2}
-                  </span>
-                )}
+            <div className="flex items-center gap-1.5 flex-shrink-0">
+              <span
+                className="text-xs font-medium"
+                style={{ color: "var(--color-muted)" }}
+              >
+                {EFFORT_LABELS[meal.effortTier]}
+              </span>
+              <div className="flex gap-0.5">
+                {Array.from({ length: 3 }).map((_, i) => (
+                  <div
+                    key={i}
+                    className="w-2 h-2 rounded-full"
+                    style={{
+                      backgroundColor:
+                        i < EFFORT_DOTS[meal.effortTier]
+                          ? "var(--color-primary)"
+                          : "var(--color-border)",
+                    }}
+                  />
+                ))}
               </div>
             </div>
-          )}
+          </div>
+
+          <div
+            className="flex items-center gap-3 mt-2 text-sm"
+            style={{ color: "var(--color-muted)" }}
+          >
+            {/* Time */}
+            <div className="flex items-center gap-1.5">
+              <Clock size={14} />
+              <span>{totalTime}m</span>
+            </div>
+
+            {/* Cook */}
+            {cook && (
+              <div className="flex items-center gap-1.5">
+                <ChefHat size={14} />
+                <span>{cook.name}</span>
+              </div>
+            )}
+
+            {/* Eaters - show names or initials */}
+            <div className="flex items-center gap-1.5">
+              <Users size={14} />
+              {eaters.length <= 3 ? (
+                <span className="truncate max-w-[100px] md:max-w-[150px]">
+                  {eaters.map((e) => e.name.split(" ")[0]).join(", ")}
+                </span>
+              ) : (
+                <span className="truncate max-w-[100px] md:max-w-[150px]">
+                  {eaters.slice(0, 2).map((e) => e.name.split(" ")[0]).join(", ")} +{eaters.length - 2}
+                </span>
+              )}
+            </div>
+          </div>
+
+          {/* View meal details link */}
+          <div
+            role="button"
+            tabIndex={0}
+            onClick={(e) => {
+              e.stopPropagation();
+              onViewMeal?.();
+            }}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.stopPropagation();
+                onViewMeal?.();
+              }
+            }}
+            className="inline-flex items-center gap-1 mt-2 text-xs font-medium hover:opacity-80 cursor-pointer"
+            style={{ color: "var(--color-primary)" }}
+          >
+            <Eye size={12} />
+            View ingredients & directions
+          </div>
         </div>
       </div>
     </button>

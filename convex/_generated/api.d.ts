@@ -10,12 +10,16 @@
 
 import type * as admin from "../admin.js";
 import type * as ai from "../ai.js";
+import type * as aiContext from "../aiContext.js";
+import type * as aiOnboarding from "../aiOnboarding.js";
 import type * as auth from "../auth.js";
+import type * as familyProfile from "../familyProfile.js";
 import type * as groceryItems from "../groceryItems.js";
 import type * as householdMembers from "../householdMembers.js";
 import type * as http from "../http.js";
 import type * as notificationPreferences from "../notificationPreferences.js";
 import type * as notifications from "../notifications.js";
+import type * as onboardingConversation from "../onboardingConversation.js";
 import type * as pantryItems from "../pantryItems.js";
 import type * as pushSubscriptions from "../pushSubscriptions.js";
 import type * as recipes from "../recipes.js";
@@ -32,12 +36,16 @@ import type {
 declare const fullApi: ApiFromModules<{
   admin: typeof admin;
   ai: typeof ai;
+  aiContext: typeof aiContext;
+  aiOnboarding: typeof aiOnboarding;
   auth: typeof auth;
+  familyProfile: typeof familyProfile;
   groceryItems: typeof groceryItems;
   householdMembers: typeof householdMembers;
   http: typeof http;
   notificationPreferences: typeof notificationPreferences;
   notifications: typeof notifications;
+  onboardingConversation: typeof onboardingConversation;
   pantryItems: typeof pantryItems;
   pushSubscriptions: typeof pushSubscriptions;
   recipes: typeof recipes;

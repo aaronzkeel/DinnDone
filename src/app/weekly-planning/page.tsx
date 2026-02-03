@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useQuery, useMutation, useAction } from "convex/react";
 import { api } from "../../../convex/_generated/api";
@@ -8,6 +8,7 @@ import type { Id } from "../../../convex/_generated/dataModel";
 import { WeekPlanView, EditDayModal, PantryAudit } from "@/components/weekly-planning";
 import { PlanningDrawer } from "@/components/weekly-planning/PlanningDrawer";
 import { PlanningChat, type PlanningMessage } from "@/components/weekly-planning/PlanningChat";
+import { MealOptionDetails } from "@/components/meal-helper/MealOptionDetails";
 import type { QuickAction } from "@/components/weekly-planning/QuickActionButtons";
 import { RequireAuth } from "@/components/RequireAuth";
 import {
@@ -16,6 +17,7 @@ import {
   toWeekPlan,
   cleanupRatingReverseMap,
 } from "@/lib/meal-adapters";
+import { formatErrorForUser } from "@/lib/errorUtils";
 import type {
   PlannedMeal,
   MealAlternative,
@@ -30,6 +32,7 @@ export default function WeeklyPlanningPage() {
   const [selectedWeekId, setSelectedWeekId] = useState<string | null>(null);
   const [selectedMeal, setSelectedMeal] = useState<PlannedMeal | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [showMealDetails, setShowMealDetails] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
   const [showPantryAudit, setShowPantryAudit] = useState(false);
   const [pantryItems, setPantryItems] = useState<PantryCheckItem[]>([]);
@@ -150,6 +153,7 @@ export default function WeeklyPlanningPage() {
     setSelectedMeal(null);
     setAlternatives([]);
     setIsLoadingAlternatives(false);
+    setShowMealDetails(false);
   };
 
   const handleChangeCook = async (newCookId: string) => {
@@ -195,6 +199,8 @@ export default function WeeklyPlanningPage() {
         cookTime: alternative.cookTime,
         cleanupRating: cleanupRatingReverseMap[alternative.cleanupRating as CleanupRating],
         isFlexMeal: alternative.isFlexMeal,
+        ingredients: alternative.ingredients,
+        steps: alternative.steps,
       });
       handleCloseModal();
     } catch (error) {
@@ -202,8 +208,19 @@ export default function WeeklyPlanningPage() {
     }
   };
 
+  // Debounced ref for suggestAlternatives to prevent spam
+  const lastSuggestCallRef = useRef<number>(0);
+  const SUGGEST_DEBOUNCE_MS = 1500;
+
   const handleMoreOptions = async () => {
     if (!selectedMeal || !selectedWeekPlan) return;
+
+    // Debounce: ignore calls within 1500ms of last call
+    const now = Date.now();
+    if (now - lastSuggestCallRef.current < SUGGEST_DEBOUNCE_MS) {
+      return;
+    }
+    lastSuggestCallRef.current = now;
 
     setIsLoadingAlternatives(true);
     try {
@@ -219,6 +236,7 @@ export default function WeeklyPlanningPage() {
 
       if (result.success && result.alternatives) {
         // Convert AI alternatives to MealAlternative format with unique IDs
+        // AI returns ingredients as string[], so map them to Ingredient[]
         const newAlternatives: MealAlternative[] = result.alternatives.map((alt, index) => ({
           id: `ai-alt-${Date.now()}-${index}`,
           mealName: alt.mealName,
@@ -228,6 +246,8 @@ export default function WeeklyPlanningPage() {
           cleanupRating: alt.cleanupRating,
           briefDescription: alt.briefDescription,
           isFlexMeal: alt.isFlexMeal,
+          ingredients: (alt.ingredients || []).map((ing: string) => ({ name: ing, quantity: "" })),
+          steps: alt.steps || [],
         }));
         setAlternatives(newAlternatives);
       } else {
@@ -284,11 +304,11 @@ export default function WeeklyPlanningPage() {
 
       // Extract unique ingredients from all meals to create pantry items
       const allIngredients = selectedWeekPlan.meals.flatMap((meal) => meal.ingredients);
-      const uniqueIngredients = [...new Set(allIngredients)];
+      const uniqueIngredientNames = [...new Set(allIngredients.map((ing) => ing.name))];
 
-      const items: PantryCheckItem[] = uniqueIngredients.map((ingredient, index) => ({
+      const items: PantryCheckItem[] = uniqueIngredientNames.map((ingredientName, index) => ({
         id: `pantry-${index}`,
-        name: ingredient,
+        name: ingredientName,
         alreadyHave: false,
       }));
 
@@ -361,7 +381,7 @@ export default function WeeklyPlanningPage() {
 
     // Count unique ingredients for context
     const allIngredients = selectedWeekPlan.meals.flatMap((meal) => meal.ingredients);
-    const uniqueIngredients = [...new Set(allIngredients)];
+    const uniqueIngredients = [...new Set(allIngredients.map((ing) => ing.name))];
 
     // Check if there are already grocery items from this week's plan
     const existingGroceryItems = groceryItemsData || [];
@@ -409,8 +429,19 @@ export default function WeeklyPlanningPage() {
     setShowPantryAudit(false);
   };
 
+  // Debounced ref for generateWeekPlan to prevent spam
+  const lastGenerateCallRef = useRef<number>(0);
+  const GENERATE_DEBOUNCE_MS = 2000;
+
   const handleGeneratePlan = async () => {
     if (!selectedWeekPlan) return;
+
+    // Debounce: ignore calls within 2000ms of last call
+    const now = Date.now();
+    if (now - lastGenerateCallRef.current < GENERATE_DEBOUNCE_MS) {
+      return;
+    }
+    lastGenerateCallRef.current = now;
 
     // Need at least one household member as default cook
     if (!householdMembersData || householdMembersData.length === 0) {
@@ -449,7 +480,7 @@ export default function WeeklyPlanningPage() {
             cookId: defaultCookId,
             eaterIds: allMemberIds,
             ingredients: meal.ingredients.map((name) => ({ name, quantity: "as needed" })),
-            steps: [],
+            steps: meal.steps || [],
             isFlexMeal: meal.isFlexMeal,
           });
         }
@@ -457,7 +488,7 @@ export default function WeeklyPlanningPage() {
       // Convex will auto-update via the query subscription
     } catch (error) {
       console.error("Error generating plan:", error);
-      alert("Error generating plan. Please try again.");
+      alert(formatErrorForUser("generate the plan", error));
     } finally {
       setIsGenerating(false);
     }
@@ -584,8 +615,46 @@ export default function WeeklyPlanningPage() {
     }
   };
 
+  // Debounced ref for quickGeneratePlan to prevent spam
+  const lastQuickPlanCallRef = useRef<number>(0);
+  const QUICK_PLAN_DEBOUNCE_MS = 2000;
+
   const handleQuickPlan = async () => {
-    if (!selectedWeekPlan || !householdMembersData || householdMembersData.length === 0) return;
+    if (!householdMembersData || householdMembersData.length === 0) {
+      addMessage("zylo", "I need at least one household member to plan meals. Head to Settings to add someone!");
+      return;
+    }
+    if (!selectedWeekPlan) {
+      addMessage("zylo", "Let me set up a week plan for you first...");
+      // Try to create a week plan
+      try {
+        const today = new Date();
+        const dayOfWeek = today.getDay();
+        const daysUntilMonday = dayOfWeek === 0 ? 1 : (8 - dayOfWeek) % 7 || 7;
+        const thisMonday = new Date(today);
+        thisMonday.setDate(today.getDate() - ((dayOfWeek + 6) % 7)); // Go back to this Monday
+
+        const year = thisMonday.getFullYear();
+        const month = String(thisMonday.getMonth() + 1).padStart(2, "0");
+        const day = String(thisMonday.getDate()).padStart(2, "0");
+        const weekStart = `${year}-${month}-${day}`;
+
+        const newWeekId = await createWeekPlan({ weekStart, status: "draft" });
+        setSelectedWeekId(newWeekId);
+        addMessage("zylo", "Week created! Give me a second to load it...");
+        return; // Will retry when week loads
+      } catch (error) {
+        addMessage("zylo", "Hmm, I couldn't create a week plan. Try refreshing the page.");
+        return;
+      }
+    }
+
+    // Debounce: ignore calls within 2000ms of last call
+    const now = Date.now();
+    if (now - lastQuickPlanCallRef.current < QUICK_PLAN_DEBOUNCE_MS) {
+      return;
+    }
+    lastQuickPlanCallRef.current = now;
 
     setPlanningMode("quick");
     addMessage("zylo", "On it!");
@@ -618,10 +687,12 @@ export default function WeeklyPlanningPage() {
         const defaultCookId = householdMembersData[0]._id;
         const allMemberIds = householdMembersData.map((m) => m._id);
 
+        // Build Set for O(1) lookups instead of O(n) .find() inside loop
+        const existingDatesSet = new Set(selectedWeekPlan.meals.map((m) => m.date));
+
         for (const meal of result.meals) {
           // Skip if we already have a meal for this date
-          const existingForDate = selectedWeekPlan.meals.find((m) => m.date === meal.date);
-          if (existingForDate) continue;
+          if (existingDatesSet.has(meal.date)) continue;
 
           await addMeal({
             weekPlanId: selectedWeekPlan.id as Id<"weekPlans">,
@@ -635,7 +706,7 @@ export default function WeeklyPlanningPage() {
             cookId: defaultCookId,
             eaterIds: allMemberIds,
             ingredients: meal.ingredients.map((name) => ({ name, quantity: "as needed" })),
-            steps: [],
+            steps: meal.steps || [],
             isFlexMeal: meal.isFlexMeal,
           });
 
@@ -648,7 +719,7 @@ export default function WeeklyPlanningPage() {
               cookTime: meal.cookTime,
               cleanupRating: cleanupRatingReverseMap[meal.cleanupRating],
               ingredients: meal.ingredients.map((name) => ({ name, quantity: "as needed" })),
-              steps: [],
+              steps: meal.steps || [],
               isFlexMeal: meal.isFlexMeal,
             });
           }
@@ -665,7 +736,7 @@ export default function WeeklyPlanningPage() {
       }
     } catch (error) {
       console.error("Quick plan error:", error);
-      addMessage("zylo", "Sorry, something went wrong. Want to try again?");
+      addMessage("zylo", formatErrorForUser("create your meal plan", error, "Sorry, something went wrong. Want to try again?"));
       setPlanningMode("idle");
     } finally {
       setIsAiThinking(false);
@@ -694,7 +765,7 @@ export default function WeeklyPlanningPage() {
       setMissingItems([]);
     } catch (error) {
       console.error("Failed to add items to grocery list:", error);
-      addMessage("zylo", "Hmm, I had trouble adding those items. Try again?");
+      addMessage("zylo", formatErrorForUser("add items to your grocery list", error));
     }
   };
 
@@ -737,9 +808,11 @@ export default function WeeklyPlanningPage() {
         const defaultCookId = householdMembersData[0]._id;
         const allMemberIds = householdMembersData.map((m) => m._id);
 
+        // Build Set for O(1) lookups instead of O(n) .find() inside loop
+        const existingDatesSet = new Set(selectedWeekPlan.meals.map((m) => m.date));
+
         for (const meal of result.meals) {
-          const existingForDate = selectedWeekPlan.meals.find((m) => m.date === meal.date);
-          if (existingForDate) continue;
+          if (existingDatesSet.has(meal.date)) continue;
 
           await addMeal({
             weekPlanId: selectedWeekPlan.id as Id<"weekPlans">,
@@ -753,7 +826,7 @@ export default function WeeklyPlanningPage() {
             cookId: defaultCookId,
             eaterIds: allMemberIds,
             ingredients: meal.ingredients.map((name) => ({ name, quantity: "as needed" })),
-            steps: [],
+            steps: meal.steps || [],
             isFlexMeal: meal.isFlexMeal,
           });
 
@@ -766,7 +839,7 @@ export default function WeeklyPlanningPage() {
               cookTime: meal.cookTime,
               cleanupRating: cleanupRatingReverseMap[meal.cleanupRating],
               ingredients: meal.ingredients.map((name) => ({ name, quantity: "as needed" })),
-              steps: [],
+              steps: meal.steps || [],
               isFlexMeal: meal.isFlexMeal,
             });
           }
@@ -783,7 +856,7 @@ export default function WeeklyPlanningPage() {
       }
     } catch (error) {
       console.error("Discuss plan error:", error);
-      addMessage("zylo", "Sorry, something went wrong. Want to try again?");
+      addMessage("zylo", formatErrorForUser("create your plan", error, "Sorry, something went wrong. Want to try again?"));
       setPlanningMode("discuss");
     } finally {
       setIsAiThinking(false);
@@ -838,9 +911,9 @@ export default function WeeklyPlanningPage() {
         }
 
         // Otherwise, do normal pantry analysis
-        // Get unique ingredients from meal plan
+        // Get unique ingredient names from meal plan
         const allIngredients = selectedWeekPlan.meals.flatMap((meal) => meal.ingredients);
-        const uniqueIngredients = [...new Set(allIngredients)];
+        const uniqueIngredients = [...new Set(allIngredients.map((ing) => ing.name))];
 
         const result = await analyzePantry({
           userHasOnHand: content,
@@ -855,25 +928,21 @@ export default function WeeklyPlanningPage() {
         }
       } catch (error) {
         console.error("Pantry analysis error:", error);
-        addMessage("zylo", "Something went wrong. Try describing what you have again?");
+        addMessage("zylo", formatErrorForUser("check your pantry", error, "Something went wrong. Try describing what you have again?"));
       } finally {
         setIsAiThinking(false);
       }
       return;
     }
 
-    // If in idle mode, treat typing as starting the "discuss" flow
+    // If in idle mode, switch to discuss mode and continue to AI processing
     if (planningMode === "idle") {
       setPlanningMode("discuss");
-      addMessage(
-        "zylo",
-        "Got it! Feel free to share more about your week. When you're ready, just tap 'Ready to plan!' and I'll create your meals based on what you've told me."
-      );
-      return;
+      // Don't return - fall through to discuss mode AI processing below
     }
 
-    // In discuss mode, have a conversation with Zylo
-    if (planningMode === "discuss") {
+    // In discuss mode (or just switched from idle), have a conversation with Zylo
+    if (planningMode === "discuss" || planningMode === "idle") {
       setIsAiThinking(true);
       try {
         // Build conversation history for AI
@@ -910,7 +979,7 @@ Keep responses SHORT (1-3 sentences). Be warm and empathetic. Don't suggest spec
         }
       } catch (error) {
         console.error("Chat error:", error);
-        addMessage("zylo", "Got it! Feel free to share more, or tap 'Ready to plan!' when you're ready.");
+        addMessage("zylo", formatErrorForUser("process your message", error, "Got it! Feel free to share more, or tap 'Ready to plan!' when you're ready."));
       } finally {
         setIsAiThinking(false);
       }
@@ -971,7 +1040,7 @@ Keep responses SHORT (1-3 sentences). Be warm and empathetic. Don't suggest spec
           }
         } catch (error) {
           console.error("Update meal error:", error);
-          addMessage("zylo", "Something went wrong updating that meal. Want to try again?");
+          addMessage("zylo", formatErrorForUser("update that meal", error, "Something went wrong updating that meal. Want to try again?"));
         }
       } else {
         addMessage("zylo", "I'm not sure which day you mean. Try saying something like 'Make Wednesday leftovers' or 'Change Tuesday to pizza'.");
@@ -1072,27 +1141,62 @@ Keep responses SHORT (1-3 sentences). Be warm and empathetic. Don't suggest spec
           onApprovePlan={handleApprovePlan}
           onAddWeek={handleAddWeek}
           onTapMeal={handleSelectMeal}
+          onViewMeal={(mealId) => {
+            const meal = selectedWeekPlan?.meals.find((m) => m.id === mealId);
+            if (meal) {
+              setSelectedMeal(meal);
+              setShowMealDetails(true);
+              setIsModalOpen(true);
+            }
+          }}
           onPantryAudit={handlePantryAudit}
           onGeneratePlan={handleOpenDrawer}
           isGenerating={isGenerating}
           onDeleteWeek={handleDeleteWeek}
         />
 
-        {/* Edit Day Modal */}
+        {/* Edit Day Modal or Meal Details */}
         {isModalOpen && selectedMeal && (
-          <EditDayModal
-            currentMeal={selectedMeal}
-            alternatives={alternatives}
-            householdMembers={householdMembers}
-            onChangeCook={handleChangeCook}
-            onToggleEater={handleToggleEater}
-            onSelectAlternative={handleSelectAlternative}
-            onMoreOptions={handleMoreOptions}
-            onUnplan={handleUnplan}
-            onClose={handleCloseModal}
-            isLoadingAlternatives={isLoadingAlternatives}
-            onCustomMeal={handleCustomMeal}
-          />
+          showMealDetails ? (
+            <div className="fixed inset-0 z-50 flex flex-col" style={{ backgroundColor: "var(--color-bg)" }}>
+              <MealOptionDetails
+                meal={{
+                  id: selectedMeal.id,
+                  mealName: selectedMeal.mealName,
+                  effortTier: selectedMeal.effortTier,
+                  prepTime: selectedMeal.prepTime,
+                  cookTime: selectedMeal.cookTime,
+                  cleanupRating: selectedMeal.cleanupRating,
+                  isFlexMeal: selectedMeal.isFlexMeal,
+                  assignedCookId: selectedMeal.assignedCookId,
+                  eaterIds: selectedMeal.eaterIds,
+                  ingredients: selectedMeal.ingredients,
+                  prepSteps: selectedMeal.steps,
+                }}
+                householdMembers={householdMembers}
+                onBack={() => setShowMealDetails(false)}
+                onCookThis={() => {
+                  setShowMealDetails(false);
+                  handleCloseModal();
+                }}
+              />
+            </div>
+          ) : (
+            <EditDayModal
+              currentMeal={selectedMeal}
+              alternatives={alternatives}
+              householdMembers={householdMembers}
+              onChangeCook={handleChangeCook}
+              onToggleEater={handleToggleEater}
+              onSelectAlternative={handleSelectAlternative}
+              onMoreOptions={handleMoreOptions}
+              onUnplan={handleUnplan}
+              onClose={handleCloseModal}
+              isLoadingAlternatives={isLoadingAlternatives}
+              onCustomMeal={handleCustomMeal}
+              onViewMealDetails={() => setShowMealDetails(true)}
+            />
+          )
         )}
 
         {/* Floating Zylo Tab - visible when drawer is closed */}

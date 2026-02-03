@@ -3,6 +3,7 @@
 import { useState, useCallback } from "react";
 import { Check } from "lucide-react";
 import type { PlannedMealSummary } from "@/types/meal-helper";
+import type { Ingredient } from "@/types/meal";
 
 export interface IngredientsCheckPanelProps {
   meal: PlannedMealSummary;
@@ -96,21 +97,21 @@ export function IngredientsCheckPanel({
 
       <div className="px-4 py-3">
         <ul className="space-y-2 text-sm">
-          {meal.ingredients.map((ingredient) => {
-            const isChecked = checkedIngredients[ingredient] || false;
+          {meal.ingredients.map((ingredient: Ingredient) => {
+            const isChecked = checkedIngredients[ingredient.name] || false;
             const isMissing = !isChecked;
             return (
-              <li key={ingredient}>
+              <li key={ingredient.name}>
                 <button
                   type="button"
-                  onClick={() => handleToggle(ingredient)}
+                  onClick={() => handleToggle(ingredient.name)}
                   className="w-full flex items-start gap-3 text-left transition-colors rounded-lg px-2 py-1.5 -mx-2"
                   style={{
                     color: "var(--color-text)",
                     backgroundColor: isMissing ? "var(--color-danger-light-tint)" : "transparent",
                   }}
                   aria-pressed={isChecked}
-                  aria-label={`${ingredient} - ${isChecked ? "checked, available" : "unchecked, missing"}`}
+                  aria-label={`${ingredient.name} - ${isChecked ? "checked, available" : "unchecked, missing"}`}
                 >
                   {/* Checkbox */}
                   <span
@@ -127,7 +128,7 @@ export function IngredientsCheckPanel({
                     className={isChecked ? "line-through opacity-60" : "font-medium"}
                     style={{ color: isChecked ? "var(--color-text)" : "var(--color-danger-light)" }}
                   >
-                    {ingredient}
+                    {ingredient.name}
                   </span>
                   {/* Missing indicator */}
                   {isMissing && (

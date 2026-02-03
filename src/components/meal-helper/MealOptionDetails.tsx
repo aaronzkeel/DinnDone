@@ -2,7 +2,18 @@
 
 import { ArrowLeft, Clock, ChefHat, Sparkles, Droplets } from "lucide-react";
 import type { PlannedMealSummary, HouseholdMember } from "@/types/meal-helper";
+import type { Ingredient } from "@/types/meal";
 import { EFFORT_LABELS } from "@/lib/effort-tiers";
+
+/**
+ * Format ingredient for display - quantity + name, or just name if no quantity
+ */
+function formatIngredientDisplay(ingredient: Ingredient): string {
+  if (ingredient.quantity && ingredient.quantity.trim()) {
+    return `${ingredient.quantity} ${ingredient.name}`;
+  }
+  return ingredient.name;
+}
 
 export interface MealOptionDetailsProps {
   meal: PlannedMealSummary;
@@ -17,6 +28,16 @@ const cleanupLabels = {
   medium: "Medium cleanup",
   high: "High cleanup",
 } as const;
+
+function getEffortDescription(effortTier: string, totalTime: number): string {
+  if (effortTier === "super-easy") {
+    return `Quick and simple - about ${totalTime} minutes from start to plate. Minimal prep, straightforward cooking.`;
+  } else if (effortTier === "middle") {
+    return `Moderate effort - ${totalTime} minutes total. Some prep work, but nothing complicated.`;
+  } else {
+    return `More involved - ${totalTime} minutes total. Worth it for a heartier meal with more prep steps.`;
+  }
+}
 
 export function MealOptionDetails({
   meal,
@@ -151,12 +172,12 @@ export function MealOptionDetails({
                 style={{ color: "var(--color-muted)" }}
               >
                 {meal.ingredients.map((ingredient) => (
-                  <li key={ingredient} className="flex items-start gap-2">
+                  <li key={ingredient.name} className="flex items-start gap-2">
                     <span
                       className="mt-2 w-1.5 h-1.5 rounded-full flex-shrink-0"
                       style={{ backgroundColor: "var(--color-border)" }}
                     />
-                    <span>{ingredient}</span>
+                    <span>{formatIngredientDisplay(ingredient)}</span>
                   </li>
                 ))}
               </ul>
@@ -214,7 +235,7 @@ export function MealOptionDetails({
                 className="text-sm font-semibold"
                 style={{ color: "var(--color-text)" }}
               >
-                {meal.prepSteps && meal.prepSteps.length > 0 ? "Prep Steps" : "Plan"}
+                Directions
               </h2>
               {meal.prepSteps && meal.prepSteps.length > 0 ? (
                 <ol
@@ -237,13 +258,20 @@ export function MealOptionDetails({
                   ))}
                 </ol>
               ) : (
-                <p
-                  className="mt-2 text-sm"
-                  style={{ color: "var(--color-muted)" }}
+                <div
+                  className="mt-2 p-3 rounded-lg text-sm"
+                  style={{
+                    backgroundColor: "var(--color-bg)",
+                    color: "var(--color-muted)",
+                  }}
                 >
-                  {meal.briefInstructions ||
-                    "Keep it simple: prep a few things, cook, and call it a win."}
-                </p>
+                  <p className="italic">
+                    {meal.briefInstructions || getEffortDescription(meal.effortTier, totalTime)}
+                  </p>
+                  <p className="mt-2 text-xs" style={{ color: "var(--color-muted)" }}>
+                    Full directions coming soon. For now, use the ingredients and timing above as your guide.
+                  </p>
+                </div>
               )}
             </div>
           </div>

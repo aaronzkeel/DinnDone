@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import { useConvexAuth, useAction, useQuery, useMutation } from "convex/react";
 import { useRouter } from "next/navigation";
 import { api } from "../../convex/_generated/api";
@@ -14,13 +14,14 @@ import {
   IngredientsCheckPanel,
   InventoryCheck,
 } from "@/components/meal-helper";
-import type { PlannedMealSummary, ChatMessage } from "@/types/meal-helper";
+import type { PlannedMealSummary, ChatMessage, Ingredient } from "@/types/meal-helper";
 import {
   toPlannedMealSummary,
   toHouseholdMember,
   getDayLabel,
   getTodayDateString,
 } from "@/lib/meal-adapters";
+import { formatErrorForUser } from "@/lib/errorUtils";
 
 type ViewState = "home" | "details" | "swap" | "emergency" | "ingredients-check" | "missing-choice" | "swap-ingredients" | "inventory";
 
@@ -83,13 +84,13 @@ export default function Home() {
       return toPlannedMealSummary(meal, dayLabel);
     });
 
-    // Sort by date
+    // Sort by date - use Map for O(1) lookups instead of O(n) .find() in sort callback
+    const mealDateMap = new Map(weekData.meals.map((m) => [m._id as string, m.date]));
     convertedMeals.sort((a, b) => {
-      // Find original meals to get dates
-      const mealA = weekData.meals.find((m) => m._id === a.id);
-      const mealB = weekData.meals.find((m) => m._id === b.id);
-      if (!mealA || !mealB) return 0;
-      return mealA.date.localeCompare(mealB.date);
+      const dateA = mealDateMap.get(a.id);
+      const dateB = mealDateMap.get(b.id);
+      if (!dateA || !dateB) return 0;
+      return dateA.localeCompare(dateB);
     });
 
     const tonight = convertedMeals.find((m) => m.dayLabel === "Tonight") ?? null;
@@ -130,6 +131,9 @@ export default function Home() {
   // Pending swap meal (selected but not yet confirmed)
   const [pendingSwapMeal, setPendingSwapMeal] = useState<(PlannedMealSummary & { dayLabel: string }) | null>(null);
 
+  // Which meal to show in details view (tonight or tomorrow)
+  const [detailMeal, setDetailMeal] = useState<PlannedMealSummary | null>(null);
+
   // Pantry audit state for Home page
   const [pantryMissingItems, setPantryMissingItems] = useState<string[]>([]);
 
@@ -154,6 +158,7 @@ export default function Home() {
 
   // Button handlers
   const handleThisWorks = () => {
+    setDetailMeal(tonightMeal ?? null);
     setCurrentView("details");
   };
 
@@ -166,6 +171,7 @@ export default function Home() {
   };
 
   const handleViewMeal = () => {
+    setDetailMeal(tonightMeal ?? null);
     setCurrentView("details");
   };
 
@@ -201,15 +207,16 @@ export default function Home() {
   const handleIngredientsAllChecked = () => {
     addZyloMessage("You've got everything! Ready to cook when you are.");
     setCheckedIngredients({});
+    setDetailMeal(tonightMeal ?? null);
     setCurrentView("details");
   };
 
   const handleIngredientsMissingSome = () => {
     if (!tonightMeal) return;
-    // Calculate which ingredients are missing
-    const missing = tonightMeal.ingredients.filter(
-      (ingredient) => !checkedIngredients[ingredient]
-    );
+    // Calculate which ingredients are missing (using ingredient name as key)
+    const missing = tonightMeal.ingredients
+      .filter((ingredient) => !checkedIngredients[ingredient.name])
+      .map((ingredient) => ingredient.name);
     setMissingIngredients(missing);
     setCurrentView("missing-choice");
   };
@@ -227,6 +234,7 @@ export default function Home() {
     addZyloMessage(`Added ${missingIngredients.length} item${missingIngredients.length > 1 ? "s" : ""} to your grocery list. You're good to go!`);
     setCheckedIngredients({});
     setMissingIngredients([]);
+    setDetailMeal(tonightMeal ?? null);
     setCurrentView("details");
   };
 
@@ -260,7 +268,7 @@ export default function Home() {
       addZyloMessage(`Swapped! Tonight is now "${newMealName}". "${oldMealName}" moved to ${selectedDayLabel}.`);
     } catch (error) {
       console.error("Swap error:", error);
-      addZyloMessage("Oops, couldn't swap the meals. Try again?");
+      addZyloMessage(formatErrorForUser("swap the meals", error));
     }
 
     setPendingSwapMeal(null);
@@ -307,14 +315,14 @@ export default function Home() {
       addZyloMessage(`Swapped! Tonight is now "${newMealName}". "${oldMealName}" moved to tomorrow.`);
     } catch (error) {
       console.error("Swap error:", error);
-      addZyloMessage("Oops, couldn't swap the meals. Try again?");
+      addZyloMessage(formatErrorForUser("swap the meals", error));
     }
   };
 
   const handleViewTomorrow = () => {
-    // For now, just show a message. Could navigate to details view later.
     if (tomorrowMeal) {
-      addZyloMessage(`Tomorrow: ${tomorrowMeal.mealName} - ${tomorrowMeal.prepTime + tomorrowMeal.cookTime} min total. Ingredients: ${tomorrowMeal.ingredients.slice(0, 4).join(", ")}${tomorrowMeal.ingredients.length > 4 ? "..." : ""}`);
+      setDetailMeal(tomorrowMeal);
+      setCurrentView("details");
     }
   };
 
@@ -333,9 +341,11 @@ export default function Home() {
     try {
       // If we have a meal plan, do pantry analysis to find missing ingredients
       if (weekMeals.length > 0) {
-        // Get unique ingredients from all week's meals
-        const allIngredients = weekMeals.flatMap((meal) => meal.ingredients);
-        const uniqueIngredients = [...new Set(allIngredients)];
+        // Get unique ingredient names from all week's meals
+        const allIngredientNames = weekMeals.flatMap((meal) =>
+          meal.ingredients.map((ing) => ing.name)
+        );
+        const uniqueIngredients = [...new Set(allIngredientNames)];
 
         const result = await analyzePantry({
           userHasOnHand: notes,
@@ -399,6 +409,10 @@ Be concise (2-3 sentences per suggestion). Focus on simple, family-friendly meal
     }
   };
 
+  // Debounced ref for AI chat to prevent spam
+  const lastAiChatCallRef = useRef<number>(0);
+  const AI_CHAT_DEBOUNCE_MS = 1000;
+
   const handleSendMessage = async (content: string) => {
     // Add user message
     const userMessage: ChatMessage = {
@@ -427,7 +441,7 @@ Be concise (2-3 sentences per suggestion). Focus on simple, family-friendly meal
         setPantryMissingItems([]);
       } catch (error) {
         console.error("Failed to add grocery items:", error);
-        addZyloMessage("Hmm, I had trouble adding those items. Try again?");
+        addZyloMessage(formatErrorForUser("add items to your grocery list", error));
       } finally {
         setIsAiLoading(false);
       }
@@ -473,13 +487,20 @@ Be concise (2-3 sentences per suggestion). Focus on simple, family-friendly meal
           }
         } catch (error) {
           console.error("Failed to remove grocery items:", error);
-          addZyloMessage("Hmm, I had trouble removing that. Try again?");
+          addZyloMessage(formatErrorForUser("remove items from your list", error));
         } finally {
           setIsAiLoading(false);
         }
         return;
       }
     }
+
+    // Debounce: ignore AI calls within 1000ms of last call
+    const now = Date.now();
+    if (now - lastAiChatCallRef.current < AI_CHAT_DEBOUNCE_MS) {
+      return;
+    }
+    lastAiChatCallRef.current = now;
 
     // Set loading state
     setIsAiLoading(true);
@@ -488,7 +509,7 @@ Be concise (2-3 sentences per suggestion). Focus on simple, family-friendly meal
       // Build comprehensive context from real data
       const mealInfo = tonightMeal
         ? `Tonight's meal: ${tonightMeal.mealName} (${tonightMeal.effortTier}, ${tonightMeal.prepTime + tonightMeal.cookTime} min)
-Ingredients: ${tonightMeal.ingredients.join(", ")}`
+Ingredients: ${tonightMeal.ingredients.map((ing) => ing.name).join(", ")}`
         : "No meal planned for tonight.";
 
       // Build week meals context
@@ -540,7 +561,7 @@ If asked about something not in the data above, say you don't have that informat
       }
     } catch (error) {
       console.error("AI chat error:", error);
-      addZyloMessage("Oops! Something went wrong. Let's try that again, or use the buttons above.");
+      addZyloMessage(formatErrorForUser("process your message", error, "Oops! Something went wrong. Let's try that again, or use the buttons above."));
     } finally {
       setIsAiLoading(false);
     }
@@ -598,10 +619,10 @@ If asked about something not in the data above, say you don't have that informat
   }
 
   // Render appropriate view based on state
-  if (currentView === "details" && tonightMeal) {
+  if (currentView === "details" && detailMeal) {
     return (
       <MealOptionDetails
-        meal={tonightMeal}
+        meal={detailMeal}
         householdMembers={householdMembers}
         onBack={handleBack}
         onCookThis={handleCookThis}
@@ -692,7 +713,10 @@ If asked about something not in the data above, say you don't have that informat
         style={{ backgroundColor: "var(--color-bg)" }}
       >
         <button
-          onClick={() => setCurrentView("details")}
+          onClick={() => {
+            setDetailMeal(tonightMeal);
+            setCurrentView("details");
+          }}
           className="inline-flex items-center gap-2 text-sm font-semibold hover:opacity-80 transition-opacity mb-4"
           style={{ color: "var(--color-muted)" }}
         >
@@ -707,7 +731,10 @@ If asked about something not in the data above, say you don't have that informat
           initialChecked={checkedIngredients}
           onIngredientToggle={handleIngredientToggle}
           onYes={handleIngredientsAllChecked}
-          onNotSure={() => setCurrentView("details")}
+          onNotSure={() => {
+            setDetailMeal(tonightMeal);
+            setCurrentView("details");
+          }}
           onNo={handleIngredientsMissingSome}
         />
       </div>

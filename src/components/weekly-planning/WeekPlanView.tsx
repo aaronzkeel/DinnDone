@@ -4,6 +4,7 @@ import { Check, ClipboardList, Sparkles, Loader2, Trash2 } from "lucide-react";
 import type { WeekPlanViewProps } from "@/types/weekly-planning";
 import { WeekSelector } from "./WeekSelector";
 import { DayCard } from "./DayCard";
+import { getTodayString } from "@/lib/dateUtils";
 
 export function WeekPlanView({
   currentUser,
@@ -15,13 +16,14 @@ export function WeekPlanView({
   onApprovePlan,
   onAddWeek,
   onTapMeal,
+  onViewMeal,
   onPantryAudit,
   onGeneratePlan,
   isGenerating,
   onDeleteWeek,
 }: WeekPlanViewProps) {
   // Check if today is in this week
-  const today = new Date().toISOString().split("T")[0];
+  const today = getTodayString();
 
   const isDraft = selectedWeekPlan.status === "draft";
   const isAdmin = currentUser.isAdmin;
@@ -161,6 +163,7 @@ export function WeekPlanView({
                   onTapMeal?.(meal.id);
                   onSelectMeal?.(meal.id);
                 }}
+                onViewMeal={() => onViewMeal?.(meal.id)}
               />
             ))}
           </div>

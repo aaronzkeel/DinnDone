@@ -6,6 +6,7 @@ import { ThemeProvider } from "@/components/ThemeProvider";
 import { BottomNav } from "@/components/BottomNav";
 import { Header } from "@/components/Header";
 import { ServiceWorkerRegistration } from "@/components/ServiceWorkerRegistration";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 
 const lora = Lora({
   variable: "--font-heading",
@@ -51,14 +52,16 @@ export default function RootLayout({
         className={`${lora.variable} ${plusJakartaSans.variable} antialiased`}
       >
         <ThemeProvider>
-          <ConvexClientProvider>
-            <ServiceWorkerRegistration />
-            <Header />
-            <main style={{ paddingBottom: "var(--bottom-nav-total)" }}>
-              <div className="mx-auto w-full max-w-[1440px]">{children}</div>
-            </main>
-            <BottomNav />
-          </ConvexClientProvider>
+          <ErrorBoundary>
+            <ConvexClientProvider>
+              <ServiceWorkerRegistration />
+              <Header />
+              <main style={{ paddingBottom: "var(--bottom-nav-total)" }}>
+                <div className="mx-auto w-full max-w-[1440px]">{children}</div>
+              </main>
+              <BottomNav />
+            </ConvexClientProvider>
+          </ErrorBoundary>
         </ThemeProvider>
       </body>
     </html>

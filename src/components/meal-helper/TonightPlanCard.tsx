@@ -1,6 +1,6 @@
 "use client";
 
-import { Clock, Sparkles, ChefHat, Baby } from "lucide-react";
+import { Clock, Sparkles, ChefHat } from "lucide-react";
 import type { TonightPlanCardProps, EffortTier, CleanupRating } from "@/types/meal-helper";
 import { EFFORT_LABELS } from "@/lib/effort-tiers";
 
@@ -61,12 +61,6 @@ export function TonightPlanCard({ meal, householdMembers, onView }: TonightPlanC
               Flex
             </span>
           )}
-          {meal.isKidFriendly && (
-            <span className="inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-full bg-sky-100 text-sky-800 dark:bg-sky-900/40 dark:text-sky-200">
-              <Baby size={12} />
-              Kid-friendly
-            </span>
-          )}
         </div>
       </div>
 
@@ -99,14 +93,14 @@ export function TonightPlanCard({ meal, householdMembers, onView }: TonightPlanC
         <div className="flex flex-wrap gap-1.5">
           {meal.ingredients.slice(0, 5).map((ingredient) => (
             <span
-              key={ingredient}
+              key={ingredient.name}
               className="text-xs px-2 py-0.5 rounded-full"
               style={{
                 backgroundColor: "var(--color-border)",
                 color: "var(--color-muted)",
               }}
             >
-              {ingredient}
+              {ingredient.name}
             </span>
           ))}
           {meal.ingredients.length > 5 && (

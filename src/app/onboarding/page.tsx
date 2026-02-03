@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { useQuery, useMutation } from 'convex/react'
 import { useRouter } from 'next/navigation'
 import { api } from '../../../convex/_generated/api'
@@ -16,18 +16,23 @@ import {
   Plus,
   X,
   Sparkles,
+  Zap,
 } from 'lucide-react'
 
-type OnboardingStep = 'welcome' | 'household' | 'stores' | 'preferences' | 'ready'
+type OnboardingStep = 'choose-path' | 'welcome' | 'household' | 'stores' | 'preferences' | 'ready'
 
-const stepOrder: OnboardingStep[] = ['welcome', 'household', 'stores', 'preferences', 'ready']
+const quickSetupSteps: OnboardingStep[] = ['welcome', 'household', 'stores', 'preferences', 'ready']
 
 export default function OnboardingPage() {
   const router = useRouter()
-  const [currentStep, setCurrentStep] = useState<OnboardingStep>('welcome')
+  const [currentStep, setCurrentStep] = useState<OnboardingStep>('choose-path')
   const [selectedRestrictions, setSelectedRestrictions] = useState<string[]>([])
   const [effortPref, setEffortPref] = useState<'super-easy' | 'middle' | 'more-prep' | 'mixed'>('mixed')
   const [newStoreName, setNewStoreName] = useState('')
+  const [showSkipModal, setShowSkipModal] = useState(false)
+  const [newMemberName, setNewMemberName] = useState('')
+  const storeInputRef = useRef<HTMLInputElement>(null)
+  const memberInputRef = useRef<HTMLInputElement>(null)
 
   // Queries
   const householdMembers = useQuery(api.householdMembers.list)
@@ -35,23 +40,51 @@ export default function OnboardingPage() {
 
   // Mutations
   const completeOnboarding = useMutation(api.userPreferences.completeOnboarding)
+  const skipOnboarding = useMutation(api.userPreferences.skipOnboarding)
   const addStore = useMutation(api.stores.add)
   const removeStore = useMutation(api.stores.remove)
+  const createHouseholdMember = useMutation(api.householdMembers.create)
 
-  const stepIndex = stepOrder.indexOf(currentStep)
-  const progress = ((stepIndex + 1) / stepOrder.length) * 100
+  // Calculate progress (skip choose-path in progress calculation)
+  const stepIndex = currentStep === 'choose-path' ? -1 : quickSetupSteps.indexOf(currentStep)
+  const progress = currentStep === 'choose-path' ? 0 : ((stepIndex + 1) / quickSetupSteps.length) * 100
 
   const goNext = () => {
     const nextIndex = stepIndex + 1
-    if (nextIndex < stepOrder.length) {
-      setCurrentStep(stepOrder[nextIndex])
+    if (nextIndex < quickSetupSteps.length) {
+      setCurrentStep(quickSetupSteps[nextIndex])
     }
   }
 
   const goBack = () => {
     const prevIndex = stepIndex - 1
     if (prevIndex >= 0) {
-      setCurrentStep(stepOrder[prevIndex])
+      setCurrentStep(quickSetupSteps[prevIndex])
+    } else if (currentStep === 'welcome') {
+      // Go back to path choice
+      setCurrentStep('choose-path')
+    }
+  }
+
+  const handleChooseConversational = () => {
+    router.push('/onboarding/chat')
+  }
+
+  const handleChooseQuickSetup = () => {
+    setCurrentStep('welcome')
+  }
+
+  const handleAddMember = async () => {
+    const name = newMemberName.trim()
+    if (!name) return
+    try {
+      // First member is admin
+      const isFirstMember = !householdMembers || householdMembers.length === 0
+      await createHouseholdMember({ name, isAdmin: isFirstMember })
+      setNewMemberName('')
+      setTimeout(() => memberInputRef.current?.focus(), 0)
+    } catch (error) {
+      console.error('Failed to add member:', error)
     }
   }
 
@@ -61,6 +94,8 @@ export default function OnboardingPage() {
     try {
       await addStore({ name })
       setNewStoreName('')
+      // Re-focus input for quick multiple adds
+      setTimeout(() => storeInputRef.current?.focus(), 0)
     } catch (error) {
       console.error('Failed to add store:', error)
     }
@@ -74,15 +109,32 @@ export default function OnboardingPage() {
     }
   }
 
+  const [isCompleting, setIsCompleting] = useState(false)
+  const [completeError, setCompleteError] = useState<string | null>(null)
+
   const handleComplete = async () => {
+    setIsCompleting(true)
+    setCompleteError(null)
     try {
       await completeOnboarding({
         dietaryRestrictions: selectedRestrictions.length > 0 ? selectedRestrictions : undefined,
         effortPreference: effortPref,
+        onboardingType: 'quick',
       })
       router.push('/weekly-planning')
     } catch (error) {
       console.error('Failed to complete onboarding:', error)
+      setCompleteError('Something went wrong. Please try again.')
+      setIsCompleting(false)
+    }
+  }
+
+  const handleSkip = async () => {
+    try {
+      await skipOnboarding({})
+      router.push('/')
+    } catch (error) {
+      console.error('Failed to skip onboarding:', error)
     }
   }
 
@@ -131,6 +183,102 @@ export default function OnboardingPage() {
 
         {/* Content */}
         <div className="flex-1 flex flex-col">
+          {/* Path Choice Step */}
+          {currentStep === 'choose-path' && (
+            <div className="flex-1 flex flex-col items-center justify-center px-6 py-8">
+              <div
+                className="w-20 h-20 rounded-full flex items-center justify-center mb-6"
+                style={{ backgroundColor: 'var(--color-primary-tint)' }}
+              >
+                <MessageCircle size={40} style={{ color: 'var(--color-primary)' }} />
+              </div>
+
+              <h1
+                className="text-2xl font-bold font-heading text-center mb-3"
+                style={{ color: 'var(--color-text)' }}
+              >
+                Hey! I&apos;m Zylo
+              </h1>
+
+              <p
+                className="text-center max-w-sm mb-8"
+                style={{ color: 'var(--color-muted)' }}
+              >
+                How would you like to get started?
+              </p>
+
+              <div className="w-full max-w-sm space-y-4">
+                {/* Conversational option */}
+                <button
+                  type="button"
+                  onClick={handleChooseConversational}
+                  className="w-full p-5 rounded-2xl border text-left transition-colors hover:border-[var(--color-primary)]"
+                  style={{
+                    backgroundColor: 'var(--color-card)',
+                    borderColor: 'var(--color-border)',
+                  }}
+                >
+                  <div className="flex items-start gap-4">
+                    <div
+                      className="w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0"
+                      style={{ backgroundColor: 'var(--color-primary-tint)' }}
+                    >
+                      <MessageCircle size={24} style={{ color: 'var(--color-primary)' }} />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-semibold mb-1" style={{ color: 'var(--color-text)' }}>
+                        Chat with Zylo
+                      </p>
+                      <p className="text-sm" style={{ color: 'var(--color-muted)' }}>
+                        Tell me about your family and I&apos;ll learn your preferences through conversation
+                      </p>
+                    </div>
+                    <ArrowRight size={20} className="flex-shrink-0 mt-1" style={{ color: 'var(--color-muted)' }} />
+                  </div>
+                </button>
+
+                {/* Quick setup option */}
+                <button
+                  type="button"
+                  onClick={handleChooseQuickSetup}
+                  className="w-full p-5 rounded-2xl border text-left transition-colors hover:border-[var(--color-primary)]"
+                  style={{
+                    backgroundColor: 'var(--color-card)',
+                    borderColor: 'var(--color-border)',
+                  }}
+                >
+                  <div className="flex items-start gap-4">
+                    <div
+                      className="w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0"
+                      style={{ backgroundColor: 'var(--color-secondary-tint)' }}
+                    >
+                      <Zap size={24} style={{ color: 'var(--color-secondary)' }} />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-semibold mb-1" style={{ color: 'var(--color-text)' }}>
+                        Quick Setup
+                      </p>
+                      <p className="text-sm" style={{ color: 'var(--color-muted)' }}>
+                        Just the basics: household, stores, and dietary restrictions
+                      </p>
+                    </div>
+                    <ArrowRight size={20} className="flex-shrink-0 mt-1" style={{ color: 'var(--color-muted)' }} />
+                  </div>
+                </button>
+              </div>
+
+              {/* Skip link */}
+              <button
+                type="button"
+                onClick={() => setShowSkipModal(true)}
+                className="mt-6 text-sm underline"
+                style={{ color: 'var(--color-muted)' }}
+              >
+                Skip for now
+              </button>
+            </div>
+          )}
+
           {/* Welcome Step */}
           {currentStep === 'welcome' && (
             <div className="flex-1 flex flex-col items-center justify-center px-6 py-8">
@@ -206,55 +354,74 @@ export default function OnboardingPage() {
                   className="text-xl font-bold font-heading"
                   style={{ color: 'var(--color-text)' }}
                 >
-                  Your Household
+                  Who&apos;s Eating?
                 </h1>
               </div>
 
               <p className="mb-6" style={{ color: 'var(--color-muted)' }}>
-                Here&apos;s who I&apos;ll be planning meals for:
+                Add yourself and anyone else I&apos;ll be planning meals for.
               </p>
 
-              <div className="space-y-3 mb-8">
+              {/* Add member input */}
+              <form
+                className="flex gap-2 mb-4"
+                onSubmit={(e) => {
+                  e.preventDefault()
+                  handleAddMember()
+                }}
+              >
+                <input
+                  ref={memberInputRef}
+                  type="text"
+                  value={newMemberName}
+                  onChange={(e) => setNewMemberName(e.target.value)}
+                  placeholder={householdMembers?.length === 0 ? "Your name..." : "Add another person..."}
+                  className="flex-1 h-11 px-3 rounded-xl border text-sm"
+                  style={{
+                    backgroundColor: 'var(--color-card)',
+                    borderColor: 'var(--color-border)',
+                    color: 'var(--color-text)',
+                  }}
+                />
+                <button
+                  type="submit"
+                  disabled={!newMemberName.trim()}
+                  className="h-11 px-4 rounded-xl font-semibold text-white inline-flex items-center gap-2 disabled:opacity-50"
+                  style={{ backgroundColor: 'var(--color-primary)' }}
+                >
+                  <Plus size={16} />
+                  Add
+                </button>
+              </form>
+
+              <div className="space-y-2 mb-6">
                 {householdMembers === undefined ? (
-                  <p style={{ color: 'var(--color-muted)' }}>Loading...</p>
+                  <p className="text-sm" style={{ color: 'var(--color-muted)' }}>
+                    Loading household...
+                  </p>
                 ) : householdMembers.length === 0 ? (
-                  <div
-                    className="p-4 rounded-2xl border text-center"
-                    style={{
-                      backgroundColor: 'var(--color-card)',
-                      borderColor: 'var(--color-border)',
-                    }}
-                  >
-                    <p style={{ color: 'var(--color-muted)' }}>
-                      No household members yet. You can add them in settings later.
-                    </p>
-                  </div>
+                  <p className="text-sm" style={{ color: 'var(--color-muted)' }}>
+                    Start by adding your name above.
+                  </p>
                 ) : (
                   householdMembers.map((member) => (
                     <div
                       key={member._id}
-                      className="flex items-center gap-3 p-4 rounded-2xl border"
+                      className="flex items-center gap-3 p-3 rounded-xl border"
                       style={{
                         backgroundColor: 'var(--color-card)',
                         borderColor: 'var(--color-border)',
                       }}
                     >
                       <div
-                        className="w-10 h-10 rounded-full flex items-center justify-center font-semibold text-white"
+                        className="w-8 h-8 rounded-full flex items-center justify-center font-semibold text-white text-sm"
                         style={{ backgroundColor: 'var(--color-secondary)' }}
                       >
                         {member.name.charAt(0).toUpperCase()}
                       </div>
-                      <div className="flex-1">
-                        <p className="font-medium" style={{ color: 'var(--color-text)' }}>
-                          {member.name}
-                        </p>
-                        {member.dietaryPreferences && member.dietaryPreferences.length > 0 && (
-                          <p className="text-sm" style={{ color: 'var(--color-muted)' }}>
-                            {member.dietaryPreferences.join(', ')}
-                          </p>
-                        )}
-                      </div>
+                      <span className="flex-1 font-medium" style={{ color: 'var(--color-text)' }}>
+                        {member.name}
+                      </span>
                       {member.isAdmin && (
                         <span
                           className="px-2 py-1 rounded-full text-xs font-medium"
@@ -263,7 +430,7 @@ export default function OnboardingPage() {
                             color: 'var(--color-primary)',
                           }}
                         >
-                          Admin
+                          You
                         </span>
                       )}
                     </div>
@@ -271,8 +438,8 @@ export default function OnboardingPage() {
                 )}
               </div>
 
-              <p className="text-sm mb-8" style={{ color: 'var(--color-muted)' }}>
-                You can edit household members anytime in Settings.
+              <p className="text-sm mb-6" style={{ color: 'var(--color-muted)' }}>
+                You can add or edit members anytime in Settings.
               </p>
 
               <div className="flex gap-3">
@@ -291,7 +458,8 @@ export default function OnboardingPage() {
                 <button
                   type="button"
                   onClick={goNext}
-                  className="flex-1 px-6 py-4 rounded-xl font-semibold text-white inline-flex items-center justify-center gap-2"
+                  disabled={!householdMembers || householdMembers.length === 0}
+                  className="flex-1 px-6 py-4 rounded-xl font-semibold text-white inline-flex items-center justify-center gap-2 disabled:opacity-50"
                   style={{ backgroundColor: 'var(--color-primary)' }}
                 >
                   Next
@@ -360,6 +528,7 @@ export default function OnboardingPage() {
                 }}
               >
                 <input
+                  ref={storeInputRef}
                   type="text"
                   value={newStoreName}
                   onChange={(e) => setNewStoreName(e.target.value)}
@@ -552,14 +721,21 @@ export default function OnboardingPage() {
                 </div>
               </div>
 
+              {completeError && (
+                <p className="text-center text-sm mb-4" style={{ color: 'var(--color-danger)' }}>
+                  {completeError}
+                </p>
+              )}
+
               <div className="w-full max-w-sm space-y-3">
                 <button
                   type="button"
                   onClick={handleComplete}
-                  className="w-full px-6 py-4 rounded-xl font-semibold text-white inline-flex items-center justify-center gap-2"
+                  disabled={isCompleting}
+                  className="w-full px-6 py-4 rounded-xl font-semibold text-white inline-flex items-center justify-center gap-2 disabled:opacity-50"
                   style={{ backgroundColor: 'var(--color-primary)' }}
                 >
-                  Let&apos;s Plan Your Week
+                  {isCompleting ? 'Setting up...' : "Let's Plan Your Week"}
                   <ArrowRight size={18} />
                 </button>
                 <button
@@ -574,6 +750,54 @@ export default function OnboardingPage() {
             </div>
           )}
         </div>
+
+        {/* Skip confirmation modal */}
+        {showSkipModal && (
+          <div
+            className="fixed inset-0 z-50 flex items-center justify-center p-4"
+            style={{ backgroundColor: 'rgba(0, 0, 0, 0.6)' }}
+          >
+            <div
+              className="w-full max-w-sm rounded-2xl p-6"
+              style={{ backgroundColor: 'var(--color-card)' }}
+            >
+              <h2
+                className="text-lg font-bold font-heading mb-2"
+                style={{ color: 'var(--color-text)' }}
+              >
+                Skip setup?
+              </h2>
+              <p className="text-sm mb-4" style={{ color: 'var(--color-muted)' }}>
+                The app works better when I know a bit about your household. Even a 30-second Quick Setup helps!
+              </p>
+              <p className="text-sm mb-6" style={{ color: 'var(--color-muted)' }}>
+                You can always set up later in Settings.
+              </p>
+
+              <div className="space-y-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowSkipModal(false)
+                    handleChooseQuickSetup()
+                  }}
+                  className="w-full py-3 rounded-xl font-semibold text-white"
+                  style={{ backgroundColor: 'var(--color-secondary)' }}
+                >
+                  Do Quick Setup
+                </button>
+                <button
+                  type="button"
+                  onClick={handleSkip}
+                  className="w-full py-3 rounded-xl font-medium"
+                  style={{ color: 'var(--color-muted)' }}
+                >
+                  Skip anyway
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </RequireAuth>
   )

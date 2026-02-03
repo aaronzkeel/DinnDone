@@ -1,20 +1,25 @@
 // =============================================================================
 // Weekly Planning Data Types
 // =============================================================================
+// These types are used by the weekly planning UI components.
+// They derive from the canonical Meal type in ./meal.ts
+// =============================================================================
+
+import type { Ingredient, EffortTier, CleanupRatingDisplay } from "./meal";
+import type { HouseholdMember } from "./household";
+
+// Re-export canonical types for convenience
+export type { EffortTier, CleanupRatingDisplay as CleanupRating, Ingredient };
+export type { HouseholdMember };
 
 export type PlanStatus = "draft" | "approved" | "in-progress" | "completed";
 
-export type EffortTier = "super-easy" | "middle" | "more-prep";
-
-export type CleanupRating = "low" | "medium" | "high";
-
-export interface HouseholdMember {
-  id: string;
-  name: string;
-  isAdmin: boolean;
-  avatarUrl?: string;
-}
-
+/**
+ * PlannedMeal - meal scheduled for a specific date in a week plan
+ *
+ * Note: This uses CleanupRatingDisplay (string) for UI convenience.
+ * The database stores numeric values (1|2|3) which are converted by adapters.
+ */
 export interface PlannedMeal {
   id: string;
   date: string; // ISO date string (YYYY-MM-DD)
@@ -24,13 +29,17 @@ export interface PlannedMeal {
   effortTier: EffortTier;
   prepTime: number;
   cookTime: number;
-  cleanupRating: CleanupRating;
+  cleanupRating: CleanupRatingDisplay;
   assignedCookId: string; // HouseholdMember id
   eaterIds: string[]; // HouseholdMember ids
-  servings: number;
-  ingredients: string[];
+  servings: number; // Derived from eaterIds.length
+  /**
+   * Full ingredient objects with quantities
+   * Use getIngredientNames() from meal.ts if you need just names
+   */
+  ingredients: Ingredient[];
+  steps: string[]; // Cooking directions
   isFlexMeal: boolean;
-  isUnplanned: boolean; // true if user chose "I'll figure it out"
 }
 
 export interface WeekPlan {
@@ -42,15 +51,20 @@ export interface WeekPlan {
   approvedAt?: string; // ISO timestamp
 }
 
+/**
+ * MealAlternative - suggestion from AI when swapping a meal
+ */
 export interface MealAlternative {
   id: string;
   mealName: string;
   effortTier: EffortTier;
   prepTime: number;
   cookTime: number;
-  cleanupRating: CleanupRating;
+  cleanupRating: CleanupRatingDisplay;
   briefDescription: string;
   isFlexMeal: boolean;
+  ingredients: Ingredient[];
+  steps: string[];
 }
 
 export interface PantryCheckItem {
@@ -89,6 +103,8 @@ export interface WeekPlanViewProps {
   onAddWeek?: () => void;
   /** Called when user taps a day card */
   onTapMeal?: (mealId: string) => void;
+  /** Called when user taps "View" to see meal details directly */
+  onViewMeal?: (mealId: string) => void;
   /** Called when user wants to check pantry */
   onPantryAudit?: () => void;
   /** Called when user wants to generate a plan for an empty week */

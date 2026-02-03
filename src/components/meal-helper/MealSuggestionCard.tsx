@@ -2,6 +2,7 @@
 
 import { Clock, Sparkles, Check, X, RefreshCw } from "lucide-react";
 import type { MealSuggestion, EffortTier, CleanupRating } from "@/types/meal-helper";
+import type { Ingredient } from "@/types/meal";
 import { EFFORT_LABELS } from "@/lib/effort-tiers";
 
 interface MealSuggestionCardProps {
@@ -91,16 +92,16 @@ export function MealSuggestionCard({
 
         {/* Ingredients preview */}
         <div className="flex flex-wrap gap-1 pt-1">
-          {suggestion.ingredients.slice(0, 4).map((ingredient, i) => (
+          {suggestion.ingredients.slice(0, 4).map((ingredient: Ingredient) => (
             <span
-              key={i}
+              key={ingredient.name}
               className="text-xs px-2 py-0.5 rounded-full"
               style={{
                 backgroundColor: "var(--color-border)",
                 color: "var(--color-muted)",
               }}
             >
-              {ingredient}
+              {ingredient.name}
             </span>
           ))}
           {suggestion.ingredients.length > 4 && (

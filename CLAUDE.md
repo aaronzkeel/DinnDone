@@ -21,6 +21,11 @@ You are the main builder. You can read, write, and modify any code.
 4. **Run type checker** before saying you're done
 5. **Follow AGENTS.md** for the multi-agent workflow (worktrees + rebase + squash merge)
 
+## UX Preferences
+
+- **Auto-focus inputs** - When a modal opens or a new input field appears, auto-focus the first input so user can start typing immediately. Use `autoFocus` on the first field or `useEffect` with ref for dynamic fields.
+- **Minimize clicks** - User shouldn't have to click into fields that are obviously the next action
+
 ## Key Docs
 
 | Doc | Purpose |

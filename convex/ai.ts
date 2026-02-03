@@ -2,12 +2,14 @@
 
 import { action } from "./_generated/server";
 import { v } from "convex/values";
+import { internal } from "./_generated/api";
 
 // OpenRouter API endpoint
 const OPENROUTER_API_URL = "https://openrouter.ai/api/v1/chat/completions";
 
 // Default model as specified in the product plan
 const DEFAULT_MODEL = "google/gemini-2.0-flash-001";
+
 
 interface OpenRouterMessage {
   role: "system" | "user" | "assistant";
@@ -43,7 +45,7 @@ export const testConnection = action({
     model: v.optional(v.string()),
     responsePreview: v.optional(v.string()),
   }),
-  handler: async (ctx): Promise<{
+  handler: async (): Promise<{
     success: boolean;
     message: string;
     model?: string;
@@ -264,6 +266,8 @@ export const suggestAlternatives = action({
           ),
           briefDescription: v.string(),
           isFlexMeal: v.boolean(),
+          ingredients: v.array(v.string()),
+          steps: v.array(v.string()),
         })
       )
     ),
@@ -282,6 +286,8 @@ export const suggestAlternatives = action({
       cleanupRating: "low" | "medium" | "high";
       briefDescription: string;
       isFlexMeal: boolean;
+      ingredients: string[];
+      steps: string[];
     }>;
     error?: string;
   }> => {
@@ -309,7 +315,9 @@ Return ONLY valid JSON in this exact format (no markdown, no explanation):
       "cookTime": 20,
       "cleanupRating": "low",
       "briefDescription": "A quick and easy option",
-      "isFlexMeal": true
+      "isFlexMeal": true,
+      "ingredients": ["Ingredient 1", "Ingredient 2", "Ingredient 3"],
+      "steps": ["Step 1: Do this", "Step 2: Do that", "Step 3: Serve"]
     }
   ]
 }
@@ -319,6 +327,8 @@ Rules:
 - cleanupRating must be exactly: "low", "medium", or "high"
 - prepTime and cookTime are in minutes
 - briefDescription should be 1 short sentence (under 60 chars)
+- ingredients should be an array of ingredient names (4-8 items, just names, no quantities)
+- steps should be an array of cooking instructions (3-6 concise steps)
 - Provide variety: one easy, one medium, one more involved option
 - Suggest family-friendly, common meals people actually cook
 - Consider similar cuisine or ingredients to the current meal${excludeList}`;
@@ -343,7 +353,7 @@ Suggest 3 alternative dinners that could replace this meal.`;
             { role: "system", content: systemPrompt },
             { role: "user", content: userPrompt },
           ],
-          max_tokens: 800,
+          max_tokens: 1500,
         }),
       });
 
@@ -381,6 +391,8 @@ Suggest 3 alternative dinners that could replace this meal.`;
             cleanupRating: "low" | "medium" | "high";
             briefDescription: string;
             isFlexMeal: boolean;
+            ingredients?: string[];
+            steps?: string[];
           }>;
         };
 
@@ -391,9 +403,16 @@ Suggest 3 alternative dinners that could replace this meal.`;
           };
         }
 
+        // Ensure ingredients and steps are always arrays
+        const alternatives = parsed.alternatives.map((alt) => ({
+          ...alt,
+          ingredients: alt.ingredients || [],
+          steps: alt.steps || [],
+        }));
+
         return {
           success: true,
-          alternatives: parsed.alternatives,
+          alternatives,
         };
       } catch (parseError) {
         return {
@@ -441,6 +460,7 @@ export const generateWeekPlan = action({
             v.literal("high")
           ),
           ingredients: v.array(v.string()),
+          steps: v.array(v.string()),
           isFlexMeal: v.boolean(),
         })
       )
@@ -461,6 +481,7 @@ export const generateWeekPlan = action({
       cookTime: number;
       cleanupRating: "low" | "medium" | "high";
       ingredients: string[];
+      steps: string[];
       isFlexMeal: boolean;
     }>;
     error?: string;
@@ -504,6 +525,7 @@ Return ONLY valid JSON in this exact format (no markdown, no explanation):
       "cookTime": 20,
       "cleanupRating": "low",
       "ingredients": ["ingredient1", "ingredient2"],
+      "steps": ["Step 1: Do this", "Step 2: Do that", "Step 3: Serve"],
       "isFlexMeal": false
     }
   ]
@@ -513,6 +535,7 @@ Rules:
 - effortTier must be exactly: "super-easy", "middle", or "more-prep"
 - cleanupRating must be exactly: "low", "medium", or "high"
 - Include 3-8 main ingredients per meal
+- Include 3-6 clear, concise cooking steps for each meal
 - prepTime and cookTime are in minutes
 - Mix effort levels: more easy meals during weekdays, allow more prep on weekends
 - Mark 2-3 meals as isFlexMeal: true (easy to swap or make quick adjustments)
@@ -582,6 +605,7 @@ Use these exact dates: ${dates.join(", ")}`;
             cookTime: number;
             cleanupRating: "low" | "medium" | "high";
             ingredients: string[];
+            steps?: string[];
             isFlexMeal: boolean;
           }>;
         };
@@ -593,9 +617,15 @@ Use these exact dates: ${dates.join(", ")}`;
           };
         }
 
+        // Ensure steps array exists (default to empty if AI didn't provide)
+        const mealsWithSteps = parsed.meals.map((meal) => ({
+          ...meal,
+          steps: meal.steps || [],
+        }));
+
         return {
           success: true,
-          meals: parsed.meals,
+          meals: mealsWithSteps,
         };
       } catch (parseError) {
         return {
@@ -669,6 +699,7 @@ export const quickGeneratePlan = action({
             v.literal("high")
           ),
           ingredients: v.array(v.string()),
+          steps: v.array(v.string()),
           isFlexMeal: v.boolean(),
           fromRecipeLibrary: v.boolean(),
         })
@@ -690,6 +721,7 @@ export const quickGeneratePlan = action({
       cookTime: number;
       cleanupRating: "low" | "medium" | "high";
       ingredients: string[];
+      steps: string[];
       isFlexMeal: boolean;
       fromRecipeLibrary: boolean;
     }>;
@@ -754,6 +786,7 @@ Return ONLY valid JSON in this exact format (no markdown, no explanation):
       "cookTime": 20,
       "cleanupRating": "low",
       "ingredients": ["ingredient1", "ingredient2"],
+      "steps": ["Step 1: Do this", "Step 2: Do that", "Step 3: Serve"],
       "isFlexMeal": false,
       "fromRecipeLibrary": true
     }
@@ -764,6 +797,7 @@ Rules:
 - effortTier must be exactly: "super-easy", "middle", or "more-prep"
 - cleanupRating must be exactly: "low", "medium", or "high"
 - Include 3-8 main ingredients per meal
+- Include 3-6 clear, concise cooking steps for each meal
 - prepTime and cookTime are in minutes
 - fromRecipeLibrary: true if meal name matches a saved recipe, false if new suggestion
 - Mix effort levels: more easy meals during weekdays
@@ -827,6 +861,7 @@ Quick plan - use sensible family-friendly defaults.`;
           cookTime: number;
           cleanupRating: "low" | "medium" | "high";
           ingredients: string[];
+          steps?: string[];
           isFlexMeal: boolean;
           fromRecipeLibrary: boolean;
         }>;
@@ -839,9 +874,15 @@ Quick plan - use sensible family-friendly defaults.`;
         };
       }
 
+      // Ensure steps array exists (default to empty if AI didn't provide)
+      const mealsWithSteps = parsed.meals.map((meal) => ({
+        ...meal,
+        steps: meal.steps || [],
+      }));
+
       return {
         success: true,
-        meals: parsed.meals,
+        meals: mealsWithSteps,
       };
     } catch (error) {
       return {
@@ -911,6 +952,7 @@ export const generatePlanWithConversation = action({
             v.literal("high")
           ),
           ingredients: v.array(v.string()),
+          steps: v.array(v.string()),
           isFlexMeal: v.boolean(),
           fromRecipeLibrary: v.boolean(),
         })
@@ -939,6 +981,7 @@ export const generatePlanWithConversation = action({
       cookTime: number;
       cleanupRating: "low" | "medium" | "high";
       ingredients: string[];
+      steps: string[];
       isFlexMeal: boolean;
       fromRecipeLibrary: boolean;
     }>;
@@ -1008,6 +1051,7 @@ Return ONLY valid JSON in this exact format (no markdown, no explanation):
       "cookTime": 20,
       "cleanupRating": "low",
       "ingredients": ["ingredient1", "ingredient2"],
+      "steps": ["Step 1: Do this", "Step 2: Do that", "Step 3: Serve"],
       "isFlexMeal": false,
       "fromRecipeLibrary": true
     }
@@ -1018,6 +1062,7 @@ Rules:
 - effortTier: "super-easy", "middle", or "more-prep"
 - cleanupRating: "low", "medium", or "high"
 - Include 3-8 main ingredients per meal
+- Include 3-6 clear, concise cooking steps for each meal
 - prepTime and cookTime in minutes
 - fromRecipeLibrary: true if from saved recipes
 - IMPORTANT: Follow what the user discussed in conversation (busy nights, energy levels, preferences)${keepContext}${recipeContext}${varietyContext}`;
@@ -1082,6 +1127,7 @@ Use these exact dates: ${dates.join(", ")}`;
           cookTime: number;
           cleanupRating: "low" | "medium" | "high";
           ingredients: string[];
+          steps?: string[];
           isFlexMeal: boolean;
           fromRecipeLibrary: boolean;
         }>;
@@ -1094,9 +1140,15 @@ Use these exact dates: ${dates.join(", ")}`;
         };
       }
 
+      // Ensure steps array exists (default to empty if AI didn't provide)
+      const mealsWithSteps = parsed.meals.map((meal) => ({
+        ...meal,
+        steps: meal.steps || [],
+      }));
+
       return {
         success: true,
-        meals: parsed.meals,
+        meals: mealsWithSteps,
       };
     } catch (error) {
       return {
@@ -1405,5 +1457,143 @@ Generate the updated meal.`;
         error: `Request failed: ${error instanceof Error ? error.message : String(error)}`,
       };
     }
+  },
+});
+
+// =============================================================================
+// Context Injection for Personalized AI
+// =============================================================================
+
+/**
+ * Build Zylo context string for AI prompts.
+ * Returns tiered context based on usage scenario.
+ *
+ * Tiers:
+ * - minimal: Just zyloNotes (~200 tokens)
+ * - planning: +dietary restrictions, effort preference (~300 tokens)
+ * - shopping: +store list, budget level (~350 tokens)
+ * - full: Complete profile for deep questions (~500 tokens)
+ */
+export const buildZyloContext = action({
+  args: {
+    tier: v.union(
+      v.literal("minimal"),
+      v.literal("planning"),
+      v.literal("shopping"),
+      v.literal("full")
+    ),
+    userId: v.id("users"),
+  },
+  returns: v.object({
+    context: v.string(),
+    hasProfile: v.boolean(),
+  }),
+  handler: async (ctx, { tier, userId }): Promise<{ context: string; hasProfile: boolean }> => {
+    // Fetch family profile
+    const profile = await ctx.runQuery(internal.aiContext.getFamilyProfile, { userId });
+    const prefs = await ctx.runQuery(internal.aiContext.getUserPreferences, { userId });
+
+    if (!profile && !prefs) {
+      return {
+        context: "",
+        hasProfile: false,
+      };
+    }
+
+    const contextParts: string[] = [];
+
+    // MINIMAL tier: Just zyloNotes
+    if (profile?.zyloNotes) {
+      contextParts.push(`Family Context: ${profile.zyloNotes}`);
+    }
+
+    if (tier === "minimal") {
+      return {
+        context: contextParts.join("\n\n"),
+        hasProfile: !!profile,
+      };
+    }
+
+    // PLANNING tier: +dietary and effort
+    if (prefs?.dietaryRestrictions && prefs.dietaryRestrictions.length > 0) {
+      contextParts.push(`Dietary Restrictions: ${prefs.dietaryRestrictions.join(", ")}`);
+    }
+
+    if (prefs?.effortPreference) {
+      const effortMap: Record<string, string> = {
+        "super-easy": "prefers super-easy, minimal-prep meals",
+        middle: "likes a mix of easy and moderate effort meals",
+        "more-prep": "enjoys cooking and is happy to spend time in the kitchen",
+        mixed: "varies - match effort to the day of week",
+      };
+      contextParts.push(`Cooking Effort: ${effortMap[prefs.effortPreference] || prefs.effortPreference}`);
+    }
+
+    if (profile?.healthContext?.conditions && profile.healthContext.conditions.length > 0) {
+      contextParts.push(`Health Considerations: ${profile.healthContext.conditions.join(", ")}`);
+    }
+
+    if (tier === "planning") {
+      return {
+        context: contextParts.join("\n\n"),
+        hasProfile: !!profile,
+      };
+    }
+
+    // SHOPPING tier: +stores and budget
+    if (profile?.shoppingPreferences?.primaryStores && profile.shoppingPreferences.primaryStores.length > 0) {
+      contextParts.push(`Primary Stores: ${profile.shoppingPreferences.primaryStores.join(", ")}`);
+    }
+
+    if (profile?.shoppingPreferences?.budgetLevel) {
+      const budgetMap: Record<string, string> = {
+        "budget-conscious": "budget-conscious, looks for deals",
+        moderate: "moderate budget, balances cost and quality",
+        flexible: "flexible budget, prioritizes quality",
+      };
+      contextParts.push(`Budget: ${budgetMap[profile.shoppingPreferences.budgetLevel] || profile.shoppingPreferences.budgetLevel}`);
+    }
+
+    if (profile?.shoppingPreferences?.frequency) {
+      contextParts.push(`Shopping Frequency: ${profile.shoppingPreferences.frequency}`);
+    }
+
+    if (tier === "shopping") {
+      return {
+        context: contextParts.join("\n\n"),
+        hasProfile: !!profile,
+      };
+    }
+
+    // FULL tier: Everything
+    if (profile?.familyDynamics?.primaryCook) {
+      contextParts.push(`Primary Cook: ${profile.familyDynamics.primaryCook}`);
+    }
+
+    if (profile?.familyDynamics?.pickyEaters && profile.familyDynamics.pickyEaters.length > 0) {
+      contextParts.push(`Picky Eaters: ${profile.familyDynamics.pickyEaters.join(", ")}`);
+    }
+
+    if (profile?.cookingCapacity?.weeknightMinutes) {
+      contextParts.push(`Weeknight Cooking Time: max ${profile.cookingCapacity.weeknightMinutes} minutes`);
+    }
+
+    if (profile?.cookingCapacity?.energyLevel) {
+      const energyMap: Record<string, string> = {
+        low: "limited energy for cooking",
+        variable: "energy varies day to day",
+        good: "generally has good energy for cooking",
+      };
+      contextParts.push(`Energy Level: ${energyMap[profile.cookingCapacity.energyLevel] || profile.cookingCapacity.energyLevel}`);
+    }
+
+    if (profile?.healthContext?.foodValues && profile.healthContext.foodValues.length > 0) {
+      contextParts.push(`Food Values: ${profile.healthContext.foodValues.join(", ")}`);
+    }
+
+    return {
+      context: contextParts.join("\n\n"),
+      hasProfile: !!profile,
+    };
   },
 });

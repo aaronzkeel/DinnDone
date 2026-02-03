@@ -44,6 +44,31 @@ const fandomVoice = v.union(
   v.literal("harry-potter")
 );
 
+const onboardingType = v.union(
+  v.literal("quick"),
+  v.literal("conversational"),
+  v.literal("skipped")
+);
+
+const onboardingConversationStatus = v.union(
+  v.literal("in-progress"),
+  v.literal("extracting"),
+  v.literal("completed"),
+  v.literal("abandoned")
+);
+
+const budgetLevel = v.union(
+  v.literal("budget-conscious"),
+  v.literal("moderate"),
+  v.literal("flexible")
+);
+
+const energyLevel = v.union(
+  v.literal("low"),
+  v.literal("variable"),
+  v.literal("good")
+);
+
 const pantryLocation = v.union(
   v.literal("fridge"),
   v.literal("freezer"),
@@ -69,6 +94,7 @@ const schema = defineSchema({
     userId: v.id("users"),
     onboardingCompleted: v.boolean(),
     onboardingCompletedAt: v.optional(v.string()), // ISO timestamp
+    onboardingType: v.optional(onboardingType), // "quick" or "conversational"
     dietaryRestrictions: v.optional(v.array(v.string())),
     effortPreference: v.optional(v.union(
       v.literal("super-easy"),
@@ -77,6 +103,76 @@ const schema = defineSchema({
       v.literal("mixed")
     )),
   }).index("by_user", ["userId"]),
+
+  // Family profile - stores rich context from conversational onboarding
+  familyProfiles: defineTable({
+    userId: v.id("users"),
+    // Location (optional)
+    location: v.optional(v.object({
+      city: v.optional(v.string()),
+      region: v.optional(v.string()),
+    })),
+    // Shopping preferences
+    shoppingPreferences: v.optional(v.object({
+      primaryStores: v.optional(v.array(v.string())),
+      frequency: v.optional(v.string()), // "weekly", "twice-weekly", "as-needed"
+      budgetLevel: v.optional(budgetLevel),
+      bulkBuying: v.optional(v.boolean()),
+    })),
+    // Health and dietary context
+    healthContext: v.optional(v.object({
+      conditions: v.optional(v.array(v.string())), // Lyme, diabetes, etc.
+      dietaryRestrictions: v.optional(v.array(v.string())), // gluten-free, etc.
+      foodValues: v.optional(v.array(v.string())), // organic, clean eating, etc.
+      allergies: v.optional(v.array(v.string())),
+    })),
+    // Family dynamics
+    familyDynamics: v.optional(v.object({
+      primaryCook: v.optional(v.string()), // name of who usually cooks
+      pickyEaters: v.optional(v.array(v.string())), // names of picky eaters
+      kidsAges: v.optional(v.array(v.number())),
+      mealSchedule: v.optional(v.string()), // description of when they eat
+    })),
+    // Cooking capacity
+    cookingCapacity: v.optional(v.object({
+      energyLevel: v.optional(energyLevel),
+      weeknightMinutes: v.optional(v.number()), // max time for weeknight cooking
+      weekendFlexibility: v.optional(v.boolean()), // more time on weekends?
+      batchCooking: v.optional(v.boolean()), // do they batch cook?
+    })),
+    // AI-generated summary for context injection (~200 words)
+    zyloNotes: v.optional(v.string()),
+    // Metadata
+    createdAt: v.string(), // ISO timestamp
+    updatedAt: v.string(), // ISO timestamp
+  }).index("by_user", ["userId"]),
+
+  // Onboarding conversations - tracks AI conversation during onboarding
+  onboardingConversations: defineTable({
+    userId: v.id("users"),
+    status: onboardingConversationStatus,
+    messages: v.array(v.object({
+      role: v.union(v.literal("user"), v.literal("assistant")),
+      content: v.string(),
+      timestamp: v.string(), // ISO timestamp
+    })),
+    // Extracted insights (populated during extraction phase)
+    extractedInsights: v.optional(v.object({
+      householdMembers: v.optional(v.array(v.object({
+        name: v.string(),
+        role: v.optional(v.string()), // parent, child, etc.
+        age: v.optional(v.number()),
+        dietaryNotes: v.optional(v.string()),
+      }))),
+      dietaryRestrictions: v.optional(v.array(v.string())),
+      healthConditions: v.optional(v.array(v.string())),
+      foodValues: v.optional(v.array(v.string())),
+      stores: v.optional(v.array(v.string())),
+      cookingNotes: v.optional(v.string()),
+    })),
+    startedAt: v.string(), // ISO timestamp
+    completedAt: v.optional(v.string()), // ISO timestamp
+  }).index("by_user", ["userId"]).index("by_status", ["status"]),
 
   // HouseholdMember - a person in the household
   householdMembers: defineTable({

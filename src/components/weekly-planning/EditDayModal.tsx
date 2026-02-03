@@ -38,6 +38,8 @@ export interface EditDayModalProps {
   isLoadingAlternatives?: boolean;
   /** Called when user enters a custom meal */
   onCustomMeal?: (mealName: string, effortTier: "super-easy" | "middle" | "more-prep") => void;
+  /** Called when user taps the current meal to view details */
+  onViewMealDetails?: () => void;
 }
 
 export function EditDayModal({
@@ -55,6 +57,7 @@ export function EditDayModal({
   onClose,
   isLoadingAlternatives = false,
   onCustomMeal,
+  onViewMealDetails,
 }: EditDayModalProps) {
   // Custom meal state
   const [customMealName, setCustomMealName] = useState("");
@@ -168,8 +171,9 @@ export function EditDayModal({
             >
               Current Meal
             </h3>
-            <div
-              className="p-4 rounded-xl"
+            <button
+              onClick={onViewMealDetails}
+              className="w-full text-left p-4 rounded-xl transition-all hover:opacity-90 active:scale-[0.99]"
               style={{
                 backgroundColor: "var(--color-primary-tint)",
                 border: "1px solid var(--color-primary)",
@@ -216,7 +220,13 @@ export function EditDayModal({
                   <span>{currentMeal.eaterIds.length} eating</span>
                 </div>
               </div>
-            </div>
+              <p
+                className="text-xs mt-2"
+                style={{ color: "var(--color-primary)" }}
+              >
+                Tap to see ingredients & directions →
+              </p>
+            </button>
           </div>
 
           {/* Change Cook */}
@@ -376,26 +386,32 @@ export function EditDayModal({
                 })}
               </div>
             ) : (
-              <div
-                className="p-4 rounded-xl text-center"
+              <button
+                onClick={onMoreOptions}
+                className="w-full p-4 rounded-xl text-center transition-all hover:opacity-90"
                 style={{
                   backgroundColor: "var(--color-bg)",
                   border: "1px dashed var(--color-border)",
                 }}
               >
+                <Sparkles
+                  size={20}
+                  className="mx-auto mb-1"
+                  style={{ color: "var(--color-primary)" }}
+                />
                 <p
                   className="text-sm font-medium"
-                  style={{ color: "var(--color-muted)" }}
+                  style={{ color: "var(--color-text)" }}
                 >
-                  No quick swap options available
+                  Tap to find alternatives
                 </p>
                 <p
                   className="text-xs mt-1"
                   style={{ color: "var(--color-muted)" }}
                 >
-                  Tap &quot;More options&quot; below to browse all meals or add your own
+                  Zylo will suggest meals similar to {currentMeal.mealName}
                 </p>
-              </div>
+              </button>
             )}
           </div>
 

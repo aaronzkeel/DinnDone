@@ -1,3 +1,17 @@
+/**
+ * Week Plans - Convex backend for weekly meal planning
+ *
+ * DATE UTILITY NOTE:
+ * This file contains duplicated date formatting logic (getMondayOfWeek, formatDateLocal)
+ * because Convex server code cannot import from src/lib. The canonical implementation
+ * is in src/lib/dateUtils.ts - if you need to modify the date logic, update dateUtils.ts
+ * first and then mirror the changes here.
+ *
+ * The duplicated logic appears in:
+ * - getCurrentWeekWithMeals (lines ~279-287)
+ * - getRecentMeals (lines ~349-354)
+ * - seedSampleWeekPlan (lines ~427-435)
+ */
 import { query, mutation } from "./_generated/server";
 import { v } from "convex/values";
 
@@ -286,27 +300,21 @@ export const getCurrentWeekWithMeals = query({
     const day = String(monday.getDate()).padStart(2, "0");
     const weekStart = `${year}-${month}-${day}`;
 
-    console.log("[getCurrentWeekWithMeals] today:", args.today, "calculated weekStart:", weekStart);
-
     // Get the week plan by exact match first
     let weekPlan = await ctx.db
       .query("weekPlans")
       .withIndex("by_week_start", (q) => q.eq("weekStart", weekStart))
       .first();
 
-    // If not found, list all week plans for debugging
+    // If not found by exact match, try to find a plan that contains today's date (fallback)
     if (!weekPlan) {
       const allPlans = await ctx.db.query("weekPlans").collect();
-      console.log("[getCurrentWeekWithMeals] No exact match. All weekPlans:", allPlans.map(p => ({ id: p._id, weekStart: p.weekStart })));
-
-      // Try to find a plan that contains today's date (fallback)
       for (const plan of allPlans) {
         const planStart = new Date(plan.weekStart + "T12:00:00");
         const planEnd = new Date(planStart);
         planEnd.setDate(planStart.getDate() + 6);
         const todayD = new Date(args.today + "T12:00:00");
         if (todayD >= planStart && todayD <= planEnd) {
-          console.log("[getCurrentWeekWithMeals] Found fallback plan:", plan.weekStart);
           weekPlan = plan;
           break;
         }
@@ -314,7 +322,6 @@ export const getCurrentWeekWithMeals = query({
     }
 
     if (!weekPlan) {
-      console.log("[getCurrentWeekWithMeals] No week plan found for this week");
       return null;
     }
 
@@ -324,11 +331,8 @@ export const getCurrentWeekWithMeals = query({
       .withIndex("by_week_plan", (q) => q.eq("weekPlanId", weekPlan._id))
       .collect();
 
-    console.log("[getCurrentWeekWithMeals] Found", meals.length, "meals. Dates:", meals.map(m => m.date));
-
     // Find today's meal
     const todayMeal = meals.find((m) => m.date === args.today);
-    console.log("[getCurrentWeekWithMeals] Today meal found:", todayMeal ? todayMeal.name : "NONE");
 
     return {
       weekPlan,
@@ -361,6 +365,37 @@ export const getRecentMeals = query({
     return recentMeals.map((meal) => ({
       name: meal.name,
       date: meal.date,
+    }));
+  },
+});
+
+// Update steps for a meal (for adding directions to meals that are missing them)
+export const updateMealSteps = mutation({
+  args: {
+    mealId: v.id("plannedMeals"),
+    steps: v.array(v.string()),
+  },
+  handler: async (ctx, args) => {
+    const meal = await ctx.db.get(args.mealId);
+    if (!meal) {
+      throw new Error("Meal not found");
+    }
+    await ctx.db.patch(args.mealId, { steps: args.steps });
+    return { success: true, mealName: meal.name };
+  },
+});
+
+// List all meals (for admin/debugging purposes)
+export const listAllMeals = query({
+  args: {},
+  handler: async (ctx) => {
+    const meals = await ctx.db.query("plannedMeals").collect();
+    return meals.map((meal) => ({
+      id: meal._id,
+      name: meal.name,
+      date: meal.date,
+      hasSteps: meal.steps && meal.steps.length > 0,
+      stepsCount: meal.steps?.length ?? 0,
     }));
   },
 });
