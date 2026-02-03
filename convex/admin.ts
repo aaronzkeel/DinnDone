@@ -4,6 +4,9 @@ import { mutation } from "./_generated/server";
  * Admin mutation to reset all data except household members.
  * Use this for fresh start scenarios or testing.
  *
+ * PROTECTED: This function is intended for development/testing only.
+ * Set ALLOW_SEED_DATA=true in Convex environment variables to enable.
+ *
  * Preserves: householdMembers
  * Wipes: stores, weekPlans, plannedMeals, groceryItems, pantryItems, notifications, recipes
  *        notificationPreferences, pushSubscriptions
@@ -11,6 +14,15 @@ import { mutation } from "./_generated/server";
 export const resetAllData = mutation({
   args: {},
   handler: async (ctx) => {
+    // Protect against production usage
+    // Set ALLOW_SEED_DATA=true in Convex environment variables for dev/test projects
+    const allowSeedData = process.env.ALLOW_SEED_DATA;
+    if (allowSeedData !== "true") {
+      throw new Error(
+        "Admin reset function is not available. Set ALLOW_SEED_DATA=true in Convex environment variables to enable."
+      );
+    }
+
     // Get all records from each table we want to wipe
     const stores = await ctx.db.query("stores").collect();
     const weekPlans = await ctx.db.query("weekPlans").collect();

@@ -22,6 +22,14 @@ import {
   getTodayDateString,
 } from "@/lib/meal-adapters";
 import { formatErrorForUser } from "@/lib/errorUtils";
+import {
+  CHAT_HISTORY_LIMIT,
+  CHAT_MAX_TOKENS,
+  CHAT_INVENTORY_MAX_TOKENS,
+  AI_CHAT_DEBOUNCE_MS,
+  GROCERY_LIST_PREVIEW_LIMIT,
+  MISSING_ITEMS_PREVIEW_LIMIT,
+} from "@/lib/constants";
 
 type ViewState = "home" | "details" | "swap" | "emergency" | "ingredients-check" | "missing-choice" | "swap-ingredients" | "inventory";
 
@@ -368,7 +376,7 @@ export default function Home() {
 
           if (trulyMissing.length > 0) {
             addZyloMessage(
-              `${result.zyloResponse || "Got it!"} Missing ${trulyMissing.length} item${trulyMissing.length > 1 ? "s" : ""}: ${trulyMissing.slice(0, 5).join(", ")}${trulyMissing.length > 5 ? "..." : ""}. Want me to add them to your grocery list?`
+              `${result.zyloResponse || "Got it!"} Missing ${trulyMissing.length} item${trulyMissing.length > 1 ? "s" : ""}: ${trulyMissing.slice(0, MISSING_ITEMS_PREVIEW_LIMIT).join(", ")}${trulyMissing.length > MISSING_ITEMS_PREVIEW_LIMIT ? "..." : ""}. Want me to add them to your grocery list?`
             );
           } else if ((result.missingItems || []).length > 0) {
             // Items were identified as missing but they're already on the list
@@ -392,7 +400,7 @@ Be concise (2-3 sentences per suggestion). Focus on simple, family-friendly meal
             { role: "system", content: systemPrompt },
             { role: "user", content: `Here's what I have: ${notes}` },
           ],
-          maxTokens: 400,
+          maxTokens: CHAT_INVENTORY_MAX_TOKENS,
         });
 
         if (result.success && result.content) {
@@ -411,7 +419,6 @@ Be concise (2-3 sentences per suggestion). Focus on simple, family-friendly meal
 
   // Debounced ref for AI chat to prevent spam
   const lastAiChatCallRef = useRef<number>(0);
-  const AI_CHAT_DEBOUNCE_MS = 1000;
 
   const handleSendMessage = async (content: string) => {
     // Add user message
@@ -520,7 +527,7 @@ Ingredients: ${tonightMeal.ingredients.map((ing) => ing.name).join(", ")}`
       // Build grocery list context
       const uncheckedGroceryItems = (groceryListData || []).filter((item) => !item.isChecked);
       const groceryContext = uncheckedGroceryItems.length > 0
-        ? `\nGrocery list (${uncheckedGroceryItems.length} items): ${uncheckedGroceryItems.slice(0, 15).map((i) => i.name).join(", ")}${uncheckedGroceryItems.length > 15 ? "..." : ""}`
+        ? `\nGrocery list (${uncheckedGroceryItems.length} items): ${uncheckedGroceryItems.slice(0, GROCERY_LIST_PREVIEW_LIMIT).map((i) => i.name).join(", ")}${uncheckedGroceryItems.length > GROCERY_LIST_PREVIEW_LIMIT ? "..." : ""}`
         : "\nGrocery list is empty.";
 
       const systemPrompt = `You are Zylo, a warm and supportive meal planning assistant for the DinnDone app.
@@ -541,8 +548,8 @@ You can help with:
 
 If asked about something not in the data above, say you don't have that information.`;
 
-      // Build conversation history for AI (last 10 messages for context)
-      const recentMessages = messages.slice(-10);
+      // Build conversation history for AI (limited messages for context and token efficiency)
+      const recentMessages = messages.slice(-CHAT_HISTORY_LIMIT);
       const aiMessages: Array<{ role: "system" | "user" | "assistant"; content: string }> = [
         { role: "system", content: systemPrompt },
         ...recentMessages.map((m) => ({
@@ -552,7 +559,7 @@ If asked about something not in the data above, say you don't have that informat
         { role: "user", content },
       ];
 
-      const result = await chatWithAi({ messages: aiMessages, maxTokens: 300 });
+      const result = await chatWithAi({ messages: aiMessages, maxTokens: CHAT_MAX_TOKENS });
 
       if (result.success && result.content) {
         addZyloMessage(result.content);

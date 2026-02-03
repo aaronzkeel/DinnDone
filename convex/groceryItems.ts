@@ -1,6 +1,11 @@
 import { v } from "convex/values";
 import { query, mutation } from "./_generated/server";
 
+// Input validation constants
+const MAX_ITEM_NAME_LENGTH = 200;
+const MAX_QUANTITY_LENGTH = 100;
+const MAX_CATEGORY_LENGTH = 100;
+
 // Check if an item with the same name already exists (case-insensitive)
 export const findDuplicate = query({
   args: { name: v.string() },
@@ -36,6 +41,11 @@ export const mergeQuantity = mutation({
     additionalQuantity: v.string(),
   },
   handler: async (ctx, args) => {
+    // Input validation to prevent abuse
+    if (args.additionalQuantity.length > MAX_QUANTITY_LENGTH) {
+      throw new Error(`Quantity must be ${MAX_QUANTITY_LENGTH} characters or less`);
+    }
+
     const item = await ctx.db.get(args.id);
     if (!item) throw new Error("Item not found");
 
@@ -165,6 +175,17 @@ export const add = mutation({
     weekPlanId: v.optional(v.id("weekPlans")),
   },
   handler: async (ctx, args) => {
+    // Input validation to prevent abuse
+    if (args.name.length > MAX_ITEM_NAME_LENGTH) {
+      throw new Error(`Item name must be ${MAX_ITEM_NAME_LENGTH} characters or less`);
+    }
+    if (args.quantity && args.quantity.length > MAX_QUANTITY_LENGTH) {
+      throw new Error(`Quantity must be ${MAX_QUANTITY_LENGTH} characters or less`);
+    }
+    if (args.category.length > MAX_CATEGORY_LENGTH) {
+      throw new Error(`Category must be ${MAX_CATEGORY_LENGTH} characters or less`);
+    }
+
     let maxOrder = 0;
 
     // Get existing items to determine sortOrder
@@ -222,6 +243,17 @@ export const update = mutation({
     isOrganic: v.optional(v.boolean()),
   },
   handler: async (ctx, args) => {
+    // Input validation to prevent abuse
+    if (args.name !== undefined && args.name.length > MAX_ITEM_NAME_LENGTH) {
+      throw new Error(`Item name must be ${MAX_ITEM_NAME_LENGTH} characters or less`);
+    }
+    if (args.quantity !== undefined && args.quantity.length > MAX_QUANTITY_LENGTH) {
+      throw new Error(`Quantity must be ${MAX_QUANTITY_LENGTH} characters or less`);
+    }
+    if (args.category !== undefined && args.category.length > MAX_CATEGORY_LENGTH) {
+      throw new Error(`Category must be ${MAX_CATEGORY_LENGTH} characters or less`);
+    }
+
     const { id, ...updates } = args;
     // Filter out undefined values
     const filteredUpdates = Object.fromEntries(

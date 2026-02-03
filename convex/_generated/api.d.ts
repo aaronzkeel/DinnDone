@@ -12,6 +12,7 @@ import type * as admin from "../admin.js";
 import type * as ai from "../ai.js";
 import type * as aiContext from "../aiContext.js";
 import type * as aiOnboarding from "../aiOnboarding.js";
+import type * as aiPrompts from "../aiPrompts.js";
 import type * as auth from "../auth.js";
 import type * as familyProfile from "../familyProfile.js";
 import type * as groceryItems from "../groceryItems.js";
@@ -38,6 +39,7 @@ declare const fullApi: ApiFromModules<{
   ai: typeof ai;
   aiContext: typeof aiContext;
   aiOnboarding: typeof aiOnboarding;
+  aiPrompts: typeof aiPrompts;
   auth: typeof auth;
   familyProfile: typeof familyProfile;
   groceryItems: typeof groceryItems;

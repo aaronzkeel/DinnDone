@@ -12,6 +12,7 @@ import {
   ChefHat,
 } from "lucide-react";
 import type { Notification, NotificationCardProps } from "@/types/notifications";
+import { MESSAGE_TRUNCATE_LENGTH } from "@/lib/constants";
 
 const typeIcons: Record<Notification["type"], typeof Sun> = {
   "daily-brief": Sun,
@@ -59,9 +60,6 @@ function formatTime(timestamp: string): string {
   if (diffDays === 1) return "Yesterday";
   return `${diffDays}d ago`;
 }
-
-// Threshold for truncation (characters)
-const MESSAGE_TRUNCATE_LENGTH = 120;
 
 export function NotificationCard({ notification, onAction }: NotificationCardProps) {
   const [isExpanded, setIsExpanded] = useState(false);

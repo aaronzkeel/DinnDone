@@ -16,6 +16,13 @@ import {
   cleanupRatingReverseMap,
 } from "@/lib/meal-adapters";
 import { formatErrorForUser } from "@/lib/errorUtils";
+import {
+  RECENT_MEALS_LOOKBACK_DAYS,
+  CHAT_DISCUSS_MAX_TOKENS,
+  SUGGEST_ALTERNATIVES_DEBOUNCE_MS,
+  GENERATE_PLAN_DEBOUNCE_MS,
+  QUICK_PLAN_DEBOUNCE_MS,
+} from "@/lib/constants";
 import type {
   PlannedMeal,
   MealAlternative,
@@ -122,7 +129,7 @@ export function useWeekPlanData(): WeekPlanDataResult {
     selectedWeekId ? { id: selectedWeekId as Id<"weekPlans"> } : "skip"
   );
   const recipesData = useQuery(api.recipes.list);
-  const recentMealsData = useQuery(api.weekPlans.getRecentMeals, { daysBack: 14 });
+  const recentMealsData = useQuery(api.weekPlans.getRecentMeals, { daysBack: RECENT_MEALS_LOOKBACK_DAYS });
   const groceryItemsData = useQuery(
     api.groceryItems.listByWeekPlan,
     selectedWeekId ? { weekPlanId: selectedWeekId as Id<"weekPlans"> } : "skip"
@@ -378,9 +385,6 @@ export function usePlanningAI(props: UsePlanningAIProps): PlanningAIResult {
   const lastSuggestCallRef = useRef<number>(0);
   const lastGenerateCallRef = useRef<number>(0);
   const lastQuickPlanCallRef = useRef<number>(0);
-  const SUGGEST_DEBOUNCE_MS = 1500;
-  const GENERATE_DEBOUNCE_MS = 2000;
-  const QUICK_PLAN_DEBOUNCE_MS = 2000;
 
   // Handle quick plan generation
   const handleQuickPlan = useCallback(async () => {
@@ -715,7 +719,7 @@ Keep responses SHORT (1-3 sentences). Be warm and empathetic. Don't suggest spec
           }
           aiMessages.push({ role: "user", content });
 
-          const result = await aiChat({ messages: aiMessages, maxTokens: 150 });
+          const result = await aiChat({ messages: aiMessages, maxTokens: CHAT_DISCUSS_MAX_TOKENS });
 
           if (result.success && result.content) {
             addMessage("zylo", result.content);
@@ -817,7 +821,7 @@ Keep responses SHORT (1-3 sentences). Be warm and empathetic. Don't suggest spec
       if (!selectedWeekPlan) return;
 
       const now = Date.now();
-      if (now - lastSuggestCallRef.current < SUGGEST_DEBOUNCE_MS) {
+      if (now - lastSuggestCallRef.current < SUGGEST_ALTERNATIVES_DEBOUNCE_MS) {
         return;
       }
       lastSuggestCallRef.current = now;
@@ -864,7 +868,7 @@ Keep responses SHORT (1-3 sentences). Be warm and empathetic. Don't suggest spec
     if (!selectedWeekPlan) return;
 
     const now = Date.now();
-    if (now - lastGenerateCallRef.current < GENERATE_DEBOUNCE_MS) {
+    if (now - lastGenerateCallRef.current < GENERATE_PLAN_DEBOUNCE_MS) {
       return;
     }
     lastGenerateCallRef.current = now;

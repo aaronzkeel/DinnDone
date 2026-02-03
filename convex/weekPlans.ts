@@ -128,6 +128,12 @@ export const updateStatus = mutation({
   },
 });
 
+// Input validation constants
+const MAX_MEAL_NAME_LENGTH = 200;
+const MAX_INGREDIENT_NAME_LENGTH = 200;
+const MAX_STEP_LENGTH = 1000;
+const MAX_QUANTITY_LENGTH = 100;
+
 // Add a meal to a week plan
 export const addMeal = mutation({
   args: {
@@ -152,6 +158,24 @@ export const addMeal = mutation({
     isFlexMeal: v.optional(v.boolean()),
   },
   handler: async (ctx, args) => {
+    // Input validation to prevent abuse
+    if (args.name.length > MAX_MEAL_NAME_LENGTH) {
+      throw new Error(`Meal name must be ${MAX_MEAL_NAME_LENGTH} characters or less`);
+    }
+    for (const ingredient of args.ingredients) {
+      if (ingredient.name.length > MAX_INGREDIENT_NAME_LENGTH) {
+        throw new Error(`Ingredient name must be ${MAX_INGREDIENT_NAME_LENGTH} characters or less`);
+      }
+      if (ingredient.quantity.length > MAX_QUANTITY_LENGTH) {
+        throw new Error(`Ingredient quantity must be ${MAX_QUANTITY_LENGTH} characters or less`);
+      }
+    }
+    for (const step of args.steps) {
+      if (step.length > MAX_STEP_LENGTH) {
+        throw new Error(`Step must be ${MAX_STEP_LENGTH} characters or less`);
+      }
+    }
+
     const id = await ctx.db.insert("plannedMeals", {
       weekPlanId: args.weekPlanId,
       date: args.date,
@@ -195,6 +219,28 @@ export const updateMeal = mutation({
     isFlexMeal: v.optional(v.boolean()),
   },
   handler: async (ctx, args) => {
+    // Input validation to prevent abuse
+    if (args.name !== undefined && args.name.length > MAX_MEAL_NAME_LENGTH) {
+      throw new Error(`Meal name must be ${MAX_MEAL_NAME_LENGTH} characters or less`);
+    }
+    if (args.ingredients) {
+      for (const ingredient of args.ingredients) {
+        if (ingredient.name.length > MAX_INGREDIENT_NAME_LENGTH) {
+          throw new Error(`Ingredient name must be ${MAX_INGREDIENT_NAME_LENGTH} characters or less`);
+        }
+        if (ingredient.quantity.length > MAX_QUANTITY_LENGTH) {
+          throw new Error(`Ingredient quantity must be ${MAX_QUANTITY_LENGTH} characters or less`);
+        }
+      }
+    }
+    if (args.steps) {
+      for (const step of args.steps) {
+        if (step.length > MAX_STEP_LENGTH) {
+          throw new Error(`Step must be ${MAX_STEP_LENGTH} characters or less`);
+        }
+      }
+    }
+
     const { id, ...updates } = args;
     // Filter out undefined values
     const cleanUpdates = Object.fromEntries(
@@ -401,9 +447,19 @@ export const listAllMeals = query({
 });
 
 // Seed a sample week plan with meals for testing
+// PROTECTED: This function is intended for development/testing only
 export const seedSampleWeekPlan = mutation({
   args: {},
   handler: async (ctx) => {
+    // Protect against production usage
+    // Set ALLOW_SEED_DATA=true in Convex environment variables for dev/test projects
+    const allowSeedData = process.env.ALLOW_SEED_DATA;
+    if (allowSeedData !== "true") {
+      throw new Error(
+        "Seed function is not available. Set ALLOW_SEED_DATA=true in Convex environment variables to enable."
+      );
+    }
+
     // Check if a week plan already exists
     const existingPlans = await ctx.db.query("weekPlans").collect();
     if (existingPlans.length > 0) {

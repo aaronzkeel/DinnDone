@@ -3,12 +3,45 @@
 import { action } from "./_generated/server";
 import { v } from "convex/values";
 import { internal } from "./_generated/api";
+import {
+  buildWeekPlanSystemPrompt,
+  buildAlternativesSystemPrompt,
+  buildMealUpdateSystemPrompt,
+  buildKeepMealsContext,
+  buildRecipeLibraryContext,
+  buildRecentMealsContext,
+  cleanJsonResponse,
+} from "./aiPrompts";
 
 // OpenRouter API endpoint
 const OPENROUTER_API_URL = "https://openrouter.ai/api/v1/chat/completions";
 
 // Default model as specified in the product plan
 const DEFAULT_MODEL = "google/gemini-2.0-flash-001";
+
+// ============================================================================
+// AI Token Limits
+// Note: These mirror values in src/lib/constants.ts but can't be imported here
+// because Convex actions run in a separate environment.
+// ============================================================================
+
+/** Default max tokens for chat responses (general fallback) */
+const DEFAULT_CHAT_MAX_TOKENS = 500;
+
+/** Max tokens for meal alternative suggestions (needs room for 3 detailed meals) */
+const ALTERNATIVES_MAX_TOKENS = 1500;
+
+/** Max tokens for full week plan generation (7 detailed meals) */
+const WEEK_PLAN_MAX_TOKENS = 2000;
+
+/** Max tokens for pantry analysis responses */
+const PANTRY_ANALYSIS_MAX_TOKENS = 400;
+
+/** Max tokens for meal update from chat */
+const MEAL_UPDATE_MAX_TOKENS = 600;
+
+/** Max tokens for connection test (brief response only) */
+const TEST_CONNECTION_MAX_TOKENS = 100;
 
 
 interface OpenRouterMessage {
@@ -92,7 +125,7 @@ export const testConnection = action({
         body: JSON.stringify({
           model: DEFAULT_MODEL,
           messages,
-          max_tokens: 100,
+          max_tokens: TEST_CONNECTION_MAX_TOKENS,
         }),
       });
 
@@ -197,7 +230,7 @@ export const chat = action({
         body: JSON.stringify({
           model: DEFAULT_MODEL,
           messages,
-          max_tokens: maxTokens ?? 500,
+          max_tokens: maxTokens ?? DEFAULT_CHAT_MAX_TOKENS,
         }),
       });
 
@@ -300,38 +333,9 @@ export const suggestAlternatives = action({
       };
     }
 
-    const excludeList = excludeMeals?.length
-      ? `\nDo NOT suggest these meals (already in plan): ${excludeMeals.join(", ")}`
-      : "";
-
-    const systemPrompt = `You are Zylo, a meal planning assistant. Suggest 3 alternative dinner options.
-Return ONLY valid JSON in this exact format (no markdown, no explanation):
-{
-  "alternatives": [
-    {
-      "mealName": "Example Meal",
-      "effortTier": "super-easy",
-      "prepTime": 10,
-      "cookTime": 20,
-      "cleanupRating": "low",
-      "briefDescription": "A quick and easy option",
-      "isFlexMeal": true,
-      "ingredients": ["Ingredient 1", "Ingredient 2", "Ingredient 3"],
-      "steps": ["Step 1: Do this", "Step 2: Do that", "Step 3: Serve"]
-    }
-  ]
-}
-
-Rules:
-- effortTier must be exactly: "super-easy", "middle", or "more-prep"
-- cleanupRating must be exactly: "low", "medium", or "high"
-- prepTime and cookTime are in minutes
-- briefDescription should be 1 short sentence (under 60 chars)
-- ingredients should be an array of ingredient names (4-8 items, just names, no quantities)
-- steps should be an array of cooking instructions (3-6 concise steps)
-- Provide variety: one easy, one medium, one more involved option
-- Suggest family-friendly, common meals people actually cook
-- Consider similar cuisine or ingredients to the current meal${excludeList}`;
+    const systemPrompt = buildAlternativesSystemPrompt({
+      excludeMeals: excludeMeals,
+    });
 
     const userPrompt = `Current meal: "${currentMealName}"
 ${effortPreference ? `Preference: ${effortPreference}` : "No effort preference."}
@@ -353,7 +357,7 @@ Suggest 3 alternative dinners that could replace this meal.`;
             { role: "system", content: systemPrompt },
             { role: "user", content: userPrompt },
           ],
-          max_tokens: 1500,
+          max_tokens: ALTERNATIVES_MAX_TOKENS,
         }),
       });
 
@@ -375,13 +379,9 @@ Suggest 3 alternative dinners that could replace this meal.`;
       }
 
       const content = data.choices[0].message.content;
+      const cleanedContent = cleanJsonResponse(content);
 
       try {
-        const cleanedContent = content
-          .replace(/```json\n?/g, "")
-          .replace(/```\n?/g, "")
-          .trim();
-
         const parsed = JSON.parse(cleanedContent) as {
           alternatives: Array<{
             mealName: string;
@@ -512,35 +512,11 @@ export const generateWeekPlan = action({
       return date.toISOString().split("T")[0];
     });
 
-    const systemPrompt = `You are Zylo, a meal planning assistant. Generate a 7-day dinner plan for a family.
-Return ONLY valid JSON in this exact format (no markdown, no explanation):
-{
-  "meals": [
-    {
-      "dayOfWeek": "Monday",
-      "date": "${dates[0]}",
-      "mealName": "Example Meal",
-      "effortTier": "super-easy",
-      "prepTime": 10,
-      "cookTime": 20,
-      "cleanupRating": "low",
-      "ingredients": ["ingredient1", "ingredient2"],
-      "steps": ["Step 1: Do this", "Step 2: Do that", "Step 3: Serve"],
-      "isFlexMeal": false
-    }
-  ]
-}
-
-Rules:
-- effortTier must be exactly: "super-easy", "middle", or "more-prep"
-- cleanupRating must be exactly: "low", "medium", or "high"
-- Include 3-8 main ingredients per meal
-- Include 3-6 clear, concise cooking steps for each meal
-- prepTime and cookTime are in minutes
-- Mix effort levels: more easy meals during weekdays, allow more prep on weekends
-- Mark 2-3 meals as isFlexMeal: true (easy to swap or make quick adjustments)
-- IMPORTANT: Follow 80/20 rule - 5-6 meals should be familiar family favorites (tacos, spaghetti, grilled chicken, stir fry, etc.), only 1-2 should be new or adventurous ideas
-- Make meals family-friendly and varied throughout the week`;
+    const systemPrompt = buildWeekPlanSystemPrompt({
+      sampleDate: dates[0],
+      includeRecipeLibraryField: false,
+      isQuickPlan: false,
+    });
 
     const userPrompt = `Generate a 7-day dinner plan for ${householdSize} people.
 Week starting: ${weekStartDate}
@@ -564,7 +540,7 @@ Use these exact dates: ${dates.join(", ")}`;
             { role: "system", content: systemPrompt },
             { role: "user", content: userPrompt },
           ],
-          max_tokens: 2000,
+          max_tokens: WEEK_PLAN_MAX_TOKENS,
         }),
       });
 
@@ -586,15 +562,9 @@ Use these exact dates: ${dates.join(", ")}`;
       }
 
       const content = data.choices[0].message.content;
+      const cleanedContent = cleanJsonResponse(content);
 
-      // Parse the JSON response
       try {
-        // Remove potential markdown code blocks
-        const cleanedContent = content
-          .replace(/```json\n?/g, "")
-          .replace(/```\n?/g, "")
-          .trim();
-
         const parsed = JSON.parse(cleanedContent) as {
           meals: Array<{
             dayOfWeek: string;
@@ -755,53 +725,21 @@ export const quickGeneratePlan = action({
 
     // Build context about existing meals to keep
     const mealsToKeep = existingMeals.filter((m) => m.keep);
-    const keepContext =
-      mealsToKeep.length > 0
-        ? `\nKEEP these existing meals (do not replace):\n${mealsToKeep.map((m) => `- ${m.date}: ${m.mealName}`).join("\n")}`
-        : "";
+    const keepContext = buildKeepMealsContext(mealsToKeep);
 
     // Build recipe library context
-    const recipeContext =
-      savedRecipes.length > 0
-        ? `\nSaved recipes (prefer these, use ~80% from this list):\n${savedRecipes.map((r) => `- ${r.name}`).join("\n")}`
-        : "";
+    const recipeContext = buildRecipeLibraryContext(savedRecipes);
 
     // Build recent meals context for variety
     const recentMealNames = recentMeals.map((m) => m.name);
-    const varietyContext =
-      recentMealNames.length > 0
-        ? `\nAvoid exact repeats of these recent meals (past 2 weeks):\n${recentMealNames.join(", ")}`
-        : "";
+    const varietyContext = buildRecentMealsContext(recentMealNames);
 
-    const systemPrompt = `You are Zylo, a meal planning assistant. Generate a quick 7-day dinner plan.
-Return ONLY valid JSON in this exact format (no markdown, no explanation):
-{
-  "meals": [
-    {
-      "dayOfWeek": "Monday",
-      "date": "${dates[0]}",
-      "mealName": "Example Meal",
-      "effortTier": "super-easy",
-      "prepTime": 10,
-      "cookTime": 20,
-      "cleanupRating": "low",
-      "ingredients": ["ingredient1", "ingredient2"],
-      "steps": ["Step 1: Do this", "Step 2: Do that", "Step 3: Serve"],
-      "isFlexMeal": false,
-      "fromRecipeLibrary": true
-    }
-  ]
-}
-
-Rules:
-- effortTier must be exactly: "super-easy", "middle", or "more-prep"
-- cleanupRating must be exactly: "low", "medium", or "high"
-- Include 3-8 main ingredients per meal
-- Include 3-6 clear, concise cooking steps for each meal
-- prepTime and cookTime are in minutes
-- fromRecipeLibrary: true if meal name matches a saved recipe, false if new suggestion
-- Mix effort levels: more easy meals during weekdays
-- Mark 2-3 meals as isFlexMeal: true${keepContext}${recipeContext}${varietyContext}`;
+    const systemPrompt = buildWeekPlanSystemPrompt({
+      sampleDate: dates[0],
+      includeRecipeLibraryField: true,
+      isQuickPlan: true,
+      additionalContext: keepContext + recipeContext + varietyContext,
+    });
 
     const userPrompt = `Generate a 7-day dinner plan for ${householdSize} people.
 Week starting: ${weekStartDate}
@@ -824,7 +762,7 @@ Quick plan - use sensible family-friendly defaults.`;
             { role: "system", content: systemPrompt },
             { role: "user", content: userPrompt },
           ],
-          max_tokens: 2000,
+          max_tokens: WEEK_PLAN_MAX_TOKENS,
         }),
       });
 
@@ -846,44 +784,48 @@ Quick plan - use sensible family-friendly defaults.`;
       }
 
       const content = data.choices[0].message.content;
-      const cleanedContent = content
-        .replace(/```json\n?/g, "")
-        .replace(/```\n?/g, "")
-        .trim();
+      const cleanedContent = cleanJsonResponse(content);
 
-      const parsed = JSON.parse(cleanedContent) as {
-        meals: Array<{
-          dayOfWeek: string;
-          date: string;
-          mealName: string;
-          effortTier: "super-easy" | "middle" | "more-prep";
-          prepTime: number;
-          cookTime: number;
-          cleanupRating: "low" | "medium" | "high";
-          ingredients: string[];
-          steps?: string[];
-          isFlexMeal: boolean;
-          fromRecipeLibrary: boolean;
-        }>;
-      };
+      try {
+        const parsed = JSON.parse(cleanedContent) as {
+          meals: Array<{
+            dayOfWeek: string;
+            date: string;
+            mealName: string;
+            effortTier: "super-easy" | "middle" | "more-prep";
+            prepTime: number;
+            cookTime: number;
+            cleanupRating: "low" | "medium" | "high";
+            ingredients: string[];
+            steps?: string[];
+            isFlexMeal: boolean;
+            fromRecipeLibrary: boolean;
+          }>;
+        };
 
-      if (!parsed.meals || !Array.isArray(parsed.meals)) {
+        if (!parsed.meals || !Array.isArray(parsed.meals)) {
+          return {
+            success: false,
+            error: "Invalid response format: missing meals array",
+          };
+        }
+
+        // Ensure steps array exists (default to empty if AI didn't provide)
+        const mealsWithSteps = parsed.meals.map((meal) => ({
+          ...meal,
+          steps: meal.steps || [],
+        }));
+
+        return {
+          success: true,
+          meals: mealsWithSteps,
+        };
+      } catch (parseError) {
         return {
           success: false,
-          error: "Invalid response format: missing meals array",
+          error: `Failed to parse AI response: ${parseError instanceof Error ? parseError.message : String(parseError)}`,
         };
       }
-
-      // Ensure steps array exists (default to empty if AI didn't provide)
-      const mealsWithSteps = parsed.meals.map((meal) => ({
-        ...meal,
-        steps: meal.steps || [],
-      }));
-
-      return {
-        success: true,
-        meals: mealsWithSteps,
-      };
     } catch (error) {
       return {
         success: false,
@@ -1020,52 +962,24 @@ export const generatePlanWithConversation = action({
 
     // Build context about existing meals to keep
     const mealsToKeep = existingMeals.filter((m) => m.keep);
-    const keepContext =
-      mealsToKeep.length > 0
-        ? `\nKEEP these existing meals:\n${mealsToKeep.map((m) => `- ${m.date}: ${m.mealName}`).join("\n")}`
-        : "";
+    const keepContext = buildKeepMealsContext(mealsToKeep);
 
     // Build recipe library context
-    const recipeContext =
-      savedRecipes.length > 0
-        ? `\nSaved recipes (prefer these):\n${savedRecipes.map((r) => `- ${r.name}`).join("\n")}`
-        : "";
+    const recipeContext = buildRecipeLibraryContext(savedRecipes, "prefer these");
 
     // Build recent meals context for variety
     const recentMealNames = recentMeals.map((m) => m.name);
-    const varietyContext =
-      recentMealNames.length > 0
-        ? `\nAvoid exact repeats:\n${recentMealNames.join(", ")}`
-        : "";
+    const varietyContext = buildRecentMealsContext(recentMealNames);
 
-    const systemPrompt = `You are Zylo, a meal planning assistant. Generate a 7-day dinner plan based on the conversation.
-Return ONLY valid JSON in this exact format (no markdown, no explanation):
-{
-  "meals": [
-    {
-      "dayOfWeek": "Monday",
-      "date": "${dates[0]}",
-      "mealName": "Example Meal",
-      "effortTier": "super-easy",
-      "prepTime": 10,
-      "cookTime": 20,
-      "cleanupRating": "low",
-      "ingredients": ["ingredient1", "ingredient2"],
-      "steps": ["Step 1: Do this", "Step 2: Do that", "Step 3: Serve"],
-      "isFlexMeal": false,
-      "fromRecipeLibrary": true
-    }
-  ]
-}
-
-Rules:
-- effortTier: "super-easy", "middle", or "more-prep"
-- cleanupRating: "low", "medium", or "high"
-- Include 3-8 main ingredients per meal
-- Include 3-6 clear, concise cooking steps for each meal
-- prepTime and cookTime in minutes
-- fromRecipeLibrary: true if from saved recipes
-- IMPORTANT: Follow what the user discussed in conversation (busy nights, energy levels, preferences)${keepContext}${recipeContext}${varietyContext}`;
+    const systemPrompt = buildWeekPlanSystemPrompt({
+      sampleDate: dates[0],
+      includeRecipeLibraryField: true,
+      isQuickPlan: false,
+      additionalContext: keepContext + recipeContext + varietyContext,
+      customRules: [
+        "- IMPORTANT: Follow what the user discussed in conversation (busy nights, energy levels, preferences)",
+      ],
+    });
 
     const userPrompt = `CONVERSATION CONTEXT:
 ${conversationSummary}
@@ -1090,7 +1004,7 @@ Use these exact dates: ${dates.join(", ")}`;
             { role: "system", content: systemPrompt },
             { role: "user", content: userPrompt },
           ],
-          max_tokens: 2000,
+          max_tokens: WEEK_PLAN_MAX_TOKENS,
         }),
       });
 
@@ -1112,44 +1026,48 @@ Use these exact dates: ${dates.join(", ")}`;
       }
 
       const content = data.choices[0].message.content;
-      const cleanedContent = content
-        .replace(/```json\n?/g, "")
-        .replace(/```\n?/g, "")
-        .trim();
+      const cleanedContent = cleanJsonResponse(content);
 
-      const parsed = JSON.parse(cleanedContent) as {
-        meals: Array<{
-          dayOfWeek: string;
-          date: string;
-          mealName: string;
-          effortTier: "super-easy" | "middle" | "more-prep";
-          prepTime: number;
-          cookTime: number;
-          cleanupRating: "low" | "medium" | "high";
-          ingredients: string[];
-          steps?: string[];
-          isFlexMeal: boolean;
-          fromRecipeLibrary: boolean;
-        }>;
-      };
+      try {
+        const parsed = JSON.parse(cleanedContent) as {
+          meals: Array<{
+            dayOfWeek: string;
+            date: string;
+            mealName: string;
+            effortTier: "super-easy" | "middle" | "more-prep";
+            prepTime: number;
+            cookTime: number;
+            cleanupRating: "low" | "medium" | "high";
+            ingredients: string[];
+            steps?: string[];
+            isFlexMeal: boolean;
+            fromRecipeLibrary: boolean;
+          }>;
+        };
 
-      if (!parsed.meals || !Array.isArray(parsed.meals)) {
+        if (!parsed.meals || !Array.isArray(parsed.meals)) {
+          return {
+            success: false,
+            error: "Invalid response format: missing meals array",
+          };
+        }
+
+        // Ensure steps array exists (default to empty if AI didn't provide)
+        const mealsWithSteps = parsed.meals.map((meal) => ({
+          ...meal,
+          steps: meal.steps || [],
+        }));
+
+        return {
+          success: true,
+          meals: mealsWithSteps,
+        };
+      } catch (parseError) {
         return {
           success: false,
-          error: "Invalid response format: missing meals array",
+          error: `Failed to parse AI response: ${parseError instanceof Error ? parseError.message : String(parseError)}`,
         };
       }
-
-      // Ensure steps array exists (default to empty if AI didn't provide)
-      const mealsWithSteps = parsed.meals.map((meal) => ({
-        ...meal,
-        steps: meal.steps || [],
-      }));
-
-      return {
-        success: true,
-        meals: mealsWithSteps,
-      };
     } catch (error) {
       return {
         success: false,
@@ -1230,7 +1148,7 @@ ${neededIngredients.join(", ")}`;
             { role: "system", content: systemPrompt },
             { role: "user", content: userPrompt },
           ],
-          max_tokens: 400,
+          max_tokens: PANTRY_ANALYSIS_MAX_TOKENS,
         }),
       });
 
@@ -1252,10 +1170,7 @@ ${neededIngredients.join(", ")}`;
       }
 
       const content = data.choices[0].message.content;
-      const cleanedContent = content
-        .replace(/```json\n?/g, "")
-        .replace(/```\n?/g, "")
-        .trim();
+      const cleanedContent = cleanJsonResponse(content);
 
       const parsed = JSON.parse(cleanedContent) as {
         missingItems: string[];
@@ -1349,34 +1264,8 @@ export const updateMealFromChat = action({
       };
     }
 
-    const recipeContext =
-      savedRecipes.length > 0
-        ? `\nSaved recipes (prefer if matching):\n${savedRecipes.map((r) => `- ${r.name}`).join("\n")}`
-        : "";
-
-    const systemPrompt = `You are Zylo, a meal planning assistant. Update a meal based on the user's instruction.
-Return ONLY valid JSON in this exact format (no markdown, no explanation):
-{
-  "updatedMeal": {
-    "mealName": "New Meal Name",
-    "effortTier": "super-easy",
-    "prepTime": 10,
-    "cookTime": 20,
-    "cleanupRating": "low",
-    "ingredients": ["ingredient1", "ingredient2"],
-    "isFlexMeal": false,
-    "fromRecipeLibrary": false
-  },
-  "zyloResponse": "Done! I changed Wednesday to Leftover Night."
-}
-
-Rules:
-- effortTier: "super-easy", "middle", or "more-prep"
-- cleanupRating: "low", "medium", or "high"
-- For "leftovers" or "leftover night": use effortTier "super-easy", prepTime 5, cookTime 10, cleanupRating "low", ingredients ["various leftovers"]
-- For "takeout" or "delivery": use effortTier "super-easy", prepTime 0, cookTime 0, cleanupRating "low", ingredients ["order out"]
-- fromRecipeLibrary: true if meal name matches a saved recipe
-- zyloResponse should be a short, friendly confirmation${recipeContext}`;
+    const recipeContext = buildRecipeLibraryContext(savedRecipes, "prefer if matching");
+    const systemPrompt = buildMealUpdateSystemPrompt(recipeContext);
 
     const userPrompt = `Current meal on ${dayOfWeek} (${date}): "${currentMealName}"
 User instruction: "${instruction}"
@@ -1398,7 +1287,7 @@ Generate the updated meal.`;
             { role: "system", content: systemPrompt },
             { role: "user", content: userPrompt },
           ],
-          max_tokens: 600,
+          max_tokens: MEAL_UPDATE_MAX_TOKENS,
         }),
       });
 
@@ -1420,10 +1309,7 @@ Generate the updated meal.`;
       }
 
       const content = data.choices[0].message.content;
-      const cleanedContent = content
-        .replace(/```json\n?/g, "")
-        .replace(/```\n?/g, "")
-        .trim();
+      const cleanedContent = cleanJsonResponse(content);
 
       const parsed = JSON.parse(cleanedContent) as {
         updatedMeal: {
