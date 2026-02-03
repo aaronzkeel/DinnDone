@@ -84,9 +84,10 @@ export const STEP_RULES = `
 export function buildMealJsonSchema(options: {
   includeRecipeLibraryField?: boolean;
   includeDayAndDate?: boolean;
+  includeBriefDescription?: boolean;
   sampleDate?: string;
 }): string {
-  const { includeRecipeLibraryField, includeDayAndDate, sampleDate } = options;
+  const { includeRecipeLibraryField, includeDayAndDate, includeBriefDescription, sampleDate } = options;
 
   const mealFields = [
     ...(includeDayAndDate
@@ -97,6 +98,7 @@ export function buildMealJsonSchema(options: {
     `      "prepTime": 10`,
     `      "cookTime": 20`,
     `      "cleanupRating": "low"`,
+    ...(includeBriefDescription ? [`      "briefDescription": "Quick and easy weeknight dinner"`] : []),
     `      "ingredients": ["ingredient1", "ingredient2"]`,
     `      "steps": ["Step 1: Do this", "Step 2: Do that", "Step 3: Serve"]`,
     `      "isFlexMeal": false`,
@@ -135,6 +137,7 @@ export function buildAlternativesJsonSchema(): string {
   const mealSchema = buildMealJsonSchema({
     includeRecipeLibraryField: false,
     includeDayAndDate: false,
+    includeBriefDescription: true,
   });
 
   return `{
