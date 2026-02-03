@@ -25,6 +25,7 @@ interface IngredientInput {
 export default function EditRecipePage() {
   const params = useParams()
   const router = useRouter()
+  // Cast safe: single-segment dynamic route, not catch-all
   const recipeId = params.id as string
 
   // Query existing recipe

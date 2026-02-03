@@ -10,6 +10,7 @@ import { ArrowLeft, Printer, Construction, FileText } from 'lucide-react'
 export default function PrintRecipePage() {
   const params = useParams()
   const router = useRouter()
+  // Cast safe: single-segment dynamic route, not catch-all
   const recipeId = params.id as string
 
   const recipe = useQuery(api.recipes.get, { id: recipeId as Id<'recipes'> })

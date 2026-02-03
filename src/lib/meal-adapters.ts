@@ -46,8 +46,15 @@ export const cleanupRatingReverseMap = cleanupRatingToNumeric;
 /**
  * Convert a Convex plannedMeal document to canonical Meal type
  * This preserves ALL data from the database
+ *
+ * Note: eaterIds cast from Id<"householdMembers"> to string is intentional.
+ * Convex IDs are branded string types at runtime but UI types use plain strings
+ * for flexibility and to avoid coupling UI components to Convex-specific types.
  */
 export function toMeal(meal: Doc<"plannedMeals">): Meal {
+  // Cast eaterIds: Convex Id<"householdMembers">[] -> string[] for UI compatibility
+  const eaterIdsAsStrings = meal.eaterIds.map((id) => id as string);
+
   return {
     id: meal._id,
     weekPlanId: meal.weekPlanId,
@@ -59,7 +66,7 @@ export function toMeal(meal: Doc<"plannedMeals">): Meal {
     cookTime: meal.cookTime,
     cleanupRating: meal.cleanupRating,
     cookId: meal.cookId,
-    eaterIds: meal.eaterIds.map((id) => id as string),
+    eaterIds: eaterIdsAsStrings,
     ingredients: meal.ingredients,
     steps: meal.steps || [],
     isFlexMeal: meal.isFlexMeal ?? false,
@@ -82,6 +89,9 @@ export function toPlannedMealSummary(
   meal: Doc<"plannedMeals">,
   dayLabel?: string
 ): MealSummaryLegacy & { dayLabel?: string } {
+  // Cast eaterIds: Convex Id<"householdMembers">[] -> string[] for UI compatibility
+  const eaterIdsAsStrings = meal.eaterIds.map((id) => id as string);
+
   return {
     id: meal._id,
     mealName: meal.name,
@@ -96,7 +106,7 @@ export function toPlannedMealSummary(
     prepSteps: meal.steps || [],
     isFlexMeal: meal.isFlexMeal ?? false,
     assignedCookId: meal.cookId,
-    eaterIds: meal.eaterIds.map((id) => id as string),
+    eaterIds: eaterIdsAsStrings,
     dayLabel,
   };
 }
@@ -150,6 +160,9 @@ export function getDayLabel(dateString: string, isToday: boolean): string {
  * FIXED: Now preserves full ingredient objects
  */
 export function toWeeklyPlannedMeal(meal: Doc<"plannedMeals">): WeeklyPlannedMeal {
+  // Cast eaterIds: Convex Id<"householdMembers">[] -> string[] for UI compatibility
+  const eaterIdsAsStrings = meal.eaterIds.map((id) => id as string);
+
   return {
     id: meal._id,
     date: meal.date,
@@ -161,7 +174,7 @@ export function toWeeklyPlannedMeal(meal: Doc<"plannedMeals">): WeeklyPlannedMea
     cookTime: meal.cookTime,
     cleanupRating: cleanupRatingToDisplay[meal.cleanupRating],
     assignedCookId: meal.cookId,
-    eaterIds: meal.eaterIds.map((id) => id as string),
+    eaterIds: eaterIdsAsStrings,
     servings: meal.eaterIds.length, // Derive from eaters count
     // FIXED: Preserve full ingredient objects
     ingredients: meal.ingredients,

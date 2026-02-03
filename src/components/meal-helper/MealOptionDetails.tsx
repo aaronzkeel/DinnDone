@@ -4,6 +4,7 @@ import { ArrowLeft, Clock, ChefHat, Sparkles, Droplets } from "lucide-react";
 import type { PlannedMealSummary, HouseholdMember } from "@/types/meal-helper";
 import type { Ingredient } from "@/types/meal";
 import { EFFORT_LABELS } from "@/lib/effort-tiers";
+import { CLEANUP_LABELS } from "@/lib/constants";
 
 /**
  * Format ingredient for display - quantity + name, or just name if no quantity
@@ -22,12 +23,6 @@ export interface MealOptionDetailsProps {
   onBack?: () => void;
   onIngredientCheck?: (response: "yes" | "not-sure" | "no") => void;
 }
-
-const cleanupLabels = {
-  low: "Low cleanup",
-  medium: "Medium cleanup",
-  high: "High cleanup",
-} as const;
 
 function getEffortDescription(effortTier: string, totalTime: number): string {
   if (effortTier === "super-easy") {
@@ -142,7 +137,7 @@ export function MealOptionDetails({
               </span>
               <span className="inline-flex items-center gap-1.5">
                 <Droplets size={14} />
-                {cleanupLabels[meal.cleanupRating]}
+                {CLEANUP_LABELS[meal.cleanupRating]}
               </span>
               {cook && (
                 <>

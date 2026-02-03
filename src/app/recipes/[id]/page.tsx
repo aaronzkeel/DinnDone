@@ -34,6 +34,7 @@ const sourceLabels: Record<string, { label: string; icon: typeof Sparkles }> = {
 export default function RecipeDetailPage() {
   const params = useParams()
   const router = useRouter()
+  // Cast safe: single-segment dynamic route, not catch-all
   const recipeId = params.id as string
 
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)

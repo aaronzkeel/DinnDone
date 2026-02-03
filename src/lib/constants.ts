@@ -93,3 +93,17 @@ export const GROCERY_LIST_PREVIEW_LIMIT = 15;
  * Number of items to show before "and X more..." text in missing ingredient summary.
  */
 export const MISSING_ITEMS_PREVIEW_LIMIT = 5;
+
+// =============================================================================
+// Display Labels
+// =============================================================================
+
+/**
+ * Human-readable labels for cleanup rating values.
+ * Keys match CleanupRatingDisplay type ("low" | "medium" | "high").
+ */
+export const CLEANUP_LABELS = {
+  low: "Low cleanup",
+  medium: "Medium cleanup",
+  high: "High cleanup",
+} as const;

@@ -93,6 +93,7 @@ export default function Home() {
     });
 
     // Sort by date - use Map for O(1) lookups instead of O(n) .find() in sort callback
+    // Cast: Convex Id<"plannedMeals"> -> string for Map key compatibility
     const mealDateMap = new Map(weekData.meals.map((m) => [m._id as string, m.date]));
     convertedMeals.sort((a, b) => {
       const dateA = mealDateMap.get(a.id);
