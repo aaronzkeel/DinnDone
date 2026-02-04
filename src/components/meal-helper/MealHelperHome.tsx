@@ -71,8 +71,12 @@ export function MealHelperHome({
   if (!tonightMeal) {
     return (
       <div
-        className="flex flex-col h-full min-h-[calc(100vh-120px)]"
-        style={{ backgroundColor: "var(--color-bg)" }}
+        className="flex flex-col h-full"
+        style={{
+          backgroundColor: "var(--color-bg)",
+          minHeight: "100vh",
+          paddingBottom: "var(--bottom-nav-total)",
+        }}
       >
         {/* Centered container - matches Plan page pattern */}
         <div className="w-full max-w-2xl mx-auto flex flex-col h-full">
@@ -220,10 +224,14 @@ export function MealHelperHome({
 
   return (
     <div
-      className="flex flex-col h-full min-h-[calc(100vh-120px)]"
-      style={{ backgroundColor: "var(--color-bg)" }}
+      className="flex flex-col h-full"
+      style={{
+        backgroundColor: "var(--color-bg)",
+        minHeight: "100vh",
+        paddingBottom: "var(--bottom-nav-total)",
+      }}
     >
-      {/* Centered container - matches Plan page pattern */}
+      {/* Centered container for consistent width */}
       <div className="w-full max-w-2xl mx-auto flex flex-col h-full">
       <div className="px-4 pt-4 pb-3 space-y-3 md:px-6">
         <TonightPlanCard meal={tonightMeal} householdMembers={householdMembers} onView={onViewMeal} />

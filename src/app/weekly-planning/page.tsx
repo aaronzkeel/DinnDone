@@ -459,12 +459,16 @@ export default function WeeklyPlanningPage() {
     return (
       <RequireAuth>
         <div
-          className="flex min-h-[calc(100vh-120px)] items-center justify-center"
-          style={{ backgroundColor: "var(--color-bg)" }}
+          className="flex items-center justify-center"
+          style={{
+            backgroundColor: "var(--color-bg)",
+            minHeight: "100vh",
+            paddingBottom: "var(--bottom-nav-total)",
+          }}
         >
           <div className="text-center">
             <div className="mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-4 border-[var(--color-primary)] border-t-transparent" />
-            <p className="text-[var(--color-text-secondary)]">Loading week plans...</p>
+            <p style={{ color: "var(--color-muted)" }}>Loading week plans...</p>
           </div>
         </div>
       </RequireAuth>
@@ -476,10 +480,14 @@ export default function WeeklyPlanningPage() {
     return (
       <RequireAuth>
         <div
-          className="flex min-h-[calc(100vh-120px)] flex-col items-center justify-center p-4"
-          style={{ backgroundColor: "var(--color-bg)" }}
+          className="flex flex-col items-center justify-center p-4"
+          style={{
+            backgroundColor: "var(--color-bg)",
+            minHeight: "100vh",
+            paddingBottom: "var(--bottom-nav-total)",
+          }}
         >
-          <p className="mb-4 text-[var(--color-text-secondary)]">
+          <p className="mb-4" style={{ color: "var(--color-muted)" }}>
             No week plans yet. Create one to get started!
           </p>
           <button
@@ -502,10 +510,14 @@ export default function WeeklyPlanningPage() {
     return (
       <RequireAuth>
         <div
-          className="flex min-h-[calc(100vh-120px)] items-center justify-center"
-          style={{ backgroundColor: "var(--color-bg)" }}
+          className="flex items-center justify-center"
+          style={{
+            backgroundColor: "var(--color-bg)",
+            minHeight: "100vh",
+            paddingBottom: "var(--bottom-nav-total)",
+          }}
         >
-          <p className="text-[var(--color-text-secondary)]">Select a week to view</p>
+          <p style={{ color: "var(--color-muted)" }}>Select a week to view</p>
         </div>
       </RequireAuth>
     );
@@ -516,14 +528,20 @@ export default function WeeklyPlanningPage() {
     return (
       <RequireAuth>
         <div
-          className="flex min-h-[calc(100vh-120px)] flex-col font-sans"
-          style={{ backgroundColor: "var(--color-bg)" }}
+          className="flex flex-col font-sans"
+          style={{
+            backgroundColor: "var(--color-bg)",
+            minHeight: "100vh",
+            paddingBottom: "var(--bottom-nav-total)",
+          }}
         >
+          <div className="w-full max-w-2xl mx-auto flex-1">
           <PantryAudit
             items={pantryItems}
             onToggleItem={handleTogglePantryItem}
             onComplete={handleCompletePantryAudit}
           />
+          </div>{/* End centered container */}
         </div>
       </RequireAuth>
     );
@@ -532,9 +550,15 @@ export default function WeeklyPlanningPage() {
   return (
     <RequireAuth>
       <div
-        className="flex min-h-[calc(100vh-120px)] flex-col font-sans"
-        style={{ backgroundColor: "var(--color-bg)" }}
+        className="flex flex-col font-sans"
+        style={{
+          backgroundColor: "var(--color-bg)",
+          minHeight: "100vh",
+          paddingBottom: "var(--bottom-nav-total)",
+        }}
       >
+        {/* Centered container for consistent width */}
+        <div className="w-full max-w-2xl mx-auto flex-1">
         <WeekPlanView
           currentUser={currentUser}
           availableWeeks={availableWeeks}
@@ -558,6 +582,7 @@ export default function WeeklyPlanningPage() {
           isGenerating={isGenerating}
           onDeleteWeek={handleDeleteWeek}
         />
+        </div>{/* End centered container */}
 
         {/* Edit Day Modal or Meal Details */}
         {isModalOpen && selectedMeal && (

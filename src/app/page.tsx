@@ -585,8 +585,12 @@ If asked about something not in the data above, say you don't have that informat
   if (isLoading || isOnboardingLoading || (isAuthenticated && isDataLoading)) {
     return (
       <div
-        className="flex min-h-[calc(100vh-120px)] flex-col items-center justify-center font-sans"
-        style={{ backgroundColor: "var(--color-bg)" }}
+        className="flex flex-col items-center justify-center font-sans"
+        style={{
+          backgroundColor: "var(--color-bg)",
+          minHeight: "100vh",
+          paddingBottom: "var(--bottom-nav-total)",
+        }}
       >
         <div className="animate-pulse" style={{ color: "var(--color-muted)" }}>
           Loading...
@@ -599,8 +603,12 @@ If asked about something not in the data above, say you don't have that informat
   if (!isAuthenticated) {
     return (
       <div
-        className="flex min-h-[calc(100vh-120px)] flex-col font-sans"
-        style={{ backgroundColor: "var(--color-bg)" }}
+        className="flex flex-col font-sans"
+        style={{
+          backgroundColor: "var(--color-bg)",
+          minHeight: "100vh",
+          paddingBottom: "var(--bottom-nav-total)",
+        }}
       >
         <main className="flex flex-1 items-center justify-center px-4">
           <div
@@ -653,8 +661,12 @@ If asked about something not in the data above, say you don't have that informat
   if (currentView === "swap-ingredients" && pendingSwapMeal) {
     return (
       <div
-        className="min-h-[calc(100vh-120px)] px-4 py-4"
-        style={{ backgroundColor: "var(--color-bg)" }}
+        className="px-4 py-4"
+        style={{
+          backgroundColor: "var(--color-bg)",
+          minHeight: "100vh",
+          paddingBottom: "var(--bottom-nav-total)",
+        }}
       >
         <button
           onClick={handleCancelSwap}
@@ -717,8 +729,12 @@ If asked about something not in the data above, say you don't have that informat
   if (currentView === "ingredients-check" && tonightMeal) {
     return (
       <div
-        className="min-h-[calc(100vh-120px)] px-4 py-4"
-        style={{ backgroundColor: "var(--color-bg)" }}
+        className="px-4 py-4"
+        style={{
+          backgroundColor: "var(--color-bg)",
+          minHeight: "100vh",
+          paddingBottom: "var(--bottom-nav-total)",
+        }}
       >
         <button
           onClick={() => {
@@ -752,8 +768,12 @@ If asked about something not in the data above, say you don't have that informat
   if (currentView === "missing-choice") {
     return (
       <div
-        className="min-h-[calc(100vh-120px)] px-4 py-4"
-        style={{ backgroundColor: "var(--color-bg)" }}
+        className="px-4 py-4"
+        style={{
+          backgroundColor: "var(--color-bg)",
+          minHeight: "100vh",
+          paddingBottom: "var(--bottom-nav-total)",
+        }}
       >
         <button
           onClick={() => setCurrentView("ingredients-check")}

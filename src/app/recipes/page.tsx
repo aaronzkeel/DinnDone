@@ -62,9 +62,15 @@ export default function RecipesPage() {
   return (
     <RequireAuth>
       <div
-        className="min-h-[calc(100vh-120px)] flex flex-col"
-        style={{ backgroundColor: 'var(--color-bg)' }}
+        className="flex flex-col"
+        style={{
+          backgroundColor: 'var(--color-bg)',
+          minHeight: '100vh',
+          paddingBottom: 'var(--bottom-nav-total)',
+        }}
       >
+        {/* Centered container for consistent width */}
+        <div className="w-full max-w-2xl mx-auto flex flex-col flex-1">
         {/* Header */}
         <div className="px-4 pt-4 pb-3">
           <div className="flex items-center justify-between mb-3">
@@ -177,7 +183,7 @@ export default function RecipesPage() {
         </div>
 
         {/* Content */}
-        <div className="flex-1 overflow-auto px-4 pb-4">
+        <div className="flex-1 px-4 pb-4">
           {isLoading ? (
             <div className="flex items-center justify-center py-16">
               <div className="text-center">
@@ -321,6 +327,7 @@ export default function RecipesPage() {
             </div>
           )}
         </div>
+        </div>{/* End centered container */}
 
         {/* Floating action button when recipes exist */}
         {recipes && recipes.length > 0 && (
