@@ -13,11 +13,25 @@ export default function KitchenPage() {
 
   return (
     <RequireAuth>
-      <div className="flex flex-col h-[calc(100vh-120px)]" style={{ backgroundColor: 'var(--color-bg)' }}>
-        {/* Sub-tab bar */}
+      {/*
+        Main container: fills available viewport height above the bottom nav.
+        Uses CSS custom property --bottom-nav-total for proper spacing.
+      */}
+      <div
+        className="flex flex-col"
+        style={{
+          backgroundColor: 'var(--color-bg)',
+          minHeight: 'calc(100vh - var(--bottom-nav-total))',
+          paddingBottom: 'var(--bottom-nav-total)',
+        }}
+      >
+        {/* Sub-tab bar - sticky at top */}
         <div
-          className="flex border-b"
-          style={{ borderColor: 'var(--color-border)' }}
+          className="sticky top-0 z-20 flex border-b"
+          style={{
+            borderColor: 'var(--color-border)',
+            backgroundColor: 'var(--color-bg)',
+          }}
         >
           <button
             type="button"
@@ -55,8 +69,8 @@ export default function KitchenPage() {
           </button>
         </div>
 
-        {/* Tab content */}
-        <div className="flex-1 overflow-hidden">
+        {/* Tab content - grows to fill space */}
+        <div className="flex-1">
           {activeTab === 'shopping' && <ShoppingTab />}
           {activeTab === 'pantry' && <PantryTab />}
         </div>

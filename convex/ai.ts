@@ -1483,3 +1483,270 @@ export const buildZyloContext = action({
     };
   },
 });
+
+// =============================================================================
+// Grocery List Chat Actions
+// =============================================================================
+
+/** Max tokens for grocery chat responses */
+const GROCERY_CHAT_MAX_TOKENS = 800;
+
+interface GroceryAction {
+  type: "add" | "move" | "check" | "uncheck" | "remove" | "createStore";
+  itemName: string;
+  quantity?: string;
+  storeId?: string;
+  storeName?: string;
+  isOrganic?: boolean;
+}
+
+/**
+ * Chat with Zylo about grocery list management.
+ * Parses natural language to add, move, check, or remove items.
+ */
+export const groceryChat = action({
+  args: {
+    message: v.string(),
+    availableStores: v.array(
+      v.object({
+        id: v.string(),
+        name: v.string(),
+      })
+    ),
+    currentItems: v.array(
+      v.object({
+        id: v.string(),
+        name: v.string(),
+        storeId: v.optional(v.string()),
+        storeName: v.optional(v.string()),
+        isChecked: v.boolean(),
+      })
+    ),
+    conversationHistory: v.optional(
+      v.array(
+        v.object({
+          role: v.union(v.literal("user"), v.literal("zylo")),
+          content: v.string(),
+        })
+      )
+    ),
+  },
+  returns: v.object({
+    success: v.boolean(),
+    zyloResponse: v.optional(v.string()),
+    actions: v.optional(
+      v.array(
+        v.object({
+          type: v.union(
+            v.literal("add"),
+            v.literal("move"),
+            v.literal("check"),
+            v.literal("uncheck"),
+            v.literal("remove"),
+            v.literal("createStore")
+          ),
+          itemName: v.string(),
+          quantity: v.optional(v.string()),
+          storeId: v.optional(v.string()),
+          storeName: v.optional(v.string()),
+          isOrganic: v.optional(v.boolean()),
+        })
+      )
+    ),
+    needsStoreSelection: v.optional(
+      v.object({
+        items: v.array(v.string()),
+        availableStores: v.array(v.string()),
+      })
+    ),
+    error: v.optional(v.string()),
+  }),
+  handler: async (
+    _ctx,
+    { message, availableStores, currentItems, conversationHistory }
+  ): Promise<{
+    success: boolean;
+    zyloResponse?: string;
+    actions?: GroceryAction[];
+    needsStoreSelection?: {
+      items: string[];
+      availableStores: string[];
+    };
+    error?: string;
+  }> => {
+    const apiKey = process.env.OPENROUTER_API_KEY;
+
+    if (!apiKey || apiKey === "sk-or-v1-your-key-here") {
+      return {
+        success: false,
+        error: "OpenRouter API key not configured",
+      };
+    }
+
+    const storeList = availableStores.length > 0
+      ? availableStores.map((s) => `- ${s.name} (id: ${s.id})`).join("\n")
+      : "";
+    const itemList =
+      currentItems.length > 0
+        ? currentItems
+            .map(
+              (i) =>
+                `- ${i.name}${i.storeName ? ` (at ${i.storeName})` : " (unassigned)"}${i.isChecked ? " [CHECKED]" : ""}`
+            )
+            .join("\n")
+        : "(empty list)";
+
+    const systemPrompt = `You are Zylo, a friendly grocery list assistant for the DinnDone app. Help users manage their grocery list through natural conversation.
+
+AVAILABLE STORES:
+${storeList || "(no stores yet)"}
+
+CURRENT GROCERY LIST:
+${itemList}
+
+Your job is to understand what the user wants to do and return structured actions. Parse natural language into actions.
+
+Return ONLY valid JSON in this exact format (no markdown, no explanation):
+{
+  "zyloResponse": "A warm, brief conversational response (1-2 sentences)",
+  "actions": [
+    {
+      "type": "add" | "move" | "check" | "uncheck" | "remove" | "createStore",
+      "itemName": "item name (or store name for createStore)",
+      "quantity": "optional quantity string like '2 lbs' or '1'",
+      "storeId": "store id from list above, or 'NEW' for new stores",
+      "storeName": "store name for confirmation message",
+      "isOrganic": true/false (optional, for add only)
+    }
+  ],
+  "needsStoreSelection": {
+    "items": ["item1", "item2"],
+    "availableStores": ["Costco", "Aldi"]
+  }
+}
+
+RULES:
+1. For "add" actions, always include storeId if the user specified a store
+2. **IMPORTANT: If user mentions a store NOT in the AVAILABLE STORES list, first add a "createStore" action**, then add the items with storeId: "NEW" and the storeName. The app will handle linking them.
+3. If user says "add X" without specifying ANY store, set needsStoreSelection with the items and available store names
+4. For "check" or "uncheck", match item names case-insensitively to current list
+5. For "move", include both the item name and the target storeId
+6. Default quantity to "1" if not specified
+7. Parse quantities naturally: "2 lbs of chicken" → itemName: "chicken", quantity: "2 lbs"
+8. Recognize organic requests: "organic apples" → itemName: "apples", isOrganic: true
+9. Be generous with matching - "milk" matches "Milk", "2% milk", etc.
+10. zyloResponse should be warm and conversational, confirming what you did
+
+EXAMPLES:
+User: "Add chicken to Costco" (Costco exists)
+→ actions: [{ type: "add", itemName: "chicken", quantity: "1", storeId: "costco-id", storeName: "Costco" }]
+
+User: "Pick up black beans at Aldi" (Aldi does NOT exist yet)
+→ actions: [
+  { type: "createStore", itemName: "Aldi", storeName: "Aldi" },
+  { type: "add", itemName: "black beans", quantity: "1", storeId: "NEW", storeName: "Aldi" }
+]
+→ zyloResponse: "Added Aldi as a new store and added black beans to it!"
+
+User: "I need eggs, milk, and bread"
+→ needsStoreSelection: { items: ["eggs", "milk", "bread"], availableStores: ["Costco", "Aldi"] }
+
+User: "At Trader Joe's I need apples and cheese" (Trader Joe's does NOT exist)
+→ actions: [
+  { type: "createStore", itemName: "Trader Joe's", storeName: "Trader Joe's" },
+  { type: "add", itemName: "apples", quantity: "1", storeId: "NEW", storeName: "Trader Joe's" },
+  { type: "add", itemName: "cheese", quantity: "1", storeId: "NEW", storeName: "Trader Joe's" }
+]
+
+User: "I got the milk and eggs"
+→ actions: [{ type: "check", itemName: "milk" }, { type: "check", itemName: "eggs" }]
+
+User: "Move the avocados to Trader Joe's"
+→ actions: [{ type: "move", itemName: "avocados", storeId: "traders-id", storeName: "Trader Joe's" }]`;
+
+    // Build conversation messages
+    const messages: OpenRouterMessage[] = [
+      { role: "system", content: systemPrompt },
+    ];
+
+    // Add conversation history
+    if (conversationHistory && conversationHistory.length > 0) {
+      for (const msg of conversationHistory.slice(-6)) {
+        // Last 6 messages for context
+        messages.push({
+          role: msg.role === "user" ? "user" : "assistant",
+          content: msg.content,
+        });
+      }
+    }
+
+    // Add current message
+    messages.push({ role: "user", content: message });
+
+    try {
+      const response = await fetch(OPENROUTER_API_URL, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${apiKey}`,
+          "Content-Type": "application/json",
+          "HTTP-Referer": "https://dinndone.com",
+          "X-Title": "DinnDone",
+        },
+        body: JSON.stringify({
+          model: DEFAULT_MODEL,
+          messages,
+          max_tokens: GROCERY_CHAT_MAX_TOKENS,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        return {
+          success: false,
+          error: `API error (${response.status}): ${errorText}`,
+        };
+      }
+
+      const data = (await response.json()) as OpenRouterResponse;
+
+      if (!data.choices || data.choices.length === 0) {
+        return {
+          success: false,
+          error: "Empty response from AI",
+        };
+      }
+
+      const content = data.choices[0].message.content;
+      const cleanedContent = cleanJsonResponse(content);
+
+      try {
+        const parsed = JSON.parse(cleanedContent) as {
+          zyloResponse: string;
+          actions?: GroceryAction[];
+          needsStoreSelection?: {
+            items: string[];
+            availableStores: string[];
+          };
+        };
+
+        return {
+          success: true,
+          zyloResponse: parsed.zyloResponse,
+          actions: parsed.actions,
+          needsStoreSelection: parsed.needsStoreSelection,
+        };
+      } catch {
+        // If parsing fails, return the raw content as zyloResponse
+        return {
+          success: true,
+          zyloResponse: content,
+        };
+      }
+    } catch (error) {
+      return {
+        success: false,
+        error: `Request failed: ${error instanceof Error ? error.message : String(error)}`,
+      };
+    }
+  },
+});

@@ -12,6 +12,9 @@
   --safe-area-bottom: env(safe-area-inset-bottom, 0px);
   --bottom-nav-total: calc(var(--bottom-nav-height) + var(--safe-area-bottom));
 
+  /* Content area spacing - use this for padding-bottom on scrollable content */
+  --content-bottom-spacing: var(--bottom-nav-total);
+
   /* Fonts */
   --font-heading: 'Lora', Georgia, serif;
   --font-sans: 'Plus Jakarta Sans', system-ui, sans-serif;
@@ -216,4 +219,26 @@ body {
 .btn-ghost-destructive:active:not(:disabled) {
   background-color: var(--color-danger);
   color: white;
+}
+
+/* ==========================================================================
+   Layout Utilities — Bottom Nav Clearance
+   Use these classes to ensure content doesn't get hidden behind the fixed
+   bottom navigation bar.
+   ========================================================================== */
+
+/*
+ * Apply to page containers that scroll.
+ * Adds padding at the bottom equal to the nav bar height + safe area.
+ */
+.pb-nav {
+  padding-bottom: var(--bottom-nav-total);
+}
+
+/*
+ * For fixed elements that should sit above the bottom nav (like chat inputs).
+ * Position the element's bottom edge at the top of the nav bar.
+ */
+.above-nav {
+  bottom: var(--bottom-nav-total);
 }

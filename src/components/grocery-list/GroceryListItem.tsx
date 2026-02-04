@@ -130,11 +130,8 @@ export function GroceryListItem({
         group flex items-center gap-2.5 px-4
         ${density === 'compact' ? 'py-0.5' : 'py-1.5'}
         transition-all duration-200 ease-out
-        ${item.isChecked
-          ? 'opacity-60'
-          : 'hover:bg-stone-50 dark:hover:bg-stone-800/50'
-        }
-        ${isDropTarget ? 'bg-yellow-50 dark:bg-yellow-900/10' : ''}
+        ${!item.isChecked ? 'hover:bg-[var(--color-bg)]' : ''}
+        ${isDropTarget ? 'bg-[var(--color-primary)]/10' : ''}
       `}
     >
       {/* Drag handle with keyboard support */}
@@ -158,17 +155,8 @@ export function GroceryListItem({
               onMoveDown()
             }
           }}
-          className="
-            flex-shrink-0 w-6 h-6
-            flex items-center justify-center
-            text-stone-300 dark:text-stone-600
-            group-hover:text-stone-400 dark:group-hover:text-stone-500
-            hover:text-stone-500 dark:hover:text-stone-400
-            focus:text-yellow-600 dark:focus:text-yellow-400
-            focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:ring-offset-1
-            cursor-grab active:cursor-grabbing
-            rounded
-          "
+          className="flex-shrink-0 w-6 h-6 flex items-center justify-center cursor-grab active:cursor-grabbing rounded transition-colors focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] focus:ring-offset-1"
+          style={{ color: 'var(--color-muted)' }}
           aria-label={`Reorder ${item.name}. Use arrow keys to move up or down, or drag to reorder`}
           title="Drag or use arrow keys to reorder"
         >
@@ -186,14 +174,13 @@ export function GroceryListItem({
         `}
         aria-label={item.isChecked ? `Uncheck ${item.name}` : `Check ${item.name}`}
       >
-        <span className={`
-          w-6 h-6 rounded-full border-2
-          flex items-center justify-center
-          ${item.isChecked
-            ? 'bg-yellow-500 border-yellow-500 dark:bg-yellow-600 dark:border-yellow-600'
-            : 'border-stone-300 dark:border-stone-600 hover:border-yellow-400 dark:hover:border-yellow-500'
-          }
-        `}>
+        <span
+          className="w-6 h-6 rounded-full border-2 flex items-center justify-center transition-colors"
+          style={{
+            backgroundColor: item.isChecked ? 'var(--color-secondary)' : 'transparent',
+            borderColor: item.isChecked ? 'var(--color-secondary)' : 'var(--color-border)',
+          }}
+        >
           {item.isChecked && (
             <Check size={14} className="text-white" strokeWidth={3} />
           )}
@@ -216,7 +203,11 @@ export function GroceryListItem({
                   setIsEditingName(false)
                 }
               }}
-              className="bg-transparent border-b-2 border-yellow-400 outline-none text-base font-semibold text-stone-800 dark:text-stone-100"
+              className="bg-transparent outline-none text-base font-semibold"
+              style={{
+                borderBottom: '2px solid var(--color-primary)',
+                color: 'var(--color-text)',
+              }}
               disabled={item.isChecked}
               aria-label="Edit item name"
             />
@@ -227,13 +218,11 @@ export function GroceryListItem({
                 if (item.isChecked) return
                 setIsEditingName(true)
               }}
-              className={`
-                text-left truncate text-base font-semibold
-                ${item.isChecked
-                  ? 'line-through text-stone-400 dark:text-stone-500 cursor-default'
-                  : 'text-stone-800 dark:text-stone-100 hover:text-yellow-700 dark:hover:text-yellow-300'
-                }
-              `}
+              className="text-left truncate text-base font-semibold transition-colors"
+              style={{
+                color: item.isChecked ? 'var(--color-muted)' : 'var(--color-text)',
+                cursor: item.isChecked ? 'default' : 'pointer',
+              }}
               disabled={item.isChecked}
               aria-label={`Edit ${item.name}`}
               title={item.name}
@@ -255,7 +244,11 @@ export function GroceryListItem({
                   setIsEditingQuantity(false)
                 }
               }}
-              className="w-20 bg-transparent border-b-2 border-yellow-400 outline-none text-sm font-semibold text-stone-600 dark:text-stone-300"
+              className="w-20 bg-transparent outline-none text-sm font-semibold"
+              style={{
+                borderBottom: '2px solid var(--color-primary)',
+                color: 'var(--color-text)',
+              }}
               disabled={item.isChecked}
               aria-label="Edit quantity"
             />
@@ -266,13 +259,12 @@ export function GroceryListItem({
                 if (item.isChecked) return
                 setIsEditingQuantity(true)
               }}
-              className={`
-                px-2 py-0.5 rounded-lg text-sm font-semibold flex-shrink-0
-                ${item.isChecked
-                  ? 'text-stone-400 dark:text-stone-600 cursor-default'
-                  : 'text-stone-600 dark:text-stone-300 bg-stone-100 dark:bg-stone-800 hover:bg-yellow-100 dark:hover:bg-yellow-900/30'
-                }
-              `}
+              className="px-2 py-0.5 rounded-lg text-sm font-semibold flex-shrink-0 transition-colors"
+              style={{
+                color: item.isChecked ? 'var(--color-muted)' : 'var(--color-text)',
+                backgroundColor: item.isChecked ? 'transparent' : 'var(--color-bg)',
+                cursor: item.isChecked ? 'default' : 'pointer',
+              }}
               disabled={item.isChecked}
               aria-label="Edit quantity"
               title="Click to edit quantity"
@@ -287,10 +279,12 @@ export function GroceryListItem({
               type="button"
               onClick={onToggleOrganic}
               className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full flex-shrink-0 transition-colors ${
-                item.organicRequired
-                  ? 'bg-lime-100 dark:bg-lime-900/40 text-lime-700 dark:text-lime-400 hover:bg-lime-200 dark:hover:bg-lime-900/60'
-                  : 'bg-stone-100 dark:bg-stone-800 text-stone-400 dark:text-stone-500 hover:bg-lime-50 dark:hover:bg-lime-900/20 hover:text-lime-600 dark:hover:text-lime-400 opacity-0 group-hover:opacity-100 focus:opacity-100'
+                !item.organicRequired ? 'opacity-0 group-hover:opacity-100 focus:opacity-100' : ''
               }`}
+              style={{
+                backgroundColor: item.organicRequired ? 'rgba(79, 110, 68, 0.15)' : 'var(--color-bg)',
+                color: item.organicRequired ? 'var(--color-secondary)' : 'var(--color-muted)',
+              }}
               aria-label={item.organicRequired ? `Remove organic from ${item.name}` : `Mark ${item.name} as organic`}
               title={item.organicRequired ? 'Click to remove organic' : 'Click to mark as organic'}
             >
@@ -305,15 +299,8 @@ export function GroceryListItem({
       {/* Delete button - 44px touch target for accessibility */}
       <button
         onClick={onDelete}
-        className="
-          flex-shrink-0 w-11 h-11 -m-2 rounded-md
-          flex items-center justify-center
-          text-stone-400 dark:text-stone-500
-          opacity-0 group-hover:opacity-100 focus:opacity-100
-          hover:bg-stone-100 dark:hover:bg-stone-700
-          hover:text-stone-600 dark:hover:text-stone-300
-          transition-all duration-150
-        "
+        className="flex-shrink-0 w-11 h-11 -m-2 rounded-md flex items-center justify-center opacity-0 group-hover:opacity-100 focus:opacity-100 transition-all duration-150 hover:bg-[var(--color-bg)]"
+        style={{ color: 'var(--color-muted)' }}
         aria-label="Delete item"
       >
         <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
@@ -327,16 +314,11 @@ export function GroceryListItem({
           <button
             type="button"
             onClick={() => setShowMealsPopover((prev) => !prev)}
-            className="
-              flex-shrink-0 inline-flex items-center gap-1.5
-              px-2 py-1 rounded-lg
-              text-xs font-semibold
-              text-stone-500 dark:text-stone-400
-              bg-stone-100 dark:bg-stone-800
-              hover:bg-yellow-100 dark:hover:bg-yellow-900/30
-              hover:text-yellow-800 dark:hover:text-yellow-200
-              transition-all duration-150
-            "
+            className="flex-shrink-0 inline-flex items-center gap-1.5 px-2 py-1 rounded-lg text-xs font-semibold transition-all duration-150 hover:opacity-80"
+            style={{
+              backgroundColor: 'var(--color-bg)',
+              color: 'var(--color-muted)',
+            }}
             aria-label={`Meals (${mealSources.length})`}
             title="Meals"
           >
@@ -347,15 +329,21 @@ export function GroceryListItem({
           {showMealsPopover && (
             <>
               <div className="fixed inset-0 z-10" onClick={() => setShowMealsPopover(false)} />
-              <div className="absolute right-0 top-full mt-1 z-20 w-60 p-3 rounded-xl bg-white dark:bg-stone-800 shadow-lg border border-stone-200 dark:border-stone-700">
-                <p className="text-xs font-semibold text-stone-500 dark:text-stone-400 mb-2">
+              <div
+                className="absolute right-0 top-full mt-1 z-20 w-60 p-3 rounded-xl shadow-lg"
+                style={{
+                  backgroundColor: 'var(--color-card)',
+                  border: '1px solid var(--color-border)',
+                }}
+              >
+                <p className="text-xs font-semibold mb-2" style={{ color: 'var(--color-muted)' }}>
                   For {mealSources.length} meal{mealSources.length > 1 ? 's' : ''}:
                 </p>
                 <ul className="space-y-1">
                   {mealSources.map((meal: MealSource) => (
-                    <li key={meal.mealId} className="text-sm text-stone-700 dark:text-stone-200">
+                    <li key={meal.mealId} className="text-sm" style={{ color: 'var(--color-text)' }}>
                       {meal.mealName}
-                      <span className="text-stone-400 dark:text-stone-500 ml-1 text-xs">
+                      <span className="ml-1 text-xs" style={{ color: 'var(--color-muted)' }}>
                         {formatMealDate(meal.date)}
                       </span>
                     </li>
