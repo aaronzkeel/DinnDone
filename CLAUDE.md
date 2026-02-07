@@ -35,6 +35,14 @@ You are the main builder. You can read, write, and modify any code.
 | `product-plan/sections/*/tests.md` | Feature specs per section |
 | `docs/handoffs/` | Session handoff notes |
 
+## Conductor Workspace Setup
+
+If `conductor.json` is missing from the repo root, run once:
+```bash
+bash ~/scripts/setup-conductor.sh --port 3002
+```
+This is idempotent — it skips if already configured. Do NOT run it every chat.
+
 ## Secrets Policy
 
 **Never read `.env.local` or any `.env*` files.** If you need config values, ask for the specific non-secret value or use `.env.example`.
